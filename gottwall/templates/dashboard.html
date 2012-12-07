@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{{ handler.settings['site_title'] }} | Dashboard</title>
+    <meta name="description" content="{{ handler.settings['site_title'] }}" />
+    <style type="text/css" media="all"></style>
+  </head>
+  <body>
+    <h1>{{ handler.settings['site_title'] }} | Dashboard</h1>
+    <p>Simple statistics aggregation platform</a>.
+
+    <h1>Projects:</h1>
+    <ul>
+      {% for project in config['PROJECTS'] %}
+      <li class="">{{ project }} </li>
+      {% end %}
+    </ul>
+  </body>
+</html>

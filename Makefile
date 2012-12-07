@@ -27,3 +27,7 @@ clean-pyc:
 
 find-print:
 	grep -r --include=*.py --exclude-dir=venv --exclude=fabfile* --exclude=tests.py --exclude-dir=tests --exclude-dir=commands 'print' ./
+
+
+debug:
+	python gottwall/app.py --config=examples/config.py

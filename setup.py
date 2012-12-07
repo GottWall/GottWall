@@ -72,15 +72,27 @@ def run_tests():
     from tests import suite
     return suite()
 
+py_ver = sys.version_info
+
+#: Python 2.x?
+is_py2 = (py_ver[0] == 2)
+
+#: Python 3.x?
+is_py3 = (py_ver[0] == 3)
+
 tests_require = [
     'nose',
-    'unittest2',
-]
+    'unittest2']
 
 install_requires = [
     "tornado==2.4",
-    "oredis"
-    ]
+    "oredis",
+    "simplejson",
+    "python-dateutil==2.1",
+    "tornado-redis"]
+
+if not (is_py3 or (is_py2 and py_ver[1] >= 7)):
+    install_requires.append("importlib==1.0.2")
 
 
 setup(
