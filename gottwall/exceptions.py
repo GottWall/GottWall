@@ -7,7 +7,7 @@ gottwall.exceptions
 
 GottWall core exceptions
 
-:copyright: (c) 2012 by Alexandr Lispython (alex@obout.ru).
+:copyright: (c) 2012 by GottWall team, see AUTHORS for more details.
 :license: BSD, see LICENSE for more details.
 :github: http://github.com/Lispython/gottwall
 """

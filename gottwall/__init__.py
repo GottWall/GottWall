@@ -7,7 +7,7 @@ gottwall
 Simple statistics aggregator
 
 
-:copyright: (c) 2011 - 2012 by Alexandr Lispython (alex@obout.ru).
+:copyright: (c) 2012 by GottWall team, see AUTHORS for more details.
 :license: BSD, see LICENSE for more details.
 """
 
@@ -17,7 +17,7 @@ __license__ = "BSD, see LICENSE for more details"
 __version_info__ = (0, 0, 1)
 __build__ = 0x00001
 __version__ = ".".join(map(str, __version_info__))
-__maintainer__ = "Alexandr Lispython (alex@obout.ru)"
+__maintainer__ = "Alexandr Lispython"
 
 
 def get_version():

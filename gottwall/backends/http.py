@@ -7,7 +7,7 @@ gottwall.backends.base
 
 Base backends for metric calculation
 
-:copyright: (c) 2012 by Alexandr Lispython (alex@obout.ru).
+:copyright: (c) 2012 by GottWall team, see AUTHORS for more details.
 :license: BSD, see LICENSE for more details.
 :github: http://github.com/Lispython/gottwall
 """
