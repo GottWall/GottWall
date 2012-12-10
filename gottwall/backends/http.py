@@ -18,6 +18,9 @@ from tornado.web import HTTPError
 from gottwall.backends.base import BaseBackend
 from gottwall.handlers import BaseHandler
 
+from gottwall.utils import parse_dict_header
+from base64 import b64decode
+
 
 class HTTPBackend(BaseHandler, BaseBackend):
 
@@ -34,21 +37,6 @@ class HTTPBackend(BaseHandler, BaseBackend):
             hosts[host] += patterns
         app.handlers = [(host, patterns) for host, patterns in hosts.items()]
 
-    @classmethod
-    def setup_backend(cls, app):
-        """Setup data handler to `app`
-
-        :param cls: :class:`BaseBackend` childrem class
-        :param app: :class:`tornado.web.Application` instance
-        """
-        handlers = [
-            (r"/(?P<project>.+)/api/store", cls), ]
-        app.add_handlers(r".*$", handlers)
-
-        cls.merge_handlers(app)
-
-        cls.application = app
-
     def post(self, project, *args, **kwargs):
         if not self.validate_project(project):
             raise HTTPError(404, "Invalid project")
@@ -56,7 +44,7 @@ class HTTPBackend(BaseHandler, BaseBackend):
         if not self.validate_content_type():
             raise HTTPError(400, "Invalid content type")
 
-        if not self.check_auth():
+        if not self.check_auth(project):
             raise HTTPError(403, "Forbidden")
 
         data = json.loads(self.request.body)
@@ -75,7 +63,45 @@ class HTTPBackend(BaseHandler, BaseBackend):
             return True
         return False
 
-    def check_auth(self):
+    def check_auth(self, project):
         """Check authorization headers
         """
-        return True
+
+        header = self.request.headers.get("Authorization", None)
+        gottwall_header = self.request.headers.get("X-GottWall-Auth", None)
+
+        if gottwall_header:
+            return self.check_gottwall_auth(gottwall_header, project)
+
+        if not header:
+            return False
+
+        if header.startswith('Basic '):
+            header = header[6:].strip()
+
+        return self.check_basic_auth(header, project)
+
+
+    def check_basic_auth(self, header, project):
+        """Parse basic authorization header
+
+        :param header: authorization header value
+        """
+        auth_info = header.split(None, 1)
+
+        public_key, private_key = b64decode(auth_info[0]).split(":")
+
+        return self.check_key(private_key, public_key, project)
+
+    def check_gottwall_auth(self, header, project):
+        """Check X-GottWall-Auth
+
+        :param header: header string value
+        :param project: project name
+        """
+        if header.startswith('GottWall'):
+            header = header[8:]
+
+        params = parse_dict_header(header)
+        return self.check_key(params.get('private_key'),
+                              params.get('public_key'), project)

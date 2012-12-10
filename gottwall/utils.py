@@ -12,9 +12,10 @@ Core GottWall utilities
 """
 
 import os.path
+from urllib2 import parse_http_list
 from datetime import datetime, timedelta, date
 
-from settings import PROJECT_ROOT, TIMESTAMP_FORMAT
+from settings import PROJECT_ROOT, TIMESTAMP_FORMAT, PERIOD_PATTERNS
 
 
 __all__ = 'rel',
@@ -35,7 +36,7 @@ def timestamp_to_datetime(timestamp):
 
 
 def get_by_period(timestamp, period):
-    """Get period value by timestamp
+    """Ge"%Y-%m-%dT%H:%M"t period value by timestamp
 
     :param timestamp: `datetime.datetime` instance
     :param period: period name
@@ -44,16 +45,40 @@ def get_by_period(timestamp, period):
 
     if period == "week":
         return "{0}-{1}".format(timestamp.year, timestamp.isocalendar()[1])
-    elif period == "day":
-        return timestamp.strftime("%Y-%m-%d")
-    elif period == "year":
-        return timestamp.strftime("%Y")
-    elif period == "month":
-        return timestamp.strftime("%Y-%m")
-    elif period == "hour":
-        return timestamp.strftime("%Y-%m-%dT%H")
-    elif period == "minute":
-        return timestamp.strftime("%Y-%m-%dT%H:%M")
-    elif period == "all":
-        return "all"
+    elif period in PERIOD_PATTERNS:
+        return timestamp.strftime(PERIOD_PATTERNS[period])
     return None
+
+def get_datetime(timestamp, period):
+    if period in PERIOD_PATTERNS:
+        return datetime.strptime(timestamp, PERIOD_PATTERNS[period])
+    return None
+
+
+def parse_dict_header(value):
+    """Parse key=value pairs from value list
+
+    :param value: header string
+    :return: params dict
+    """
+    result = {}
+    for item in parse_http_list(value):
+        if "=" not in item:
+            result[item] = None
+            continue
+        name, value = item.split('=', 1)
+        if value[:1] == value[-1:] == '"':
+            value = value[1:-1] # strip "
+        result[name] = value
+    return result
+
+
+class MagicDict(dict):
+    """Dict that create key with value dict if
+    if does not exist
+    """
+
+    def __getitem__(self, key):
+        if key not in self:
+            self[key] = self.__class__()
+        return dict.__getitem__(self, key)

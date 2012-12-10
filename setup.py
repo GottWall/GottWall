@@ -2,11 +2,11 @@
 # -*- coding:  utf-8 -*-
 """
 gottwall
-~~~~~~~~~~
+~~~~~~~~
 
 Realtime statistics aggregation platform
 
-:copyright: (c) 2011 - 2012 by GottWall team, see AUTHORS for more details.
+:copyright: (c) 2012 by GottWall team, see AUTHORS for more details.
 :license: BSD, see LICENSE for more details.
 """
 
@@ -86,10 +86,12 @@ tests_require = [
 
 install_requires = [
     "tornado==2.4",
-    "oredis",
     "simplejson",
     "python-dateutil==2.1",
-    "tornado-redis"]
+    "tornado-redis",
+    "commandor",
+    "SQLAlchemy",
+    "alembic==0.4.0"]
 
 if not (is_py3 or (is_py2 and py_ver[1] >= 7)):
     install_requires.append("importlib==1.0.2")
@@ -106,6 +108,10 @@ setup(
     maintainer_email="alex@obout.ru",
     url="https://github.com/lispython/gottwall",
     packages=["gottwall"],
+    entry_points={
+        'console_scripts': [
+            'gottwall = gottwall.runner:main',
+        ]},
     install_requires=install_requires,
     tests_require=tests_require,
     license="BSD",

@@ -12,6 +12,7 @@ Unittests for gottwall
 
 import datetime
 import simplejson as json
+from random import choice
 
 from tornado.web import Application
 
@@ -46,7 +47,6 @@ class StorageTestCase(BaseTestCase):
                           app.storage.incr, **params)
 
     def test_memory_storage(self):
-        print("test memory storage")
         app = HTTPApplication(default_settings)
         app.configure_storage("gottwall.storages.MemoryStorage")
         storage = app.storage
@@ -60,6 +60,26 @@ class StorageTestCase(BaseTestCase):
                          timestamp, filters={"clearing": True,
                                              "device": "web"})
 
-        for period in ["all", "year", "month", "day", "week", "hour", "minute"]:
+        timestamp2 = datetime.datetime(2012, 1, 10, 3, 43)
+        for x in xrange(10):
+            storage.incr(project_name, "orders",
+                         timestamp2, filters={"clearing": True,
+                                             "device": "web"})
+
+        for period in ["month", "day", "week", "hour", "minute"]:
+
             self.assertTrue(storage.get_metric_value(
                 project_name, "orders", period, timestamp), 10)
+
+        for period in ["year", "all"]:
+            self.assertTrue(storage.get_metric_value(
+                project_name, "orders", period, timestamp), 19)
+
+        app = HTTPApplication(default_settings)
+        storage = MemoryStorage(app)
+
+        for x in xrange(100):
+            storage.incr("d1", "metric", datetime.datetime(2012, choice(range(1, 12)), choice(range(1, 28))))
+
+        data = storage.slice_data("d1", "metric", "month")
+        self.assertEquals(sum([x[1] for x in data]), 100)

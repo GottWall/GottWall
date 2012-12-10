@@ -25,6 +25,10 @@ logger = logging.getLogger('gottwall')
 class BaseHandler(RequestHandler):
     def __init__(self, *args, **kwargs):
         super(BaseHandler, self).__init__(*args, **kwargs)
+
+        self.config = self.application.config
+        self.db = self.application.db
+
         self.set_header("Server", "GottWall/{0}".format(get_version()))
 
     def get_current_user(self):

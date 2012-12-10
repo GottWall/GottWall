@@ -30,4 +30,4 @@ find-print:
 
 
 debug:
-	python gottwall/app.py --config=examples/config.py
+	python gottwall/runner.py --config=examples/config.py server start

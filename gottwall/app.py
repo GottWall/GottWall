@@ -28,9 +28,9 @@ from handlers import BaseHandler, DashboardHandler, LoginHandler, HomeHandler,\
      StatsHandler, MetricsHandler
 from backends import HTTPBackend as HTTPBackendHandler
 
-define("port", default=8889, help="run HTTP on the given port", type=int)
-define("ssl_port", default=8890, help="run HTTPS on the given port", type=int)
-define("config", help="Configuration file", type=str)
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session, sessionmaker
 
 
 class HTTPApplication(Application):
@@ -43,18 +43,26 @@ class HTTPApplication(Application):
             (r"/dashboard", DashboardHandler),
             (r"/(?P<project>.+)/api/stats", StatsHandler),
             (r"/(?P<project>.+)/api/metrics", MetricsHandler),
+            # Default HTTP backend
+            (r"/(?P<project>.+)/api/store", HTTPBackendHandler),
             (r"/", HomeHandler)]
 
         self.config = config
+        self.db = self.configure_db()
 
         tornado.web.Application.__init__(self, self.dirty_handlers, **config)
 
+    def configure_db(self):
+        return None
+        engine = create_engine("{ENGINE}://{USER}:{PASSWORD}@{HOST}:{PORT}/{NAME}".\
+                                    format(**self.config['DATABASE']), echo=False)
+        return scoped_session(sessionmaker(bind=engine))
 
-    def configure_app(self):
+    def configure_app(self, io_loop=None):
         """Configure application backends and storages
         """
-        self.configure_backends(self.config['BACKENDS'])
         self.configure_storage(self.config['STORAGE'])
+        self.configure_backends(self.config['BACKENDS'], io_loop, self.config)
 
     def configure_storage(self, storage_path):
         """Configure data storage by path
@@ -69,7 +77,8 @@ class HTTPApplication(Application):
             raise Exception("Invalid storage: {0}".format(e))
         storage.setup(self)
 
-    def configure_backends(self, backends):
+    @staticmethod
+    def configure_backends(backends, io_loop, config):
         """Configture data receive backends
 
         :param backends: list of backends
@@ -83,13 +92,12 @@ class HTTPApplication(Application):
                 backend = getattr(backend_module, name)
             except (ImportError, AttributeError), e:
                 raise Exception("Invalid backend: {0}".format(e))
-            backend.setup_backend(self)
+            backend.setup_backend(io_loop, config)
 
-        return backend
+        return True
 
 
 if __name__ == "__main__":
-    tornado.options.parse_command_line()
 
     default_settings.update(
         dict(
@@ -104,10 +112,11 @@ if __name__ == "__main__":
     default_settings.from_file(options.config)
 
     application = HTTPApplication(default_settings)
-    application.configure_app()
+    ioloop = tornado.ioloop.IOLoop.instance()
+
+    application.configure_app(ioloop)
 
     http_server = httpserver.HTTPServer(application)
     http_server.listen(options.port)
-    ioloop = tornado.ioloop.IOLoop.instance()
     autoreload.start(io_loop=ioloop, check_time=100)
     ioloop.start()

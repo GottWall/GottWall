@@ -12,23 +12,21 @@ Unittests for gottwall
 
 import unittest
 
-import tornado.options
-
 from config import ConfigTestCase
-from backends import BaseBackendTestCase, HTTPBackendTestCase
-from app import ApplicationTestCase
+from backends import TCPBackendTestCase, HTTPBackendTestCase
 from api import APITestCase
 from storages import StorageTestCase
+from utils import UtilsTestCase
 
 
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(ConfigTestCase))
-    suite.addTest(unittest.makeSuite(BaseBackendTestCase))
+    suite.addTest(unittest.makeSuite(TCPBackendTestCase))
     suite.addTest(unittest.makeSuite(HTTPBackendTestCase))
-    suite.addTest(unittest.makeSuite(ApplicationTestCase))
     suite.addTest(unittest.makeSuite(APITestCase))
     suite.addTest(unittest.makeSuite(StorageTestCase))
+    suite.addTest(unittest.makeSuite(UtilsTestCase))
     return suite
 
 if __name__ == '__main__':

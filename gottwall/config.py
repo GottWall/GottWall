@@ -33,10 +33,26 @@ class Config(dict):
         except IOError, e:
             raise Exception("Unable to load configuration file {0}: ".format(filename, e))
 
-        for key in dir(d):
+        self.from_object(d)
+
+        return True
+
+    def from_object(self, obj):
+        """Load settings from obj
+
+        :param obj: object instance
+        """
+        for key in dir(obj):
             if not key.startswith('__'):
-                self[key] = getattr(d, key)
-        return d
+                self[key] = getattr(obj, key)
+        return True
+
+    def from_module(self, m):
+        """Load settings from module
+
+        :param m: module instance
+        """
+        return self.from_object(m)
 
     def __repr__(self):
         return '<{0} {1}>'.format(self.__class__.__name__, dict.__repr__(self))
@@ -46,4 +62,6 @@ class Config(dict):
 default_settings = Config(**{
     "BACKENDS": ['gottwall.backends.HTTPBackend'],
     "STORAGE": "gottwall.storages.MemoryStorage",
-    "PERIODS": PERIODS})
+    "PERIODS": PERIODS,
+    "PROJECTS": {},
+    "USERS": []})

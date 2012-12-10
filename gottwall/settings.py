@@ -18,7 +18,7 @@ __all__ = 'PROJECT_ROOT',
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 
 
-BACKENDS = ['gottwall.backends.HTTPBackend']
+BACKENDS = []
 
 
 PERIODS = [
@@ -32,3 +32,13 @@ PERIODS = [
     ]
 
 TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%S"
+
+
+PERIOD_PATTERNS = {
+    "day": "%Y-%m-%d",
+    "year": "%Y",
+    "month": "%Y-%m",
+    "hour": "%Y-%m-%dT%H",
+    "minute": "%Y-%m-%dT%H:%M",
+    "all": "all"}
+

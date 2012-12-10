@@ -26,9 +26,22 @@ class BaseBackend(object):
             self.application.storage.incr(project, **data)
         return True
 
-    def setup_backend(self, app):
+    def setup_backend(self, io_loop, config):
         """Setup backend for application
 
         :param app: :class:`tornado.web.Application` instance
         """
         raise NotImplementedError("You need reimplement setup_backend method")
+
+    def check_key(self, private_key, public_key, project):
+        """Check private and public priject keys
+
+        :param private_key:
+        :param public_key:
+        :param project: project name
+        """
+
+        if public_key == self.config['PROJECTS'][project] and \
+               private_key == self.config['PRIVATE_KEY']:
+            return True
+        return False

@@ -15,8 +15,8 @@
 
     <h1>Projects:</h1>
     <ul>
-      {% for project in projects %}
-      <li class="">{{ project }} </li>
+      {% for project, key in projects.items() %}
+      <li class="">{{ project }}: {{ key }} </li>
       {% end %}
     </ul>
   </body>

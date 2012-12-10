@@ -14,7 +14,7 @@ GottWall storages backends
 
 import tornadoredis
 
-from utils import get_by_period
+from utils import get_by_period, MagicDict, get_datetime
 
 
 class BaseStorage(object):
@@ -65,7 +65,6 @@ class BaseStorage(object):
         raise NotImplementedError
 
 
-
 class MemoryStorage(BaseStorage):
     """Store keys in dict in memory
 
@@ -77,18 +76,19 @@ class MemoryStorage(BaseStorage):
     """
     def __init__(self, application):
         super(MemoryStorage, self).__init__(application)
-        self._store = {}
+        self._store = MagicDict()
 
-    def save_value(self, project, key, value):
-        """Setup metric value
-
-        :param project: project name
-        :param key: project key
-        :param value: counter value
+    def save_value(self, project, name, period, timestamp, fname=None, fvalue=None, value=1):
+        """Save value to store dict
         """
-        if project not in self._store:
-            self._store[project] = {}
-        self._store[project][key] = self._store[project].get(key, 0) + value
+
+        # If cache with key to variable it doesn't work
+        if isinstance(self._store[project][name][period][timestamp][fname][fvalue], MagicDict):
+            self._store[project][name][period][timestamp][fname][fvalue] = value
+        else:
+            self._store[project][name][period][timestamp][fname][fvalue] += value
+        return self._store[project][name][period][timestamp][fname][fvalue]
+
 
     def incr(self, project, name, timestamp, value=1, filters=None, **kwargs):
         """Add value to metric counter
@@ -103,35 +103,17 @@ class MemoryStorage(BaseStorage):
         for period in self._application.config['PERIODS']:
             if filters:
                 for fname, fvalue in filters.iteritems():
-                    self.save_value(project,
-                                   self.make_key(project, name, period, timestamp, fname, fvalue),
-                                   value)
-            self.save_value(project, self.make_key(project, name, period, timestamp), value)
+                    self.save_value(project, name, period, get_by_period(timestamp, period), fname, fvalue, value)
+            self.save_value(project, name, period, get_by_period(timestamp, period), None, None, value)
         return True
 
 
     def decr(self, project, name, timestamp, value=1, filters=None, **kwargs):
         return self.incr(project, name, timestamp,  0 - abs(value), filters, **kwargs)
 
-    def make_key(self, project, name, period, timestamp,
-                 filtername=None, filtervalue=None):
-        """Make key from parameters
-
-        :param project: project name
-        :param name: mertric name
-        :param period: period prefix
-        :param timestamp: timestamp
-        :param filter: filtername
-        """
-
-        parts = [project, name, period, get_by_period(timestamp, period)]
-        if filtername and filtervalue:
-            parts.append("{0}|{1}".format(filtername, filtervalue))
-
-        return ';'.join(parts)
 
     def get_metric_value(self, project, name, period, timestamp,
-                         filtername=None, filtervalue=None):
+                         fvalue=None, fname=None):
         """Get value from metric
 
         :param project: project name
@@ -140,17 +122,15 @@ class MemoryStorage(BaseStorage):
         :param filtername: filtername
         :param filtervalue: filtervalue
         """
-        key = self.make_key(project, name, period, timestamp, filtername, filtervalue)
-        return self._store[project].get(key, 0)
+        return self._store[project][name][period][get_by_period(timestamp, period)][fname][fvalue]
 
-    def slice_data(self, period, from_date, to_date, filter_name, filter_value):
+    def slice_data(self, project, name, period, from_date=None, to_date=None, filter_name=None, filter_value=None):
         """Calculate stored data
         """
-        from datetime import datetime
-        from random import choice
-        data = [[datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S"),
-                 choice(range(20))] for x in xrange(40)]
-        return data
+        key = self._store[project][name][period]
+        items = [(get_datetime(k, period), v[filter_name][filter_value]) for k, v in key.items()]
+        items.sort(key = lambda x: x[0])
+        return items
 
 
 class RedisStorage(MemoryStorage):
@@ -176,3 +156,21 @@ class RedisStorage(MemoryStorage):
         """
 
         self.client.incr(key, value)
+
+
+    def make_key(self, project, name, period, timestamp,
+                 filtername=None, filtervalue=None):
+        """Make key from parameters
+
+        :param project: project name
+        :param name: mertric name
+        :param period: period prefix
+        :param timestamp: timestamp
+        :param filter: filtername
+        """
+
+        parts = [project, name, period, get_by_period(timestamp, period)]
+        if filtername and filtervalue:
+            parts.append("{0}|{1}".format(filtername, filtervalue))
+
+        return ';'.join(parts)

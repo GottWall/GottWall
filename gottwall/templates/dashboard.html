@@ -4,6 +4,8 @@
     <title>{{ handler.settings['site_title'] }} | Dashboard</title>
     <meta name="description" content="{{ handler.settings['site_title'] }}" />
     <style type="text/css" media="all"></style>
+    <script type="text/javascript" src="/static/js/d3.v2.js"></script>
+    <script type="text/javascript" src="/static/js/nv.d3.js"></script>
   </head>
   <body>
     <h1>{{ handler.settings['site_title'] }} | Dashboard</h1>
@@ -11,9 +13,67 @@
 
     <h1>Projects:</h1>
     <ul>
-      {% for project in config['PROJECTS'] %}
+      {% for project in config['PROJECTS'].keys() %}
       <li class="">{{ project }} </li>
       {% end %}
     </ul>
+    <div id="chart">
+      <svg style='height:500px'> </svg>
+    </div>
+    <script>
+
+nv.addGraph(function() {
+  var chart = nv.models.lineChart();
+
+  chart.xAxis
+      .axisLabel('Time (ms)')
+      .tickFormat(d3.format(',r'));
+
+  chart.yAxis
+      .axisLabel('Voltage (v)')
+      .tickFormat(d3.format('.02f'));
+
+  d3.select('#chart svg')
+      .datum(sinAndCos())
+    .transition().duration(500)
+      .call(chart);
+
+  nv.utils.windowResize(function() { d3.select('#chart svg').call(chart) });
+
+  return chart;
+});
+
+
+
+
+/**************************************
+ * Simple test data generator
+ */
+
+
+function sinAndCos() {
+  var sin = [],
+      cos = [];
+
+  for (var i = 0; i < 100; i++) {
+    sin.push({x: i, y: Math.sin(i/10)});
+    cos.push({x: i, y: .5 * Math.cos(i/10)});
+  }
+
+  return [
+    {
+      values: sin,
+      key: 'Sine Wave',
+      color: '#ff7f0e'
+    },
+    {
+      values: cos,
+      key: 'Cosine Wave',
+      color: '#2ca02c'
+    }
+  ];
+}
+
+    </script>
   </body>
 </html>
