@@ -37,7 +37,7 @@ class HTTPBackendTestCase(AsyncBaseTestCase):
     def get_app(self):
         default_settings.update({"BACKENDS": [],
                                  "PROJECTS": {"test_project": "secretkey"},
-                                 "PRIVATE_KEY": "myprivatekey"})
+                                 "SECRET_KEY": "myprivatekey"})
         self.app = HTTPApplication(default_settings)
         self.app.configure_app(self.io_loop)
         return self.app
@@ -50,11 +50,11 @@ class HTTPBackendTestCase(AsyncBaseTestCase):
                        "action": "incr",
                        "value": 2}
 
-        auth_value = "GottWall private_key={0}, public_key={1}".format(self.app.config['PRIVATE_KEY'],
+        auth_value = "GottWall private_key={0}, public_key={1}".format(self.app.config['SECRET_KEY'],
                                                                      self.app.config['PROJECTS']['test_project'])
 
         authorization = "{0}:{1}".format(self.app.config['PROJECTS']['test_project'],
-                                         self.app.config['PRIVATE_KEY'])
+                                         self.app.config['SECRET_KEY'])
 
         response = self.fetch("/test_project/api/store", method="POST",
                               body=json.dumps(metric_data),
@@ -65,7 +65,7 @@ class HTTPBackendTestCase(AsyncBaseTestCase):
         self.assertEquals(response.code, 200)
 
         auth_value = "GottWall private_key={0}, public_key={1}".format(
-            self.app.config['PRIVATE_KEY'],
+            self.app.config['SECRET_KEY'],
             self.app.config['PROJECTS']['test_project'])
 
         response = self.fetch("/test_project/api/store", method="POST",

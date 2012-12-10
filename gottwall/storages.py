@@ -13,6 +13,8 @@ GottWall storages backends
 
 
 import tornadoredis
+import tornado.gen
+
 
 from utils import get_by_period, MagicDict, get_datetime
 
@@ -147,6 +149,18 @@ class RedisStorage(MemoryStorage):
                                           selected_db=config['REDIS_DB'])
         self.client.connect()
 
+    @tornado.gen.engine
+    def incr(self, project, name, timestamp, value=1, filters=None, **kwargs):
+        pipe = self.client.pipeline()
+
+        for period in self._application.config['PERIODS']:
+            if filters:
+                for fname, fvalue in filters.iteritems():
+                    pipe.incr(self.make_key(project, name, period, timestamp, fname, fvalue), value)
+            pipe.incr(self.make_key(project, name, period, timestamp, fname, fvalue), value)
+
+        res = yield tornado.gen.Task(pipe.execute)
+
     def save_value(self, project, key, value):
         """Increment key value
 
@@ -168,7 +182,6 @@ class RedisStorage(MemoryStorage):
         :param timestamp: timestamp
         :param filter: filtername
         """
-
         parts = [project, name, period, get_by_period(timestamp, period)]
         if filtername and filtervalue:
             parts.append("{0}|{1}".format(filtername, filtervalue))

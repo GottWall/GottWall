@@ -42,6 +42,6 @@ class BaseBackend(object):
         """
 
         if public_key == self.config['PROJECTS'][project] and \
-               private_key == self.config['PRIVATE_KEY']:
+               private_key == self.config['SECRET_KEY']:
             return True
         return False

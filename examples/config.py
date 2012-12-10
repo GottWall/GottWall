@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-STORAGE = 'gottwall.storages.MemoryStorage'
+STORAGE = 'gottwall.storages.RedisStorage'
 
 BACKENDS = ['gottwall.backends.redis.RedisBackend',
             'gottwall.backends.tcpip.TCPIPBackend']

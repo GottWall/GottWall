@@ -14,6 +14,7 @@ Base backends for metric calculation
 
 import simplejson as json
 from tornado.web import HTTPError
+import tornado.gen
 
 from gottwall.backends.base import BaseBackend
 from gottwall.handlers import BaseHandler
@@ -37,6 +38,7 @@ class HTTPBackend(BaseHandler, BaseBackend):
             hosts[host] += patterns
         app.handlers = [(host, patterns) for host, patterns in hosts.items()]
 
+    @tornado.gen.engine
     def post(self, project, *args, **kwargs):
         if not self.validate_project(project):
             raise HTTPError(404, "Invalid project")

@@ -46,7 +46,8 @@ class TCPIPBackend(TCPServer, BaseBackend):
         """
         d = json.loads(data.strip())
 
-        if self.check_key(d['auth']['private_key'], d['auth']['public_key'], d['project']):
+        if self.check_key(d['auth']['private_key'],
+                          d['auth']['public_key'], d['project']):
             self.process_data(d['project'], d)
 
         return True
