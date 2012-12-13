@@ -11,7 +11,7 @@ Unittests for gottwall
 """
 
 import datetime
-import simplejson as json
+import json
 from random import choice
 
 from tornado.web import Application

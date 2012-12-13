@@ -12,7 +12,7 @@ Redis pub/sub backend
 :github: http://github.com/Lispython/gottwall
 """
 
-import simplejson as json
+import json
 from tornado.web import HTTPError
 import tornado.ioloop
 

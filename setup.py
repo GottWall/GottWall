@@ -85,14 +85,13 @@ tests_require = [
     'unittest2']
 
 install_requires = [
+    "redis",
     "tornado==2.4",
-    "simplejson",
     "python-dateutil==2.1",
     "tornado-redis",
     "commandor",
     "SQLAlchemy",
-    "alembic==0.4.0",
-    "brukva==0.0.1"]
+    "alembic==0.4.0"]
 
 if not (is_py3 or (is_py2 and py_ver[1] >= 7)):
     install_requires.append("importlib==1.0.2")
