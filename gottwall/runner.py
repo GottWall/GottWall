@@ -74,7 +74,7 @@ class Start(Command):
                action="store_true",
                dest="reload",
                default=False,
-               help="Auto realod source on changes") ]
+               help="Auto realod source on changes")]
 
     def run(self, port, reload, **kwargs):
         config = self._commandor_res

@@ -55,14 +55,13 @@ class HTTPApplication(Application):
             (r"/(?P<project>.+)/api/metrics", MetricsHandler, params),
             # Default HTTP backend
             (r"/(?P<project>.+)/api/store", HTTPBackendHandler, params),
-            (r"/", HomeHandler, params)]
+            (r"/", HomeHandler, params),]
 
         tornado.web.Application.__init__(self, self.dirty_handlers, **config)
 
     def configure_env(self):
         """Configure template env
         """
-
         searchpath = list(self.config.get("TEMPLATES_PATH", 'templates'))
 
         env = Environment(loader=FileSystemLoader(searchpath),

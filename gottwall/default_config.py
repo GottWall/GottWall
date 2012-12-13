@@ -23,7 +23,8 @@ PERIODS = [
 TEMPLATES_PATH = [
     os.path.join(os.path.dirname(__file__), "templates")
     ]
-static_path=os.path.join(os.path.dirname(__file__), "static")
+static_path = os.path.join(os.path.dirname(__file__), "static")
+static_url_prefix = "/static/"
 
 login_url = '/login'
 

@@ -61,7 +61,8 @@ class BaseHandler(RequestHandler):
         :param \*\*kwargs: template context
         """
         kwargs['handler'] = self
-
+        if 'static' not in kwargs:
+            kwargs['static'] = self.config.get('static_url_prefix')
         data = self.render_to_string(template, context=kwargs)
         return self.finish(data)
 
