@@ -15,6 +15,11 @@ import logging
 import tornado.escape
 from tornado.auth import GoogleMixin
 from tornado.web import RequestHandler, HTTPError, asynchronous, authenticated
+
+from jinja2 import TemplateNotFound
+
+from itertools import chain
+
 from tornado.escape import json_decode, json_encode
 
 from gottwall import get_version
@@ -25,11 +30,12 @@ logger = logging.getLogger('gottwall')
 class BaseHandler(RequestHandler):
     def __init__(self, *args, **kwargs):
         super(BaseHandler, self).__init__(*args, **kwargs)
-
-        self.config = self.application.config
-        self.db = self.application.db
-
         self.set_header("Server", "GottWall/{0}".format(get_version()))
+
+    def initialize(self, config, db, env):
+        self.config = config
+        self.db = db
+        self.jinja_env = env
 
     def get_current_user(self):
         """ Return current logged user or None.
@@ -47,6 +53,36 @@ class BaseHandler(RequestHandler):
             logger.error("Invalid authorixation key: {0}".format(key))
             raise HTTPError(401, "Authorization required")
         return True
+
+    def render(self, template, **kwargs):
+        """Render template with \*\*kwargs context
+
+        :param template: template name
+        :param \*\*kwargs: template context
+        """
+        kwargs['handler'] = self
+        return self.finish(self.render_to_string(template, context=kwargs))
+
+    def render_to_string(self, template_name, context=None, processors=None):
+        context = dict(context or {})
+        context['request'] = self.request
+
+        for processor in chain(processors or ()):
+            context.update(processor(self.request))
+
+        self.select_template(template_name).render(context)
+
+    def select_template(self, templates):
+        if isinstance(templates, (list, tuple)):
+            for template in templates:
+                try:
+                    return self.jinja_env.get_template(template)
+                except TemplateNotFound:
+                    continue
+        elif isinstance(templates, (str, unicode)):
+            return self.jinja_env.get_template(templates)
+
+        raise TemplateNotFound(templates)
 
 
 class DashboardHandler(BaseHandler):

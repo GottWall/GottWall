@@ -13,7 +13,6 @@ Base backends for metric calculation
 """
 
 import json
-import tornado.gen
 
 class BaseBackend(object):
 

@@ -15,7 +15,6 @@ from base64 import b64encode
 
 import json
 import random
-import redis
 from base import AsyncBaseTestCase
 from gottwall.app import HTTPApplication
 from gottwall.config import Config

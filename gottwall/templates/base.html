@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{% block title %}{{ handler.settings['site_title'] }}{% endblock %}</title>
+    <meta name="description" content="{{ handler.settings['site_title'] }}" />
+    <style type="text/css" media="all" src="static/css/main.css"></style>
+  </head>
+  <body>
+    <h1>{{ handler.settings['site_title'] }}</h1>
+    <p>Simple statistics aggregation platform</a>.
+    <h1>Store backend: {{ storage }}</h2>
+  </body>
+</html>

@@ -1,23 +1,2 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>{{ handler.settings['site_title'] }}</title>
-    <meta name="description" content="{{ handler.settings['site_title'] }}" />
-    <style type="text/css" media="all" src="static/css/main.css"></style>
-  </head>
-  <body>
-    <h1>{{ handler.settings['site_title'] }}</h1>
-    <p>Simple statistics aggregation platform</a>.
-    <h1>Store backend: {{ storage }}</h2>
-    {% for backend in backends %}
-    <h1>Data backend: {{ backend }}</h1>
-    {% end %}
+{% extends "base.html" %}
 
-    <h1>Projects:</h1>
-    <ul>
-      {% for project, key in projects.items() %}
-      <li class="">{{ project }}: {{ key }} </li>
-      {% end %}
-    </ul>
-  </body>
-</html>

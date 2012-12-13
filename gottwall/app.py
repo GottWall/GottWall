@@ -27,6 +27,8 @@ from config import Config, default_settings
 from handlers import BaseHandler, DashboardHandler, LoginHandler, HomeHandler,\
      StatsHandler, MetricsHandler
 from backends import HTTPBackend as HTTPBackendHandler
+from jinja_utils import load_filters, load_extensions, load_globals
+from jinja2 import Environment, FileSystemLoader, TemplateNotFound
 
 
 from sqlalchemy import create_engine
@@ -38,19 +40,41 @@ class HTTPApplication(Application):
     """
 
     def __init__(self, config):
-        self.dirty_handlers = [
-            (r"/login", LoginHandler),
-            (r"/dashboard", DashboardHandler),
-            (r"/(?P<project>.+)/api/stats", StatsHandler),
-            (r"/(?P<project>.+)/api/metrics", MetricsHandler),
-            # Default HTTP backend
-            (r"/(?P<project>.+)/api/store", HTTPBackendHandler),
-            (r"/", HomeHandler)]
-
         self.config = config
         self.db = self.configure_db()
+        self.jinja_env = self.configure_env()
+
+        params = {"config": self.config,
+                  "db": self.db,
+                  "env": self.jinja_env}
+
+        self.dirty_handlers = [
+            (r"/login", LoginHandler, params),
+            (r"/dashboard", DashboardHandler, params),
+            (r"/(?P<project>.+)/api/stats", StatsHandler, params),
+            (r"/(?P<project>.+)/api/metrics", MetricsHandler, params),
+            # Default HTTP backend
+            (r"/(?P<project>.+)/api/store", HTTPBackendHandler, params),
+            (r"/", HomeHandler, params)]
 
         tornado.web.Application.__init__(self, self.dirty_handlers, **config)
+
+    def configure_env(self):
+        """Configure template env
+        """
+
+        searchpath = list(self.config.get("TEMPLATES_PATH", 'templates'))
+
+        env = Environment(loader=FileSystemLoader(searchpath),
+                          auto_reload=self.config.get('TEMPLATE_DEBUG', False),
+                          cache_size=self.config.get('JINJA2_CACHE_SIZE', 50),
+                          extensions=self.config.get('JINJA2_EXTENSIONS', ()))
+        filters = self.config.get('JINJA2_FILTERS', ())
+        globals = self.config.get('JINJA2_GLOBALS', ())
+        env.filters.update(load_filters(filters))
+        env.globals.update(load_globals(globals))
+
+        return env
 
     def configure_db(self):
         return None

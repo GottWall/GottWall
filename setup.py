@@ -91,7 +91,8 @@ install_requires = [
     "tornado-redis",
     "commandor",
     "SQLAlchemy",
-    "alembic==0.4.0"]
+    "alembic==0.4.0",
+    "Jinja2"]
 
 if not (is_py3 or (is_py2 and py_ver[1] >= 7)):
     install_requires.append("importlib==1.0.2")

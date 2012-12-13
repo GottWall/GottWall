@@ -20,7 +20,9 @@ PERIODS = [
     "minute"]
 
 
-template_path=os.path.join(os.path.dirname(__file__), "templates")
+TEMPLATES_PATH = [
+    os.path.join(os.path.dirname(__file__), "templates")
+    ]
 static_path=os.path.join(os.path.dirname(__file__), "static")
 
 login_url = '/login'
