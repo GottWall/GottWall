@@ -13,6 +13,7 @@ GottWall runner for standalone applications
 """
 
 import sys
+import os.path
 import time
 import signal
 from optparse import OptionParser, Option
@@ -140,11 +141,12 @@ class Alembic(Command):
         from alembic import util
 
         config = self._commandor_res
-        alembic_cfg = AlembicConfig()
+
+        alembic_cfg = AlembicConfig(os.path.join(os.path.dirname(gottwall.default_config.__file__), 'alembic.ini'))
         alembic_cfg.set_main_option("script_location",
                                    config['ALEMBIC_SCRIPT_LOCATION'])
 
-        alembic_cfg.set_main_option("url","{ENGINE}://{USER}:{PASSWORD}@{HOST}:{PORT}/{NAME}".\
+        alembic_cfg.set_main_option("sqlalchemy.url","{ENGINE}://{USER}:{PASSWORD}@{HOST}:{PORT}/{NAME}".\
                                     format(**config['DATABASE']))
 
         try:
@@ -153,13 +155,6 @@ class Alembic(Command):
                **dict((k, getattr(options, k)) for k in kwarg))
         except util.CommandError, e:
             util.err(str(e))
-
-
-class Migrate(Command):
-    parent = Alembic
-
-    def run(self, *args, **kwargs):
-        pass
 
 
 def main():

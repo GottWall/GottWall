@@ -36,3 +36,13 @@ PROJECTS = {"test_project": "public key",
 cookie_secret="fkewrlhfwhrfweiurbweuybfrweoubfrowebfioubweoiufbwbeofbowebfbwup2XdTP1o/Vo=",
 
 TEMPLATE_DEBUG = True
+
+
+DATABASE = {
+    "ENGINE": "postgresql+psycopg2",
+    "HOST": "localhost",
+    "PORT": 5432,
+    "USER": "postgres",
+    "PASSWORD": "none",
+    "NAME": "gottwall"
+    }
