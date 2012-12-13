@@ -13,6 +13,7 @@ BACKENDS = {
     'gottwall.backends.tcpip.TCPIPBackend': {}
     }
 
+TEMPLATE_DEBUG = True
 
 REDIS_HOST = 'localhost'
 REDIS_PORT = 6379
