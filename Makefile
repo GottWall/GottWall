@@ -31,6 +31,9 @@ clean-pyc:
 find-print:
 	grep -r --include=*.py --exclude-dir=venv --exclude=fabfile* --exclude=tests.py --exclude-dir=tests --exclude-dir=commands 'print' ./
 
+env:
+	./buildenv.sh
+	. venv/bin/activate
 
 debug:
 	python gottwall/runner.py --config=examples/config.py server start --reload
