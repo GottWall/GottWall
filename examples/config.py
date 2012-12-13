@@ -33,3 +33,5 @@ PROJECTS = {"test_project": "public key",
 
 
 cookie_secret="fkewrlhfwhrfweiurbweuybfrweoubfrowebfioubweoiufbwbeofbowebfbwup2XdTP1o/Vo=",
+
+TEMPLATE_DEBUG = True

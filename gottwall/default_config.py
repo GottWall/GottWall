@@ -5,6 +5,7 @@ import os.path
 BACKENDS = []
 
 STORAGE = "gottwall.storages.MemoryStorage"
+STORAGE_SETTINGS = {}
 
 PROJECTS = {}
 

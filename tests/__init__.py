@@ -15,19 +15,21 @@ import unittest
 from config import ConfigTestCase
 from backends import TCPBackendTestCase, HTTPBackendTestCase, RedisBackendTestCase
 from api import APITestCase
-from storages import StorageTestCase
+from storages import StorageTestCase, RedisStorageTestCase, MemoryStorageTestCase
 from utils import UtilsTestCase
 
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(ConfigTestCase))
-    suite.addTest(unittest.makeSuite(TCPBackendTestCase))
-    suite.addTest(unittest.makeSuite(HTTPBackendTestCase))
-    suite.addTest(unittest.makeSuite(RedisBackendTestCase))
-    suite.addTest(unittest.makeSuite(APITestCase))
+    ## suite.addTest(unittest.makeSuite(ConfigTestCase))
+    ## suite.addTest(unittest.makeSuite(TCPBackendTestCase))
+    ## suite.addTest(unittest.makeSuite(HTTPBackendTestCase))
+    ## suite.addTest(unittest.makeSuite(RedisBackendTestCase))
+    ## suite.addTest(unittest.makeSuite(APITestCase))
     suite.addTest(unittest.makeSuite(StorageTestCase))
-    suite.addTest(unittest.makeSuite(UtilsTestCase))
+    suite.addTest(unittest.makeSuite(RedisStorageTestCase))
+    suite.addTest(unittest.makeSuite(MemoryStorageTestCase))
+    #suite.addTest(unittest.makeSuite(UtilsTestCase))
     return suite
 
 if __name__ == '__main__':
