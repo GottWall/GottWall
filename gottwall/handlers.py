@@ -61,7 +61,9 @@ class BaseHandler(RequestHandler):
         :param \*\*kwargs: template context
         """
         kwargs['handler'] = self
-        return self.finish(self.render_to_string(template, context=kwargs))
+
+        data = self.render_to_string(template, context=kwargs)
+        return self.finish(data)
 
     def render_to_string(self, template_name, context=None, processors=None):
         context = dict(context or {})
@@ -70,7 +72,7 @@ class BaseHandler(RequestHandler):
         for processor in chain(processors or ()):
             context.update(processor(self.request))
 
-        self.select_template(template_name).render(context)
+        return self.select_template(template_name).render(context)
 
     def select_template(self, templates):
         if isinstance(templates, (list, tuple)):
