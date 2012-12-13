@@ -91,7 +91,6 @@ class MemoryStorage(BaseStorage):
             self._store[project][name][period][timestamp][fname][fvalue] += value
         return self._store[project][name][period][timestamp][fname][fvalue]
 
-
     def incr(self, project, name, timestamp, value=1, filters=None, **kwargs):
         """Add value to metric counter
 
@@ -143,10 +142,10 @@ class RedisStorage(MemoryStorage):
         super(RedisStorage, self).__init__(application)
         config = self._application.config
 
-        self.client = tornadoredis.Client(host=config['REDIS_HOST'],
-                                          port=config['REDIS_PORT'],
-                                          password=config['REDIS_PASSWORD'],
-                                          selected_db=config['REDIS_DB'])
+        self.client = tornadoredis.Client(host=config.get('REDIS_HOST', 'localhos'),
+                                          port=config.get('REDIS_PORT', 6379),
+                                          password=config.get('REDIS_PASSWORD', None),
+                                          selected_db=config.get('REDIS_DB', 0))
         self.client.connect()
 
     @tornado.gen.engine
@@ -158,8 +157,10 @@ class RedisStorage(MemoryStorage):
                 for fname, fvalue in filters.iteritems():
                     pipe.incr(self.make_key(project, name, period, timestamp, fname, fvalue), value)
             pipe.incr(self.make_key(project, name, period, timestamp, fname, fvalue), value)
-
+        print("before execution")
         res = yield tornado.gen.Task(pipe.execute)
+        #yield tornado.gen.Callback("done")
+        print("Executed")
 
     def save_value(self, project, key, value):
         """Increment key value
@@ -187,3 +188,9 @@ class RedisStorage(MemoryStorage):
             parts.append("{0}|{1}".format(filtername, filtervalue))
 
         return ';'.join(parts)
+
+    def slice_data(self, project, name, period, from_date=None, to_date=None, filter_name=None, filter_value=None):
+
+        import ipdb; ipdb.set_trace()
+
+        return []

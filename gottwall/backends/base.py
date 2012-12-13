@@ -12,32 +12,46 @@ Base backends for metric calculation
 :github: http://github.com/Lispython/gottwall
 """
 
+import json
+import tornado.gen
+
 class BaseBackend(object):
+
     application = None
 
-    def __init__(self, *args, **kwargs):
-        pass
+    @property
+    def backend_settings(self):
+        """Backend specified settings
+        """
+        return self.config['BACKENDS'][self.key]
+
+    @property
+    def key(self):
+        """Settings key for backend
+        """
+        return "{0}.{1}".format(self.__class__.__module__, self.__class__.__name__)
 
     def process_data(self, project, data):
         """Process `data`
         """
         if data.get('action', 'incr') == 'incr':
             data.pop('action', None)
-            self.application.storage.incr(project, **data)
-        return True
+            self.storage.incr(project, **data)
 
-    def setup_backend(self, io_loop, config):
+    def setup_backend(self, io_loop, config, storage):
         """Setup backend for application
 
-        :param app: :class:`tornado.web.Application` instance
+        :param io_loop: :class:`tornado.ioloop.IOLoop` instance
+        :param config: :class:`gottwall.config.Config` instance
+        :param storage: :class:`gottwall.storage.Storage` instance
         """
         raise NotImplementedError("You need reimplement setup_backend method")
 
     def check_key(self, private_key, public_key, project):
         """Check private and public priject keys
 
-        :param private_key:
-        :param public_key:
+        :param private_key: gottwall installation private key
+        :param public_key: gottwall project public key
         :param project: project name
         """
 
@@ -45,3 +59,24 @@ class BaseBackend(object):
                private_key == self.config['SECRET_KEY']:
             return True
         return False
+
+    @staticmethod
+    def parse_data(data):
+        """Parse json bucket to dict
+
+        :param data: string or unicode with data
+        """
+        return json.loads(data.strip())
+
+    def callback(self, message):
+        """Process data from stream
+
+        :param message: stream data
+        """
+        data = self.parse_data(message)
+
+        if self.check_key(data['auth']['private_key'],
+                          data['auth']['public_key'], data['project']):
+            self.process_data(data['project'], data)
+
+        return True

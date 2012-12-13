@@ -13,7 +13,7 @@ Unittests for gottwall
 import unittest
 
 from config import ConfigTestCase
-from backends import TCPBackendTestCase, HTTPBackendTestCase
+from backends import TCPBackendTestCase, HTTPBackendTestCase, RedisBackendTestCase
 from api import APITestCase
 from storages import StorageTestCase
 from utils import UtilsTestCase
@@ -24,6 +24,7 @@ def suite():
     suite.addTest(unittest.makeSuite(ConfigTestCase))
     suite.addTest(unittest.makeSuite(TCPBackendTestCase))
     suite.addTest(unittest.makeSuite(HTTPBackendTestCase))
+    suite.addTest(unittest.makeSuite(RedisBackendTestCase))
     suite.addTest(unittest.makeSuite(APITestCase))
     suite.addTest(unittest.makeSuite(StorageTestCase))
     suite.addTest(unittest.makeSuite(UtilsTestCase))

@@ -49,7 +49,6 @@ class BaseHandler(RequestHandler):
         return True
 
 
-
 class DashboardHandler(BaseHandler):
     #@authenticated
     def get(self, *args, **kwargs):
@@ -90,10 +89,10 @@ class StatsHandler(JSONHandler):
         filter_name = self.get_argument('filter_name', None)
         filter_value = self.get_argument('filter_value', None)
 
-        data = self.application.storage.slice_data(
+        data_range = self.application.storage.slice_data(
             period, from_date, to_date, filter_name, filter_value)
 
-        self.json_response(data)
+        self.json_response({"range": data_range})
 
 
 class MetricsHandler(JSONHandler):

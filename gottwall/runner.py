@@ -13,6 +13,8 @@ GottWall runner for standalone applications
 """
 
 import sys
+import time
+import signal
 from optparse import OptionParser, Option
 
 from commandor import Command, Commandor
@@ -67,22 +69,50 @@ class Start(Command):
         Option("-p", "--port",
                metavar=int,
                default=8889,
-               help="Port to run http server")]
+               help="Port to run http server"),
+        Option("-r", "--reload",
+               action="store_true",
+               dest="reload",
+               default=False,
+               help="Auto realod source on changes") ]
 
-    def run(self, port, **kwargs):
+    def run(self, port, reload, **kwargs):
         config = self._commandor_res
         application = HTTPApplication(config)
         ioloop = tornado.ioloop.IOLoop.instance()
 
         application.configure_app(ioloop)
 
-        http_server = httpserver.HTTPServer(application)
-        http_server.listen(port)
+        self.http_server = httpserver.HTTPServer(application)
+        self.http_server.listen(port)
 
-        autoreload.start(io_loop=ioloop, check_time=100)
+        if reload:
+            self.display("Autoreload enabled")
+            autoreload.start(io_loop=ioloop, check_time=100)
+
         self.display("Server running on 127.0.0.1:{0}".format(port))
 
+        # Init signals handler
+        signal.signal(signal.SIGTERM, self.sig_handler)
+
+        # This will also catch KeyboardInterrupt exception
+        signal.signal(signal.SIGINT, self.sig_handler)
+
         ioloop.start()
+
+    def sig_handler(self, sig, frame):
+        """Catch signal and init callback
+        """
+        tornado.ioloop.IOLoop.instance().add_callback(self.shutdown)
+
+    def shutdown(self):
+        """Stop server and add callback to stop i/o loop"""
+        self.display("Shutting down service")
+
+        self.http_server.stop()
+
+        io_loop = tornado.ioloop.IOLoop.instance()
+        io_loop.add_timeout(time.time() + 2, io_loop.stop)
 
 
 class Schema(Command):

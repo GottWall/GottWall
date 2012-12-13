@@ -23,8 +23,13 @@ from gottwall.utils import parse_dict_header
 from base64 import b64decode
 
 
-class HTTPBackend(BaseHandler, BaseBackend):
+class HTTPBackend(BaseBackend, BaseHandler):
 
+    ## def __init__(self, io_loop, config, storage, *args, **kwargs):
+    ##     self.io_loop = io_loop
+    ##     self.config = config
+    ##     self.storage = storage
+    ##     super(HTTPBackend, self).__init__(*args, **kwargs)
 
     @staticmethod
     def merge_handlers(app):
@@ -40,6 +45,8 @@ class HTTPBackend(BaseHandler, BaseBackend):
 
     @tornado.gen.engine
     def post(self, project, *args, **kwargs):
+        self.storage = self.application.storage
+
         if not self.validate_project(project):
             raise HTTPError(404, "Invalid project")
 

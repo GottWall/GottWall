@@ -11,21 +11,24 @@ Unittests for gottwall
 """
 
 import datetime
-import simplejson as json
+import json
 
 from tornado.web import Application
 
 from gottwall.app import HTTPApplication
 from gottwall.config import Config, default_settings
-
+import gottwall.default_config
 from base import BaseTestCase, AsyncBaseTestCase
 
 
 class APITestCase(AsyncBaseTestCase):
 
     def get_app(self):
-        default_settings.update({"BACKENDS": []})
-        self.app = HTTPApplication(default_settings)
+        config = Config()
+        config.from_module(gottwall.default_config)
+
+        config.update({"BACKENDS": []})
+        self.app = HTTPApplication(config)
         self.app.configure_app(self.io_loop)
         return self.app
 
@@ -35,7 +38,7 @@ class APITestCase(AsyncBaseTestCase):
                               method="GET")
 
         response_data = json.loads(response.body)
-        self.assertTrue(isinstance(response_data, (list, tuple)))
+        self.assertTrue(isinstance(response_data['range'], (list, tuple)))
         self.assertEquals(response.code, 200)
 
     def test_metrics(self):

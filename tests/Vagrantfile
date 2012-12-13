@@ -1,0 +1,27 @@
+# -*- mode: ruby -*-
+
+Vagrant::Config.run do |config|
+
+  # Configure lucid32 machine
+  config.vm.define :box_lucid32 do |machine_config|
+    machine_config.vm.box = "lucid32"
+
+    # machine_config.vm.forward_port 22, 2222
+    #  config.vm.customize ["modifyvm", :id, "--memory", 1024]
+
+    machine_config.vm.network :hostonly, "10.8.9.8"
+    machine_config.vm.box_url = "http://files.vagrantup.com/lucid32.box"
+    machine_config.vm.host_name = "gottwall"
+    machine_config.vm.provision :shell, :inline => "sudo apt-get install make"
+    machine_config.vm.provision :shell, :inline => "cd /tmp && wget http://redis.googlecode.com/files/redis-2.6.7.tar.gz"
+    machine_config.vm.provision :shell, :inline => "cd /tmp && tar -xvzf /tmp/redis-2.6.7.tar.gz"
+    machine_config.vm.provision :shell, :inline => "cd /tmp/redis-2.6.7 && make"
+    #machine_confgi.vm.provision :shell, :inline => "sudo cp /tmp/redis-2.6.7/redis.conf /etc/redis/redis.conf"
+    machine_config.vm.provision :shell, :inline => "sed -i \"s/daemonize no/daemonize yes/\" /tmp/redis-2.6.7/redis.conf"
+    #machine_config.vm.provision :shell, :inline => "sudo apt-get install redis-server redis-doc"
+    machine_config.vm.provision :shell, :inline => "sed -i \"s/# bind 127.0.0.1/bind 0.0.0.0/\" /tmp/redis-2.6.7/redis.conf"
+    machine_config.vm.provision :shell, :inline => "/tmp/redis-2.6.7/src/redis-server  /tmp/redis-2.6.7/redis.conf"
+    #machine_config.vm.provision :shell, :inline => "sudo /etc/init.d/redis-server stop"
+    machine_config.vm.provision :shell, :inline => "/tmp/redis-2.6.7/src/redis-cli flushdb"
+  end
+end

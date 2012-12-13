@@ -1,5 +1,8 @@
 all: clean-pyc test
 
+vm-start:
+	cd tests && vagrant up
+
 test:
 	python setup.py nosetests --stop --tests tests.py
 
@@ -30,4 +33,4 @@ find-print:
 
 
 debug:
-	python gottwall/runner.py --config=examples/config.py server start
+	python gottwall/runner.py --config=examples/config.py server start --reload

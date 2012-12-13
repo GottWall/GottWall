@@ -14,44 +14,80 @@ Redis pub/sub backend
 
 import simplejson as json
 from tornado.web import HTTPError
+import tornado.ioloop
 
 from gottwall.backends.base import BaseBackend
 from gottwall.handlers import BaseHandler
 
-class Connection(object):
-    """Connection wrapper for redis backend
-    """
-
-    def __init__(self, config, io_loop, redis):
-        self._io_loop = io_loop
-        self.redis = redis
-
-    def connect(callback):
-        pass
-
 import tornadoredis
 
-class RedisBackend(BaseHandler, BaseBackend):
+
+class RedisBackend(BaseBackend):
+
+    def __init__(self, io_loop, config, storage):
+        self.io_loop = io_loop
+        self.config = config
+        self.storage = storage
+        self.client = None
+
+    def configure_client(self):
+        """Make redis client instance
+        """
+        self.client = tornadoredis.Client(
+            host=self.backend_settings.get('HOST', 'localhost'),
+            port=self.backend_settings.get('PORT', 6379),
+            password=self.backend_settings.get('PASSWORD', None),
+            selected_db=self.backend_settings.get('DB', 0),
+            io_loop=self.io_loop)
+        return self.client
 
     @classmethod
-    def setup_backend(cls, ioloop, config):
-        """Setup data handler to `app`
+    def setup_backend(cls, io_loop, config, storage):
+        """Setup data handler
 
-        :param cls: :class:`BaseBackend` childrem class
-        :param app: :class:`tornado.web.Application` instance
+        :param io_loo: :class:`tornado.ioloop.IOLoop` object
+        :param confi: :class:`gottwall.config.Config` object
+        :param storage: :class:`gottwall.storage.Storage` object
         """
-        print("setup redis backend")
-        client = tornadoredis.Client(
-            host=config['REDIS_HOST'],
-            port=config['REDIS_PORT'],
-            password=config['REDIS_PASSWORD'],
-            selected_db=config['REDIS_DB'], io_loop=ioloop)
+        backend = cls(io_loop, config, storage)
+        backend.configure_client()
+        backend.listen()
 
-        client.connect()
-        client.listen(cls.callback)
+    @tornado.gen.engine
+    def listen(self):
+        """Listen socket
 
-    @staticmethod
-    def callback(**kwargs):
+        :param client: redis client
+        """
 
-        import ipdb; ipdb.set_trace()
-        pass
+        self.client.connect()
+
+        yield tornado.gen.Task(self.client.psubscribe,
+                               "{0}:*".format(self.backend_settings.get('CHANNEL', 'gottwall')))
+        self.client.listen(self.callback)
+
+    def callback(self, message):
+
+        if message.body == 1:
+            # handshake
+            return
+
+        try:
+            project, public_key, private_key = self.parse_channel(message.channel)
+        except ValueError:
+            print("Invalid channel credentails")
+            return
+
+        if self.check_key(private_key, public_key, project):
+            data = self.parse_data(message.body.strip())
+            self.process_data(project, data)
+
+        return True
+
+    def parse_channel(self, channel):
+        """Parser private, public keys from channel name
+
+        :param message: message object
+        :return: tuple for (project, public, private)
+        """
+        return channel.split(":")[1:]

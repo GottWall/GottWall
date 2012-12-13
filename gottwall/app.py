@@ -61,8 +61,8 @@ class HTTPApplication(Application):
     def configure_app(self, io_loop=None):
         """Configure application backends and storages
         """
-        self.configure_storage(self.config['STORAGE'])
-        self.configure_backends(self.config['BACKENDS'], io_loop, self.config)
+        storage = self.configure_storage(self.config['STORAGE'])
+        self.configure_backends(self.config['BACKENDS'], io_loop, self.config, storage)
 
     def configure_storage(self, storage_path):
         """Configure data storage by path
@@ -75,10 +75,10 @@ class HTTPApplication(Application):
             storage = getattr(module, name)
         except (ImportError, AttributeError), e:
             raise Exception("Invalid storage: {0}".format(e))
-        storage.setup(self)
+        return storage.setup(self)
 
     @staticmethod
-    def configure_backends(backends, io_loop, config):
+    def configure_backends(backends, io_loop, config, storage):
         """Configture data receive backends
 
         :param backends: list of backends
@@ -92,7 +92,7 @@ class HTTPApplication(Application):
                 backend = getattr(backend_module, name)
             except (ImportError, AttributeError), e:
                 raise Exception("Invalid backend: {0}".format(e))
-            backend.setup_backend(io_loop, config)
+            backend.setup_backend(io_loop, config, storage)
 
         return True
 

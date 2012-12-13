@@ -3,14 +3,23 @@
 
 STORAGE = 'gottwall.storages.RedisStorage'
 
-BACKENDS = ['gottwall.backends.redis.RedisBackend',
-            'gottwall.backends.tcpip.TCPIPBackend']
+BACKENDS = {
+    'gottwall.backends.redis.RedisBackend': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'PASSWORD': '',
+        'DB': 2,
+        "CHANNEL": "gottwall"},
+    'gottwall.backends.tcpip.TCPIPBackend': {}
+    }
 
 
 REDIS_HOST = 'localhost'
 REDIS_PORT = 6379
 REDIS_PASSWORD = None
 REDIS_DB = 2
+
+REDIS = {"CHANNEL": "test"}
 
 
 USERS = []
