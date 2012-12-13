@@ -1,11 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
   <head>
     <title>{% block title %}{{ handler.settings['site_title'] }}{% endblock %}</title>
     <meta name="description" content="{{ handler.settings['site_title'] }}" />
-    <style type="text/css" media="all" src="{{ static }}css/main.css"></style>
-    <style type="text/css" media="all" src="{{ static }}vendor/bootstrap/css/bootstrap.min.css"></style>
-    <script type="text/javascript" src="{{ static }}vendor/bootstrap/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" media="all"  href="{{ static }}vendor/bootstrap/css/bootstrap.css"/>
+    <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/main.css"/>
+
+    <script type="text/javascript" src="/static/js/jquery.js"></script>
+    <script type="text/javascript" src="{{ static }}vendor/bootstrap/js/bootstrap.js"></script>
   </head>
   <body>
 
@@ -17,38 +19,42 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="brand" href="./index.html">Bootstrap</a>
-          <div class="nav-collapse collapse">
-            <ul class="nav">
-              <li class="">
-                <a href="./index.html">Home</a>
-              </li>
-              <li class="">
-                <a href="./getting-started.html">Get started</a>
-              </li>
-              <li class="active">
-                <a href="./scaffolding.html">Scaffolding</a>
-              </li>
-              <li class="">
-                <a href="./base-css.html">Base CSS</a>
-              </li>
-              <li class="">
-                <a href="./components.html">Components</a>
-              </li>
-              <li class="">
-                <a href="./javascript.html">JavaScript</a>
-              </li>
-              <li class="">
-                <a href="./customize.html">Customize</a>
-              </li>
-            </ul>
-          </div>
+          <a class="brand" href="./index.html">Statistics</a>
+            <div class="pull-right">
+                <ul class="nav secondary-nav project-dropdown">
+                    <li class="dropdown js-project-dropdown">
+                      <a class="dropdown-toggle" data-toggle="dropdown" href="">
+                        <small>Project:</small>
+                        <span class="js-current-project">inTaxi</span>
+                        <b class="caret"></b>
+                      </a>
+                      <ul class="dropdown-menu pull-right">
+                            <li><a href="?project=intaxi" title="inTaxi" class="js-project-link">inTaxi</a></li>
+                            <li><a href="?project=test2" title="test2" class="js-project-link">test2</a></li>
+                      </ul>
+                    </li>
+                </ul>
+            </div>
         </div>
       </div>
     </div>
-
-    <h1>{{ handler.settings['site_title'] }}</h1>
-    <p>Simple statistics aggregation platform</a>.
-    <h1>Store backend: {{ storage }}</h2>
+    <div class="main">
+        <div class="container">
+            <div class="raw">
+                <div class="span3 bs-docs-sidebar">
+                    <ul class="nav nav-list bs-docs-sidenav affix">
+                      <li class=""><a href="#"><i class="icon-chevron-right"></i> Metrica 1</a></li>
+                      <li class=""><a href="#"><i class="icon-chevron-right"></i> Metrica 2</a></li>
+                      <li class="active"><a href="#"><i class="icon-chevron-right"></i> Metrica 3</a></li>
+                    </ul>
+                </div>
+                <div class="span9">
+                    <h1>{{ handler.settings['site_title'] }}</h1>
+                    <p>Simple statistics aggregation platform</p>.
+                    <h2>Store backend: {{ storage }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
   </body>
 </html>
