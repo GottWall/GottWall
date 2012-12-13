@@ -115,19 +115,30 @@ class Start(Command):
         io_loop.add_timeout(time.time() + 2, io_loop.stop)
 
 
-class Schema(Command):
-    """Manipulate database schemas
+class Alembic(Command):
+    """SqlAlchemy migration tools
     """
-
     commandor = Commandor
 
-class Migrate(Command):
-    """Database migration
-    """
-    parent = Schema
+    # ALBEMIC INTEGRATION
+    def __init__(self, *args, **kwargs):
+        from alembic.config import CommandLine
 
-    def run(self, **kwargs):
+        kwargs['parser'] = CommandLine(self.__class__.__name__).parser
+        super(Alembic, self).__init__(*args, **kwargs)
+
+    def process(self):
+        """Execute command
+        """
+        self.configure()
+
+        options = self.parse_args()
+        return self.run(options, *options.cmd)
+
+    def run(self, options, fn, positional, kwarg):
         from alembic.config import Config as AlembicConfig
+        from alembic import util
+
         config = self._commandor_res
         alembic_cfg = AlembicConfig()
         alembic_cfg.set_main_option("script_location",
@@ -136,8 +147,19 @@ class Migrate(Command):
         alembic_cfg.set_main_option("url","{ENGINE}://{USER}:{PASSWORD}@{HOST}:{PORT}/{NAME}".\
                                     format(**config['DATABASE']))
 
+        try:
+            fn(alembic_cfg,
+               *[getattr(options, k) for k in positional],
+               **dict((k, getattr(options, k)) for k in kwarg))
+        except util.CommandError, e:
+            util.err(str(e))
 
-        self.display("Migrate database")
+
+class Migrate(Command):
+    parent = Alembic
+
+    def run(self, *args, **kwargs):
+        pass
 
 
 def main():
