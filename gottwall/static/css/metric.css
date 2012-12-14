@@ -209,11 +209,14 @@ label{
 		float:left;
 		}
 		.graph-detalization label{
+            display: inline-block;
 			margin-left:10px;
 		}
+    .input_date {
+        width: 90px;
+    }
 	.graph-dates{
 		float:left;
-		margin-left:30px;
 	}
 	.graph-draw-type{
 		float: left;
