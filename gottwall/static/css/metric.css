@@ -72,6 +72,14 @@ label{
 	margin-right:36px;
 	min-width:130px;
 }
+.graph-controls ul,
+.graph-creation ul{
+    margin: 0;
+}
+.graph-controls li,
+.graph-creation li{
+    list-style-type: none;
+}
 
 .graphs-list{
 	width:320px;
