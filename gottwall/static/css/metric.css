@@ -7,6 +7,7 @@
 	.pseudo-link:hover{
 		color:Blue;
 		border-bottom-color:Blue;
+        text-decoration: none;
 		}
 
 .warning-container{
@@ -71,6 +72,14 @@ label{
 	float:left;
 	margin-right:36px;
 	min-width:130px;
+}
+.graph-controls ul,
+.graph-creation ul{
+    margin: 0;
+}
+.graph-controls li,
+.graph-creation li{
+    list-style-type: none;
 }
 
 .graphs-list{
@@ -201,11 +210,14 @@ label{
 		float:left;
 		}
 		.graph-detalization label{
+            display: inline-block;
 			margin-left:10px;
 		}
+    .input_date {
+        width: 90px;
+    }
 	.graph-dates{
 		float:left;
-		margin-left:30px;
 	}
 	.graph-draw-type{
 		float: left;

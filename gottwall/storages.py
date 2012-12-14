@@ -260,7 +260,6 @@ class RedisStorage(BaseStorage):
 
         key = ';'.join(parts)
 
-        import ipdb; ipdb.set_trace()
 
         @tornado.gen.engine
         def parse_keys(keys):

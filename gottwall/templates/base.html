@@ -41,6 +41,9 @@
     </div>
     <div class="main">
         <div class="container">
+	  <div id="chart">
+	    <svg style='height:500px'> </svg>
+	  </div>
             <div class="raw">
                 <div class="span3 bs-docs-sidebar">
                     <ul class="nav nav-list bs-docs-sidenav affix">
@@ -63,8 +66,8 @@
                      </p>
                      <p class="graph-dates">
                       <span>Интервал</span>
-                      с <input type="date" name="start-date" class="start-date">
-                      по <input type="date" name="end-date" class="end-date">
+                      с <input type="date" name="start-date" class="input_date start-date">
+                      по <input type="date" name="end-date" class="input_date end-date">
                      </p>
                      <p class="graph-draw-type">
                       <select name="graph-draw-type">
@@ -111,44 +114,101 @@
                      class="graph-name">Заказы: выполненные</span><span class="remove-button pseudo-link">×</span><a
                      class="pseudo-link">÷</a><br></li></ul><ul></ul></div>
                  <div class="graph-creation">
-                  <span class="gc-arrow arrow-part"></span>
-                  <div class="graph-creation-wrap">
-                   <div class="graph-creation-section metrics-section">
-                    <h4>Метрика</h4>
-                    <div>
-                     нажми <em>Ctrl + F</em>, чтобы найти нужную метрику
-                    </div>
-                    <ul id="graph-types">
-                      <li class="clickable-list-item">
-                       <span>Заказы: выполненные</span>
-                       <input type="hidden" name="id" value="4">
-                       <input type="hidden" name="months" value="True">
-                       <input type="hidden" name="weeks" value="True">
-                       <input type="hidden" name="days" value="True">
-                       <input type="hidden" name="hours" value="False">
-                       <input type="hidden" name="minutes" value="False">
-                      </li>
-                    </ul>
-                   </div>
-                   <div class="graph-creation-section filters-section" style="display: block;">
-                    <h4>Тип фильтра</h4>
-                    <ul><li class="clickable-list-item">city__title</li><li class="clickable-list-item">taxistation__agent__title</li><li
-                            class="clickable-list-item">car_class</li><li class="clickable-list-item">device_name</li><li
-                            class="clickable-list-item">taxistation__title</li><li class="clickable-list-item">fare__car_class</li></ul>
-                   </div>
-                   <div class="graph-creation-section filters-values-section" style="display: block;">
-                    <h4>Фильтр</h4>
-                    <ul><li><a class="pseudo-link">Выбрать каждый</a></li><li
-                            class="clickable-list-item selected-filter-value">iOS</li><li
-                            class="clickable-list-item selected-filter-value">Android</li><li
-                            class="clickable-list-item selected-filter-value">Web</li></ul>
-                   </div>
-                  </div>
+                      <span class="gc-arrow arrow-part"></span>
+                      <div class="graph-creation-wrap">
+                           <div class="graph-creation-section metrics-section">
+                            <h4>Метрика</h4>
+                            <div>
+                             нажми <em>Ctrl + F</em>, чтобы найти нужную метрику
+                            </div>
+                            <ul id="graph-types">
+                              <li class="clickable-list-item">
+                               <span>Заказы: выполненные</span>
+                               <input type="hidden" name="id" value="4">
+                               <input type="hidden" name="months" value="True">
+                               <input type="hidden" name="weeks" value="True">
+                               <input type="hidden" name="days" value="True">
+                               <input type="hidden" name="hours" value="False">
+                               <input type="hidden" name="minutes" value="False">
+                              </li>
+                            </ul>
+                           </div>
+                           <div class="graph-creation-section filters-section" style="display: block;">
+                            <h4>Тип фильтра</h4>
+                            <ul><li class="clickable-list-item">city__title</li><li class="clickable-list-item">taxistation__agent__title</li><li
+                                    class="clickable-list-item">car_class</li><li class="clickable-list-item">device_name</li><li
+                                    class="clickable-list-item">taxistation__title</li><li class="clickable-list-item">fare__car_class</li></ul>
+                           </div>
+                           <div class="graph-creation-section filters-values-section" style="display: block;">
+                        <h4>Фильтр</h4>
+                        <ul><li><a class="pseudo-link">Выбрать каждый</a></li><li
+                                class="clickable-list-item selected-filter-value">iOS</li><li
+                                class="clickable-list-item selected-filter-value">Android</li><li
+                                class="clickable-list-item selected-filter-value">Web</li></ul>
+                       </div>
+                      </div>
                  </div>
             </div>
         </div>
     </div>
     </div>
     </div>
+
+
+    <script>
+
+nv.addGraph(function() {
+  var chart = nv.models.lineChart();
+
+  chart.xAxis
+      .axisLabel('Time (ms)')
+      .tickFormat(d3.format(',r'));
+
+  chart.yAxis
+      .axisLabel('Voltage (v)')
+      .tickFormat(d3.format('.02f'));
+
+  d3.select('#chart svg')
+      .datum(sinAndCos())
+    .transition().duration(500)
+      .call(chart);
+
+  nv.utils.windowResize(function() { d3.select('#chart svg').call(chart) });
+
+  return chart;
+});
+
+
+
+
+/**************************************
+ * Simple test data generator
+ */
+
+
+function sinAndCos() {
+  var sin = [],
+      cos = [];
+
+  for (var i = 0; i < 100; i++) {
+    sin.push({x: i, y: Math.sin(i/10)});
+    cos.push({x: i, y: .5 * Math.cos(i/10)});
+  }
+
+  return [
+    {
+      values: sin,
+      key: 'Sine Wave',
+      color: '#ff7f0e'
+    },
+    {
+      values: cos,
+      key: 'Cosine Wave',
+      color: '#2ca02c'
+    }
+  ];
+}
+
+    </script>
 </body>
 </html>
