@@ -7,6 +7,7 @@
 	.pseudo-link:hover{
 		color:Blue;
 		border-bottom-color:Blue;
+        text-decoration: none;
 		}
 
 .warning-container{
