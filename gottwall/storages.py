@@ -292,6 +292,7 @@ class RedisStorage(BaseStorage):
 
         self.client.keys("{0}-metrics:*".format(project), callback=parse_keys)
 
+
     def get_metric_value(self, project, name, period, timestamp,
                          fvalue=None, fname=None):
         """Get value from metric

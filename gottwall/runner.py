@@ -75,9 +75,13 @@ class Start(Command):
                action="store_true",
                dest="reload",
                default=False,
-               help="Auto realod source on changes")]
+               help="Auto realod source on changes"),
+        Option("-h", "--host",
+               metavar="str",
+               default="127.0.0.1",
+               help="Port for server")]
 
-    def run(self, port, reload, **kwargs):
+    def run(self, port, reload, host, **kwargs):
         config = self._commandor_res
         application = HTTPApplication(config)
         ioloop = tornado.ioloop.IOLoop.instance()
@@ -85,7 +89,7 @@ class Start(Command):
         application.configure_app(ioloop)
 
         self.http_server = httpserver.HTTPServer(application)
-        self.http_server.listen(port)
+        self.http_server.listen(port, host)
 
         if reload:
             self.display("Autoreload enabled")
