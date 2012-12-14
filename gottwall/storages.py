@@ -16,7 +16,8 @@ import tornadoredis
 import tornado.gen
 
 
-from utils import get_by_period, MagicDict, get_datetime
+from gottwall.utils import get_by_period, MagicDict, get_datetime
+from gottwall.settings import STORAGE_SETTINGS_KEY
 
 
 class BaseStorage(object):
@@ -63,6 +64,11 @@ class BaseStorage(object):
         :param to_date: slice to
         :param filter_name: slice for filter
         :param filter_value: slice for filter value
+        """
+        raise NotImplementedError
+
+    def metrics(self):
+        """Get metrics
         """
         raise NotImplementedError
 
@@ -133,8 +139,16 @@ class MemoryStorage(BaseStorage):
         items.sort(key = lambda x: x[0])
         return items
 
+    def metrics(self, project):
+        """Return all metrics with filters
 
-class RedisStorage(MemoryStorage):
+        :param project: project name
+        :returns: result dict
+        """
+        return {}
+
+
+class RedisStorage(BaseStorage):
     """Redis backend to store statistics
     """
 
@@ -142,10 +156,11 @@ class RedisStorage(MemoryStorage):
         super(RedisStorage, self).__init__(application)
         config = self._application.config
 
-        self.client = tornadoredis.Client(host=config.get('REDIS_HOST', 'localhos'),
-                                          port=config.get('REDIS_PORT', 6379),
-                                          password=config.get('REDIS_PASSWORD', None),
-                                          selected_db=config.get('REDIS_DB', 0))
+        self.client = tornadoredis.Client(host=config[STORAGE_SETTINGS_KEY].get('REDIS_HOST', 'localhost'),
+                                          port=config[STORAGE_SETTINGS_KEY].get('REDIS_PORT', 6379),
+                                          password=config[STORAGE_SETTINGS_KEY].get('REDIS_PASSWORD', None),
+                                          selected_db=config[STORAGE_SETTINGS_KEY].get('REDIS_DB', 0))
+
         self.client.connect()
 
     @tornado.gen.engine
@@ -156,11 +171,10 @@ class RedisStorage(MemoryStorage):
             if filters:
                 for fname, fvalue in filters.iteritems():
                     pipe.incr(self.make_key(project, name, period, timestamp, fname, fvalue), value)
-            pipe.incr(self.make_key(project, name, period, timestamp, fname, fvalue), value)
-        print("before execution")
+            pipe.incr(self.make_key(project, name, period, timestamp, None, None), value)
+
         res = yield tornado.gen.Task(pipe.execute)
         #yield tornado.gen.Callback("done")
-        print("Executed")
 
     def save_value(self, project, key, value):
         """Increment key value
@@ -174,7 +188,7 @@ class RedisStorage(MemoryStorage):
 
 
     def make_key(self, project, name, period, timestamp,
-                 filtername=None, filtervalue=None):
+                 fname=None, fvalue=None):
         """Make key from parameters
 
         :param project: project name
@@ -184,13 +198,43 @@ class RedisStorage(MemoryStorage):
         :param filter: filtername
         """
         parts = [project, name, period, get_by_period(timestamp, period)]
-        if filtername and filtervalue:
-            parts.append("{0}|{1}".format(filtername, filtervalue))
+        if fname and fvalue:
+            parts.append("{0}|{1}".format(fname, fvalue))
 
         return ';'.join(parts)
 
     def slice_data(self, project, name, period, from_date=None, to_date=None, filter_name=None, filter_value=None):
+        return []
+
+    @tornado.gen.engine
+    def metrics(self, project):
+        """Return all metrics with filters
+
+        :param project: project name
+        :returns: result dict
+        """
+
+        #metrics = self.client.smembers("{0}-metrics")
 
         import ipdb; ipdb.set_trace()
+        return {}
 
-        return []
+    @tornado.gen.engine
+    def get_metric_value(self, project, name, period, timestamp,
+                         fvalue=None, fname=None):
+        """Get value from metric
+
+        :param project: project name
+        :param name: metric name
+        :param timestamp:
+        :param filtername: filtername
+        :param filtervalue: filtervalue
+        """
+        pipe = self.client.pipeline()
+
+        pipe.get(self.make_key(project, name, period, timestamp, fvalue, fname))
+        res = yield tornado.gen.Task(pipe.execute)
+
+        import ipdb; ipdb.set_trace()
+        print(" >>>>> ", res)
+

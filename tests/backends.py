@@ -33,7 +33,7 @@ class TCPBackendTestCase(AsyncBaseTestCase):
         config = Config()
         config.from_module(gottwall.default_config)
 
-        config.update({"BACKENDS": {"gottwall.backends.TCPIPBackend": {}},
+        config.update({"BACKENDS": {"gottwall.backends.tcpip.TCPIPBackend": {}},
                        "STORAGE": "gottwall.storages.MemoryStorage",
                                  "PROJECTS": {"test_project": "secretkey"},
                                  "PRIVATE_KEY": "myprivatekey"})

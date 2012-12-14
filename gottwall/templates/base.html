@@ -7,8 +7,9 @@
         <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/metric.css"/>
       <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/main.css"/>
 
-    <script type="text/javascript" src="/static/js/jquery.js"></script>
+    <script type="text/javascript" src="{{ static }}js/jquery.js"></script>
     <script type="text/javascript" src="{{ static }}vendor/bootstrap/js/bootstrap.js"></script>
+    <script type="text/javascript" src="{{ static }}js/main.js"></script>
   </head>
   <body>
 
@@ -26,11 +27,10 @@
                     <li class="dropdown js-project-dropdown">
                       <a class="dropdown-toggle" data-toggle="dropdown" href="">
                         <small>Project:</small>
-                        <span class="js-current-project">inTaxi</span>
+                        <span class="js-current-project">Projects</span>
                         <b class="caret"></b>
                       </a>
                       <ul class="dropdown-menu pull-right">
-                            <li><a href="?project=intaxi" title="inTaxi" class="js-project-link">inTaxi</a></li>
                             <li><a href="?project=test2" title="test2" class="js-project-link">test2</a></li>
                       </ul>
                     </li>

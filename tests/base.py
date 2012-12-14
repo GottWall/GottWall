@@ -6,18 +6,26 @@ gottwall.tests
 
 Unittests for gottwall
 
-:copyright: (c) 2011 - 2012 by Alexandr Lispython (alex@obout.ru).
+:copyright: (c) 2012 by GottWall team, see AUTHORS for more details.
 :license: BSD, see LICENSE for more details.
 """
 
+import os
 import unittest
-from tornado.testing import AsyncHTTPTestCase
+from tornado.testing import AsyncHTTPTestCase, AsyncTestCase
 
-class BaseTestCase(unittest.TestCase):
+class SettingsMixin(object):
+
+    @property
+    def redis_settings(self):
+        HOST = os.environ.get('GOTTWALL_REDIS_HOST', "10.8.9.8")
+        return {"HOST": HOST}
+
+class BaseTestCase(unittest.TestCase, SettingsMixin):
     pass
 
+class AsyncBaseTestCase(AsyncHTTPTestCase, SettingsMixin):
+    pass
 
-class AsyncBaseTestCase(AsyncHTTPTestCase):
-    """Base class for web test
-    """
-
+class AsyncHTTPBaseTestCase(AsyncTestCase, SettingsMixin):
+    pass

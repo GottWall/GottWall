@@ -42,3 +42,5 @@ PERIOD_PATTERNS = {
     "minute": "%Y-%m-%dT%H:%M",
     "all": "all"}
 
+
+STORAGE_SETTINGS_KEY = "STORAGE_SETTINGS"
