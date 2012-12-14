@@ -12,7 +12,7 @@ PROJECTS = {}
 USERS = []
 
 PERIODS = [
-    "week",
+#    "week",
     "day",
     "year",
     "month",

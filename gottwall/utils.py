@@ -41,12 +41,15 @@ def get_by_period(timestamp, period):
     :param timestamp: `datetime.datetime` instance
     :param period: period name
     """
-    timestamp = timestamp_to_datetime(timestamp)
+    ts = timestamp_to_datetime(timestamp)
 
     if period == "week":
-        return "{0}-{1}".format(timestamp.year, timestamp.isocalendar()[1])
+        try:
+            return "{0}-{1}".format(timestamp.year, timestamp.isocalendar()[1])
+        except AttributeError:
+            pass
     elif period in PERIOD_PATTERNS:
-        return timestamp.strftime(PERIOD_PATTERNS[period])
+        return get_datetime(timestamp, period)
     return None
 
 def get_datetime(timestamp, period):

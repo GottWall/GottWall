@@ -5,22 +5,23 @@ STORAGE = 'gottwall.storages.RedisStorage'
 
 BACKENDS = {
     'gottwall.backends.redis.RedisBackend': {
-        'HOST': 'localhost',
+        'HOST': "10.8.9.8",
         'PORT': 6379,
         'PASSWORD': '',
-        'DB': 2,
+        'DB': 0,
         "CHANNEL": "gottwall"},
     'gottwall.backends.tcpip.TCPIPBackend': {}
     }
 
 TEMPLATE_DEBUG = True
 
-REDIS_HOST = 'localhost'
-REDIS_PORT = 6379
-REDIS_PASSWORD = None
-REDIS_DB = 2
+STORAGE_SETTINGS = {
+    "HOST": "10.8.9.8",
+    "PORT": 6379,
+    "PASSWORD": None,
+    "DB": 0}
 
-REDIS = {"CHANNEL": "test"}
+REDIS = {"CHANNEL": "gottwall"}
 
 
 USERS = []
@@ -29,7 +30,7 @@ SECRET_KEY = "dwefwefwefwecwef"
 
 # http://public_key:secret_key@host.com
 
-PROJECTS = {"test_project": "public key",
+PROJECTS = {"test_project": "my_public_key",
             "another_project": "public_key2"}
 
 

@@ -21,6 +21,8 @@ from jinja2 import TemplateNotFound
 from itertools import chain
 
 from tornado.escape import json_decode, json_encode
+import tornado.web
+import tornado.gen
 
 from gottwall import get_version
 
@@ -120,29 +122,33 @@ class JSONHandler(BaseHandler):
 class StatsHandler(JSONHandler):
     """Load periods statistics
     """
-    def get(self, *args, **kwargs):
+    @tornado.web.asynchronous
+    def get(self, project, *args, **kwargs):
 
+        name = self.get_argument('name', None)
         from_date = self.get_argument('from_date', None)
         to_date = self.get_argument('to_date', None)
         period = self.get_argument('period', 'week')
         filter_name = self.get_argument('filter_name', None)
         filter_value = self.get_argument('filter_value', None)
 
-        data_range = self.application.storage.slice_data(
-            period, from_date, to_date, filter_name, filter_value)
+        self.application.storage.slice_data(
+            project, name, period, from_date, to_date, filter_name, filter_value, self.callback)
 
-        self.json_response({"range": data_range})
+
+    def callback(self, data):
+        return self.json_response({"range": data})
 
 
 class MetricsHandler(JSONHandler):
     """Load metrics structure
     """
+    @tornado.web.asynchronous
+    def get(self, project, *args, **kwargs):
+        self.application.storage.metrics(project, callback=self.callback_metrics)
 
-    def get(self, *args, **kwargs):
-        from random import choice
-        data = {"name": []}
-
-        self.json_response(data)
+    def callback_metrics(self, metrics, **kwargs):
+        self.json_response(metrics)
 
 
 class LogoutHandelr(BaseHandler):

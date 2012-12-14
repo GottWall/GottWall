@@ -59,7 +59,6 @@ class RedisBackend(BaseBackend):
 
         :param client: redis client
         """
-
         self.client.connect()
 
         yield tornado.gen.Task(self.client.psubscribe,

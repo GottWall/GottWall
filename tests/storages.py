@@ -21,6 +21,8 @@ import tornado.ioloop
 from gottwall.app import HTTPApplication
 from gottwall.config import Config, default_settings
 import gottwall.default_config
+from utils import async_test
+
 
 from base import BaseTestCase, AsyncBaseTestCase
 
@@ -87,6 +89,12 @@ class MemoryStorageTestCase(BaseTestCase):
             self.assertTrue(storage.get_metric_value(
                 project_name, "orders", period, timestamp), 19)
 
+        metrics = storage.metrics(project_name)
+
+        self.assertTrue('orders' in metrics)
+        self.assertTrue(metrics['orders'], {'clearing': [True], 'device': ['web']})
+
+
         app = self.get_app()
         storage = MemoryStorage(app)
 
@@ -96,9 +104,6 @@ class MemoryStorageTestCase(BaseTestCase):
         data = storage.slice_data("d1", "metric", "month")
         self.assertEquals(sum([x[1] for x in data]), 100)
 
-
-        # Test metrics
-        # metrics = storage.metrics()
 
 class RedisStorageTestCase(AsyncBaseTestCase):
 
@@ -115,7 +120,6 @@ class RedisStorageTestCase(AsyncBaseTestCase):
 
         return self.app
 
-    @tornado.gen.engine
     def test_redis_storage(self):
         app = self.get_app()
         app.configure_storage("gottwall.storages.RedisStorage")
@@ -129,13 +133,13 @@ class RedisStorageTestCase(AsyncBaseTestCase):
         for x in xrange(10):
             storage.incr(project_name, "orders7",
                          timestamp, filters={"clearing": True,
-                                             "device": "web"})
+                                                       "device": "web"})
 
         timestamp2 = datetime.datetime(2012, 1, 10, 3, 43)
         for x in xrange(10):
             storage.incr(project_name, "orders7",
                          timestamp2, filters={"clearing": True,
-                                             "device": "web"})
+                                              "device": "web"})
 
         for period in ["month", "day", "week", "hour", "minute"]:
             self.assertTrue(storage.get_metric_value(
@@ -144,6 +148,11 @@ class RedisStorageTestCase(AsyncBaseTestCase):
         for period in ["year", "all"]:
             self.assertTrue(storage.get_metric_value(
                 project_name, "orders7", period, timestamp), 19)
+
+        metrics = storage.metrics(project_name)
+
+        self.assertTrue('orders' in metrics)
+        self.assertTrue(metrics['orders'], {'clearing': [True], 'device': ['web']})
 
         app = self.get_app()
         storage = RedisStorage(app)
