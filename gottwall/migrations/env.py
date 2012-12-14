@@ -7,8 +7,6 @@ from logging.config import fileConfig
 # access to the values within the .ini file in use.
 config = context.config
 
-import ipdb; ipdb.set_trace()
-
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 fileConfig(config.config_file_name)
