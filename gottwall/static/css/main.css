@@ -84,3 +84,8 @@
     top: auto;
     bottom: 270px;
 }
+
+.chart-control {
+                 margin-top: 40px;
+                 padding-top: 30px;
+ }

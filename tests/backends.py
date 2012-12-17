@@ -47,7 +47,7 @@ class TCPBackendTestCase(AsyncBaseTestCase):
 
 
 
-class RedisBackendTestCase(AsyncBaseTestCase, RedisTestCaseMixin):
+class RedisBackendTestCase(AsyncHTTPBaseTestCase, RedisTestCaseMixin):
 
     def setUp(self):
         super(RedisBackendTestCase, self).setUp()
@@ -70,7 +70,7 @@ class RedisBackendTestCase(AsyncBaseTestCase, RedisTestCaseMixin):
         config.from_module(gottwall.default_config)
 
         config.update({"BACKENDS": {"gottwall.backends.redis.RedisBackend": {"HOST": HOST}},
-                       "STORAGE": "gottwall.storages.RedisStorage",
+                       "STORAGE": "gottwall.storages.MemoryStorage",
                        "REDIS_HOST": HOST,
                        "PROJECTS": {"test_project": "secretkey2"},
                        "SECRET_KEY": "myprivatekey2"})
@@ -78,7 +78,7 @@ class RedisBackendTestCase(AsyncBaseTestCase, RedisTestCaseMixin):
         app.configure_app(self.io_loop)
         return app
 
-    @async_test
+    #@async_test
     @tornado.gen.engine
     def test_subscribe(self):
         app = self.get_app()
@@ -89,13 +89,15 @@ class RedisBackendTestCase(AsyncBaseTestCase, RedisTestCaseMixin):
                        "value": 2}
 
         client = self.client
-        yield tornado.gen.Task(client.publish, "gottwall:{0}:{1}:{2}".format("test_project",
-                                                                        app.config['PROJECTS']['test_project'],
-                                                                        app.config['SECRET_KEY']),
-                               json.dumps(metric_data))
+        key = "gottwall:{0}:{1}:{2}".format("test_project",
+                                            app.config['PROJECTS']['test_project'],
+                                            app.config['SECRET_KEY'])
 
+        (yield tornado.gen.Task(client.publish, key,
+                                json.dumps(metric_data)))
 
-        keys = yield tornado.gen.Task(client.keys, "{0}:{1}*".format("test_project", metric_data['name']))
+        ## keys = yield tornado.gen.Task(client.keys, "{0}:{1}*".format("test_project", metric_data['name']))
+        ## print(keys)
 
         self.stop()
 

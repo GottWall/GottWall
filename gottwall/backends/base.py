@@ -13,6 +13,7 @@ Base backends for metric calculation
 """
 
 import json
+from tornado import gen
 
 class BaseBackend(object):
 
@@ -30,12 +31,14 @@ class BaseBackend(object):
         """
         return "{0}.{1}".format(self.__class__.__module__, self.__class__.__name__)
 
-    def process_data(self, project, data):
+    @gen.engine
+    def process_data(self, project, data, callback=None):
         """Process `data`
         """
         if data.get('action', 'incr') == 'incr':
             data.pop('action', None)
             self.storage.incr(project, **data)
+
 
     def setup_backend(self, io_loop, config, storage):
         """Setup backend for application

@@ -5,27 +5,45 @@
 
 
 {% block content %}
-<div class="hero-unit">
+<div class="row chart-control">
+  <div class="span8 periods">
+    <span>Детализация по:</span>
+
+    <div class="btn-group">
+      <button class="btn" data-type="hour">дням</button>
+      <button class="btn" data-type="month">месяцам</button>
+      <button class="btn active" data-type="week">неделям</button>
+      <button class="btn" data-type="day">дням</button>
+      <button class="btn" data-type="hour">часам</button>
+      <button class="btn" data-type="monute">минутам</button>
+    </div>
+  </div>
+
+  <div class="span6 intervals">
+    <span>Интервал: </span>
+    с <input type="date" name="start-date" class="input_date start-date">
+    по <input type="date" name="end-date" class="input_date end-date">
+  </div>
+</div>
+
+<div class="hero-unit chart-area">
   <div id="chart">
     <svg></svg>
   </div>
 </div>
 
-<div class="row">
-  <div class="span4">
-    <h2>Heading</h2>
-    <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-    <p><a class="btn" href="#">View details »</a></p>
+<div class="row selectors">
+  <div class="span4 metrics" id="metrics-selector">
+    <h2>Metrics</h2>
+    <ul class="nav metrics-list" id="metrics-list"></ul>
   </div>
-  <div class="span4">
-    <h2>Heading</h2>
-    <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-    <p><a class="btn" href="#">View details »</a></p>
+  <div class="span4 filters" id="filters-selector">
+    <h2>Filters</h2>
+    <ul class="nav filters-list" id="filters-list"></ul>
   </div>
-  <div class="span4">
-    <h2>Heading</h2>
-    <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
-    <p><a class="btn" href="#">View details »</a></p>
+  <div class="span4 values" id="values-selector">
+    <h2>Values</h2>
+    <ul class="nav values-list" id="values-list"></ul>
   </div>
 </div>
 {% endblock %}

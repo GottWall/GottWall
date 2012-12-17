@@ -6,11 +6,14 @@
     <link rel="stylesheet" type="text/css" media="all" href="{{ static }}vendor/bootstrap/css/bootstrap.css"/>
     <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/metric.css"/>
     <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/main.css"/>
+    <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/nv.d3.css"/>
 
+    <script type="text/javascript" src="{{ static }}js/underscore-min.js"></script>
     <script type="text/javascript" src="{{ static }}js/jquery.js"></script>
     <script type="text/javascript" src="{{ static }}vendor/bootstrap/js/bootstrap.js"></script>
     <script type="text/javascript" src="{{ static }}js/d3.v2.js"></script>
     <script type="text/javascript" src="{{ static }}js/nv.d3.js"></script>
+    <script type="text/javascript" src="{{ static }}js/swig.pack.min.js"></script>
     <script type="text/javascript" src="{{ static }}js/main.js"></script>
     {% block head %}{% endblock %}
   </head>
@@ -53,7 +56,6 @@
                 </ul>
               </li>
             </ul>
-
 	    {% else %}
 	    <li><a href="{{ reverse('login') }}">Login</a></li>
 	    {% endif %}
