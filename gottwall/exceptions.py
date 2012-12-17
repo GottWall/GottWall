@@ -14,3 +14,6 @@ GottWall core exceptions
 
 class InvalidData(Exception):
     pass
+
+class InvalidParams(Exception):
+    pass

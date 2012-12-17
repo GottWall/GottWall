@@ -70,6 +70,7 @@ class HTTPApplication(Application):
                           extensions=self.config.get('JINJA2_EXTENSIONS', ()))
         filters = self.config.get('JINJA2_FILTERS', ())
         globals = self.config.get('JINJA2_GLOBALS', ())
+
         env.filters.update(load_filters(filters))
         env.globals.update(load_globals(globals))
 

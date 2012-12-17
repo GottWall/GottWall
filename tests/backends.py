@@ -15,7 +15,7 @@ from base64 import b64encode
 
 import json
 import random
-from base import AsyncBaseTestCase
+from base import AsyncBaseTestCase, AsyncHTTPBaseTestCase, RedisTestCaseMixin
 from gottwall.app import HTTPApplication
 from gottwall.config import Config
 import gottwall.default_config
@@ -47,7 +47,21 @@ class TCPBackendTestCase(AsyncBaseTestCase):
 
 
 
-class RedisBackendTestCase(AsyncBaseTestCase):
+class RedisBackendTestCase(AsyncBaseTestCase, RedisTestCaseMixin):
+
+    def setUp(self):
+        super(RedisBackendTestCase, self).setUp()
+        self.client = self._new_client()
+        self.client.flushdb()
+
+    def tearDown(self):
+        try:
+            self.client.connection.disconnect()
+            del self.client
+        except AttributeError:
+            pass
+        super(RedisBackendTestCase, self).tearDown()
+
     def get_new_ioloop(self):
         return ioloop.IOLoop.instance()
 
@@ -60,23 +74,24 @@ class RedisBackendTestCase(AsyncBaseTestCase):
                        "REDIS_HOST": HOST,
                        "PROJECTS": {"test_project": "secretkey2"},
                        "SECRET_KEY": "myprivatekey2"})
-        self.app = HTTPApplication(config)
-        self.app.configure_app(self.io_loop)
+        app = HTTPApplication(config)
+        app.configure_app(self.io_loop)
+        return app
 
     @async_test
     @tornado.gen.engine
     def test_subscribe(self):
-
+        app = self.get_app()
         metric_data = {"name": "redis_metric_{0}".format(random.randint(1, 10)),
                        "timestamp": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S"),
                        "filters": {"views": "anonymouse"},
                        "action": "incr",
                        "value": 2}
 
-        client = tornadoredis.Client(host=HOST)
+        client = self.client
         yield tornado.gen.Task(client.publish, "gottwall:{0}:{1}:{2}".format("test_project",
-                                                                        self.app.config['PROJECTS']['test_project'],
-                                                                        self.app.config['SECRET_KEY']),
+                                                                        app.config['PROJECTS']['test_project'],
+                                                                        app.config['SECRET_KEY']),
                                json.dumps(metric_data))
 
 
@@ -85,7 +100,7 @@ class RedisBackendTestCase(AsyncBaseTestCase):
         self.stop()
 
 
-class HTTPBackendTestCase(AsyncBaseTestCase):
+class HTTPBackendTestCase(AsyncHTTPBaseTestCase):
 
     def get_app(self):
         config = Config()
@@ -98,6 +113,8 @@ class HTTPBackendTestCase(AsyncBaseTestCase):
         return self.app
 
     def test_handler(self):
+        app = self.get_app()
+
         metric_data = {"name": "my_metric_name",
                        "timestamp": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S"),
                        "filters": {"views": "registered",
@@ -106,11 +123,11 @@ class HTTPBackendTestCase(AsyncBaseTestCase):
                        "value": 2}
 
         auth_value = "GottWall private_key={0}, public_key={1}".format(
-            self.app.config['SECRET_KEY'],
-            self.app.config['PROJECTS']['test_project'])
+            app.config['SECRET_KEY'],
+            app.config['PROJECTS']['test_project'])
 
-        authorization = "{0}:{1}".format(self.app.config['PROJECTS']['test_project'],
-                                         self.app.config['SECRET_KEY'])
+        authorization = "{0}:{1}".format(app.config['PROJECTS']['test_project'],
+                                         app.config['SECRET_KEY'])
 
         response = self.fetch("/test_project/api/store", method="POST",
                               body=json.dumps(metric_data),
@@ -121,8 +138,8 @@ class HTTPBackendTestCase(AsyncBaseTestCase):
         self.assertEquals(response.code, 200)
 
         auth_value = "GottWall private_key={0}, public_key={1}".format(
-            self.app.config['SECRET_KEY'],
-            self.app.config['PROJECTS']['test_project'])
+            app.config['SECRET_KEY'],
+            app.config['PROJECTS']['test_project'])
 
         response = self.fetch("/test_project/api/store", method="POST",
                               body=json.dumps(metric_data),

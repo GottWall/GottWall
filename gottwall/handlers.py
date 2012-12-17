@@ -23,10 +23,27 @@ from itertools import chain
 from tornado.escape import json_decode, json_encode
 import tornado.web
 import tornado.gen
+from tornado import gen
 
 from gottwall import get_version
+from gottwall.utils import timestamp_to_datetime
+from gottwall.settings import DATE_FILTER_FORMAT
 
 logger = logging.getLogger('gottwall')
+
+
+class User(object):
+    """Request user object
+
+    TODO: lookup users in local memory storage
+    """
+    def __init__(self, handler, request, *args, **kwargs):
+        self.username = None
+        self.email = None
+        self.api_key = None
+
+    def is_authenticated(self):
+        return True
 
 
 class BaseHandler(RequestHandler):
@@ -47,14 +64,12 @@ class BaseHandler(RequestHandler):
             return None
         return json_decode(user_json)
 
-    def check_auth(self):
-        """Check authorization
+    @property
+    def current_user(self):
+        """Get request user object
         """
-        key = self.request.headers.get('Authorization')
-        if key != self.application.config['SECRET_KEY']:
-            logger.error("Invalid authorixation key: {0}".format(key))
-            raise HTTPError(401, "Authorization required")
-        return True
+
+        return User(self, self.request)
 
     def render(self, template, **kwargs):
         """Render template with \*\*kwargs context
@@ -65,6 +80,8 @@ class BaseHandler(RequestHandler):
         kwargs['handler'] = self
         if 'static' not in kwargs:
             kwargs['static'] = self.config.get('static_url_prefix')
+
+        kwargs['user'] = self.current_user
         data = self.render_to_string(template, context=kwargs)
         return self.finish(data)
 
@@ -103,12 +120,22 @@ class HomeHandler(BaseHandler):
         config = self.application.config
         self.render("index.html", storage=storage.__class__.__name__,
                     backends=self.application.config['BACKENDS'],
-                    projects=config['PROJECTS'])
+                    projects=config['PROJECTS'],
+                    config=self.application.config)
 
 
-class JSONHandler(BaseHandler):
-    """Make json from response body
+class APIHandler(BaseHandler):
+    """Base class for api handlers
     """
+
+    def check_auth(self):
+        """Check authorization
+        """
+        key = self.request.headers.get('Authorization')
+        if key != self.application.config['SECRET_KEY']:
+            logger.error("Invalid authorixation key: {0}".format(key))
+            raise HTTPError(401, "Authorization required")
+        return True
 
     def json_response(self, data, finish=True):
         output_json = tornado.escape.json_encode(data)
@@ -119,10 +146,25 @@ class JSONHandler(BaseHandler):
             return output_json
 
 
-class StatsHandler(JSONHandler):
+class StatsHandler(APIHandler):
     """Load periods statistics
     """
+
+    def convert_date_range(self, from_date, to_date):
+        """Convert str from_date and to_data objects to
+        datetime object
+
+        :param from_date: from date string
+        :param to_date: to date string
+        :return: tuple (from_date, to_date)
+        """
+
+        from_date = timestamp_to_datetime(from_date, DATE_FILTER_FORMAT) if from_date else from_date
+        to_date = timestamp_to_datetime(to_date, DATE_FILTER_FORMAT) if to_date else to_date
+        return from_date, to_date
+
     @tornado.web.asynchronous
+    @gen.engine
     def get(self, project, *args, **kwargs):
 
         name = self.get_argument('name', None)
@@ -132,24 +174,32 @@ class StatsHandler(JSONHandler):
         filter_name = self.get_argument('filter_name', None)
         filter_value = self.get_argument('filter_value', None)
 
-        self.application.storage.slice_data(
-            project, name, period, from_date, to_date, filter_name, filter_value, self.callback)
+        try:
+            from_date, to_date = self.convert_date_range(from_date, to_date)
+        except ValueError:
+            self.set_status(400)
+            self.json_response({"text": "Invalid date range params"})
+            return
+
+        if not all([name, period]):
+            self.set_status(400)
+            self.json_response({"text": "You need specify name and period"})
+            return
+
+        data = yield gen.Task(self.application.storage.slice_data,
+                              project, name, period, from_date, to_date, filter_name, filter_value)
+
+        self.json_response({"range": list(data)})
 
 
-    def callback(self, data):
-        return self.json_response({"range": data})
-
-
-class MetricsHandler(JSONHandler):
+class MetricsHandler(APIHandler):
     """Load metrics structure
     """
     @tornado.web.asynchronous
+    @gen.engine
     def get(self, project, *args, **kwargs):
-        self.application.storage.metrics(project, callback=self.callback_metrics)
-
-    def callback_metrics(self, metrics, **kwargs):
+        metrics = yield gen.Task(self.application.storage.metrics, project)
         self.json_response(metrics)
-
 
 class LogoutHandelr(BaseHandler):
 

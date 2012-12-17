@@ -205,6 +205,7 @@ class RedisStorage(BaseStorage):
 
     @tornado.gen.engine
     def incr(self, project, name, timestamp, value=1, filters=None, **kwargs):
+
         pipe = self.client.pipeline()
 
         for period in self._application.config['PERIODS']:
@@ -215,10 +216,6 @@ class RedisStorage(BaseStorage):
             self.save_metric_info(pipe, project, name, filters)
 
         yield tornado.gen.Task(pipe.execute)
-
-        print("Metrics saved")
-        # Need release
-        #yield tornado.gen.Callback("done")
 
     def save_value(self, project, key, value):
         """Increment key value
@@ -239,8 +236,10 @@ class RedisStorage(BaseStorage):
         :param period: period prefix
         :param timestamp: timestamp
         :param filter: filtername
+
         """
         parts = [project, name, period, get_by_period(timestamp, period)]
+
         if not fname and not fvalue:
             parts.append("{0}|{1}".format('none', 'none'))
         else:

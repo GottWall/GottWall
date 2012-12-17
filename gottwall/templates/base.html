@@ -4,17 +4,18 @@
     <title>{% block title %}{{ handler.settings['site_title'] }}{% endblock %}</title>
     <meta name="description" content="{{ handler.settings['site_title'] }}"/>
     <link rel="stylesheet" type="text/css" media="all" href="{{ static }}vendor/bootstrap/css/bootstrap.css"/>
-        <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/metric.css"/>
-      <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/main.css"/>
+    <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/metric.css"/>
+    <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/main.css"/>
 
     <script type="text/javascript" src="{{ static }}js/jquery.js"></script>
     <script type="text/javascript" src="{{ static }}vendor/bootstrap/js/bootstrap.js"></script>
-    <script type="text/javascript" src="{{ static }}js/main.js"></script>
     <script type="text/javascript" src="{{ static }}js/d3.v2.js"></script>
     <script type="text/javascript" src="{{ static }}js/nv.d3.js"></script>
+    <script type="text/javascript" src="{{ static }}js/main.js"></script>
+    {% block head %}{% endblock %}
   </head>
   <body>
-
+    {% block header %}
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
@@ -23,194 +24,53 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="brand" href="./index.html">Statistics</a>
-            <div class="pull-right">
-                <ul class="nav secondary-nav project-dropdown">
-                    <li class="dropdown js-project-dropdown">
-                      <a class="dropdown-toggle" data-toggle="dropdown" href="">
-                        <small>Project:</small>
-                        <span class="js-current-project">Projects</span>
-                        <b class="caret"></b>
-                      </a>
-                      <ul class="dropdown-menu pull-right">
-                            <li><a href="?project=test2" title="test2" class="js-project-link">test2</a></li>
-                      </ul>
-                    </li>
+          <a class="brand" href="/">{{ handler.settings['site_title'] }}</a>
+          <div class="pull-left">
+            <ul class="nav secondary-nav project-dropdown">
+              <li class="dropdown js-project-dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="">
+                  <span class="js-current-project">Projects</span>
+                  <b class="caret"></b>
+                </a>
+                <ul class="dropdown-menu pull-right" id="project-selector">
+		  {% for project in projects -%}
+		  <li><a href="#project" title="{{ project }}" class="js-project-link">{{ project }}</a></li>
+		  {%- endfor %}
                 </ul>
-            </div>
+              </li>
+            </ul>
+          </div>
+	  <ul class="nav pull-right">
+	    {% if user.is_authenticated() %}
+	    <ul class="nav secondary-nav project-dropdown">
+              <li class="dropdown js-project-dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="">
+                  <span class="js-current-project">{{ user.username }}</span>
+                  <b class="caret"></b>
+                </a>
+                <ul class="dropdown-menu pull-right" id="project-selector">
+		  <li><a href="#{{ logout }}" class="js-project-link">Logout</a></li>
+                </ul>
+              </li>
+            </ul>
+
+	    {% else %}
+	    <li><a href="{{ reverse('login') }}">Login</a></li>
+	    {% endif %}
+          </ul>
         </div>
       </div>
     </div>
-    <div class="main">
-        <div class="container">
-	  <div id="chart">
-	    <svg style='height:500px'> </svg>
-	  </div>
-            <div class="raw">
-                <div class="span3 bs-docs-sidebar">
-                    <ul class="nav nav-list bs-docs-sidenav affix">
-                      <li class=""><a href="#"><i class="icon-chevron-right"></i> Metrica 1</a></li>
-                      <li class=""><a href="#"><i class="icon-chevron-right"></i> Metrica 2</a></li>
-                      <li class="active"><a href="#"><i class="icon-chevron-right"></i> Metrica 3</a></li>
-                    </ul>
-                </div>
-                <div class="span9">
-                    <h2>Store backend: {{ storage }}</h2>
-                    <div class="graph-canvas-modes">
-
-                     <p class="graph-detalization">
-                      <span>Детализация по</span>
-                      <label><input type="radio" name="period" value="months"> месяцам</label>
-                      <label><input type="radio" name="period" value="weeks"> неделям</label>
-                      <label><input type="radio" name="period" checked="checked" value="days"> дням</label>
-                      <label><input type="radio" name="period" value="hours"> часам</label>
-                      <label><input type="radio" name="period" value="minutes"> минутам</label>
-                     </p>
-                     <p class="graph-dates">
-                      <span>Интервал</span>
-                      с <input type="date" name="start-date" class="input_date start-date">
-                      по <input type="date" name="end-date" class="input_date end-date">
-                     </p>
-                     <p class="graph-draw-type">
-                      <select name="graph-draw-type">
-                       <option value="spline" selected="selected">Сглаженная линия</option>
-                       <option value="line">Ломаная линия</option>
-
-                       <option value="column">Столбики</option>
-                       <option value="area">Область</option>
-                       <option value="areaspline">Сглаженная область</option>
-                       <!--
-                       <option value="bar">Горизонтальные столики</option>
-                       <option value="scatter">Точки</option>
-                       -->
-                      </select>
-                     </p>
-                    </div>
-
-
-            <div class="graph-controls">
-             <div class="graphs-list">
-              <div class="sheader">
-               <h3>Полотно графиков </h3>
-               <!--
-               <a href="#" id="create-graph-button" class="pseudo-link">добавить новый график</a>-->
-              </div>
-                 <ul><li><span class="graph-name">Заказы: выполненные: device_name: Web</span><span
-                     class="remove-button pseudo-link">×</span><a class="pseudo-link">÷</a><br></li><li><span
-                     class="graph-name">Заказы: выполненные: device_name: Android</span><span
-                     class="remove-button pseudo-link">×</span><a class="pseudo-link">÷</a><br></li><li><span
-                     class="graph-name">Заказы: выполненные: device_name: iOS</span><span
-                     class="remove-button pseudo-link">×</span><a class="pseudo-link">÷</a><br></li><li><span
-                     class="graph-name">Заказы: выполненные: car_class: 30</span><div
-                     class="warning-container"><span class="warning-icon">!</span><div class="warning-message-c"
-                                                                                       style="display: none;"><div
-                     class="warning-message"><div class="warning-message-text">У этого графика нет данных для данной детализации и интервала полотна.</div><div
-                     class="wc-arrow"></div></div></div></div><span class="remove-button pseudo-link">×</span><a
-                     class="pseudo-link">÷</a><br></li><li><span class="graph-name">Заказы: выполненные: taxistation__agent__title: Престиж Экспресс</span><div
-                     class="warning-container"><span class="warning-icon">!</span><div class="warning-message-c"
-                                                                                       style="display: none;"><div
-                     class="warning-message"><div class="warning-message-text">У этого графика нет данных для данной детализации и интервала полотна.</div><div
-                     class="wc-arrow"></div></div></div></div><span class="remove-button pseudo-link">×</span><a
-                     class="pseudo-link">÷</a><br></li><li><span class="graph-name">Заказы: выполненные: city__title: Москва</span><span
-                     class="remove-button pseudo-link">×</span><a class="pseudo-link">÷</a><br></li><li><span
-                     class="graph-name">Заказы: выполненные</span><span class="remove-button pseudo-link">×</span><a
-                     class="pseudo-link">÷</a><br></li></ul><ul></ul></div>
-                 <div class="graph-creation">
-                      <span class="gc-arrow arrow-part"></span>
-                      <div class="graph-creation-wrap">
-                           <div class="graph-creation-section metrics-section">
-                            <h4>Метрика</h4>
-                            <div>
-                             нажми <em>Ctrl + F</em>, чтобы найти нужную метрику
-                            </div>
-                            <ul id="graph-types">
-                              <li class="clickable-list-item">
-                               <span>Заказы: выполненные</span>
-                               <input type="hidden" name="id" value="4">
-                               <input type="hidden" name="months" value="True">
-                               <input type="hidden" name="weeks" value="True">
-                               <input type="hidden" name="days" value="True">
-                               <input type="hidden" name="hours" value="False">
-                               <input type="hidden" name="minutes" value="False">
-                              </li>
-                            </ul>
-                           </div>
-                           <div class="graph-creation-section filters-section" style="display: block;">
-                            <h4>Тип фильтра</h4>
-                            <ul><li class="clickable-list-item">city__title</li><li class="clickable-list-item">taxistation__agent__title</li><li
-                                    class="clickable-list-item">car_class</li><li class="clickable-list-item">device_name</li><li
-                                    class="clickable-list-item">taxistation__title</li><li class="clickable-list-item">fare__car_class</li></ul>
-                           </div>
-                           <div class="graph-creation-section filters-values-section" style="display: block;">
-                        <h4>Фильтр</h4>
-                        <ul><li><a class="pseudo-link">Выбрать каждый</a></li><li
-                                class="clickable-list-item selected-filter-value">iOS</li><li
-                                class="clickable-list-item selected-filter-value">Android</li><li
-                                class="clickable-list-item selected-filter-value">Web</li></ul>
-                       </div>
-                      </div>
-                 </div>
-            </div>
-        </div>
+    {% endblock %}
+    <div class="container">
+    {% block content %}
+    <h1>Not implemented error</h1>
+    {% endblock %}
+    {% block footer %}
+    <footer>
+      <p>© Company 2012</p>
+    </footer>
+    {% endblock %}
     </div>
-    </div>
-    </div>
-
-
-    <script>
-
-nv.addGraph(function() {
-  var chart = nv.models.lineChart();
-
-  chart.xAxis
-      .axisLabel('Time (ms)')
-      .tickFormat(d3.format(',r'));
-
-  chart.yAxis
-      .axisLabel('Voltage (v)')
-      .tickFormat(d3.format('.02f'));
-
-  d3.select('#chart svg')
-      .datum(sinAndCos())
-    .transition().duration(500)
-      .call(chart);
-
-  nv.utils.windowResize(function() { d3.select('#chart svg').call(chart) });
-
-  return chart;
-});
-
-
-
-
-/**************************************
- * Simple test data generator
- */
-
-
-function sinAndCos() {
-  var sin = [],
-      cos = [];
-
-  for (var i = 0; i < 100; i++) {
-    sin.push({x: i, y: Math.sin(i/10)});
-    cos.push({x: i, y: .5 * Math.cos(i/10)});
-  }
-
-  return [
-    {
-      values: sin,
-      key: 'Sine Wave',
-      color: '#ff7f0e'
-    },
-    {
-      values: cos,
-      key: 'Cosine Wave',
-      color: '#2ca02c'
-    }
-  ];
-}
-
-    </script>
 </body>
 </html>
