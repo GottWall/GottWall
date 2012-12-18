@@ -37,7 +37,7 @@
                 </a>
                 <ul class="dropdown-menu pull-right" id="project-selector">
 		  {% for project in projects -%}
-		  <li><a href="#project" title="{{ project }}" class="js-project-link">{{ project }}</a></li>
+		  <li><a href="#project" title="{{ project }}" data-name="{{ project }}" class="js-project-link active">{{ project }}</a></li>
 		  {%- endfor %}
                 </ul>
               </li>
@@ -45,14 +45,14 @@
           </div>
 	  <ul class="nav pull-right">
 	    {% if user.is_authenticated() %}
-	    <ul class="nav secondary-nav project-dropdown">
-              <li class="dropdown js-project-dropdown">
+	    <ul class="nav secondary-nav">
+              <li class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="">
-                  <span class="js-current-project">{{ user.username }}</span>
+                  <span>{{ user.username }}</span>
                   <b class="caret"></b>
                 </a>
-                <ul class="dropdown-menu pull-right" id="project-selector">
-		  <li><a href="#{{ logout }}" class="js-project-link">Logout</a></li>
+                <ul class="dropdown-menu pull-right">
+		  <li><a href="#{{ logout }}">Logout</a></li>
                 </ul>
               </li>
             </ul>

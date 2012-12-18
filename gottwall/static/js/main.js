@@ -87,19 +87,39 @@ var GottWall = Class.extend({
     this.debug_flag = debug || false;
     this.metrics = {};
 
-    this.current_project = "test_project";
+    this.current_project = null;
     this.chart_container = $('#chart');
     this.filters_container = $('#filters-selector #filters-list');
     this.metrics_container = $('#metrics-selector #metrics-list');
     this.values_container = $('#values-selector #values-list');
     this.period_selector = $('.chart-control .periods .selector');
+    this.project_selector = $("#project-selector");
     this.current_period = null;
 
+    this.setup_defaults();
     this.add_bindings();
   },
 
+  setup_defaults: function(){
+    // Setup defaul values for project, period and date selectors
+    if(this.current_project){
+      this.debug('a[data-name='+this.current_project+']');
+      this.project_selector.find('a[data-name='+this.current_project+']').parent().addClass('active');
+      this.project_selector.parent().find('.js-current-project').text(this.current_project);
+    }
+
+    if(this.current_period){
+      this.period_selector.find('button[data-type='+this.current_period+']').addClass('active');
+    }
+  },
   get_current_period: function(){
     // Get current period state
+    if(!null){
+      return null;
+    }
+    else{
+      return this.current_period;
+    }
   },
   bind_period_selectors: function(){
     var self = this;
@@ -120,8 +140,20 @@ var GottWall = Class.extend({
 
     });
   },
+  bind_project_selector: function(){
+    var self = this;
+    this.project_selector.find("li a").bind('click', function(){
+      var item = $(this);
+      self.current_project = item.data('name');
+      $('.js-project-dropdown .js-current-project').text(self.current_project);
+      item.parent().parent().children().removeClass('active');
+      item.parent().addClass('active');
+      self.render_selectors();
+    });
+  },
   add_bindings: function(){
     this.bind_period_selectors();
+    this.bind_project_selector();
   },
   add_metric: function(project, name, filter_name, filter_value){
     //Add metrics to global storage
@@ -165,7 +197,6 @@ var GottWall = Class.extend({
 	// Activate filter
 	filter.parent().parent().children().removeClass('active');
 	filter.parent().toggleClass('active');
-	self.debug("Render filters"+filter.data('name'));
 	self.render_filter_values(metric_name, filter.data('name'), filters[filter.data('name')]);
       };
     })
@@ -246,7 +277,8 @@ var GottWall = Class.extend({
 
 
 var Metric = Class.extend({
-  init: function(project, name){
+  init: function(gottwall, project, name){
+    this.gottwall = gottwall;
     this.project = project;
     this.name = name;
     this.filter_name = null;
@@ -255,9 +287,8 @@ var Metric = Class.extend({
   },
   load: function(){},
   show: function(){},
-  increase: function(x, y){},
   stats_url: function(period, date_from, date_to){
-      return this.project + "/api/stats?period="+period+"&name="+this.name;
+      return this.project + "/api/stats?period="+this.gottwall.period+"&name="+this.name;
   },
   resource_loader: function(period){
     return $.ajax({

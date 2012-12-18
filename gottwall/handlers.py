@@ -110,7 +110,8 @@ class BaseHandler(RequestHandler):
 class DashboardHandler(BaseHandler):
     #@authenticated
     def get(self, *args, **kwargs):
-        self.render("dashboard.html", config=self.application.config)
+        self.render("dashboard.html", config=self.application.config,
+                    projects=self.config['PROJECTS'])
 
 
 class HomeHandler(BaseHandler):
