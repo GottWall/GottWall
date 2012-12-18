@@ -89,3 +89,10 @@
                  margin-top: 40px;
                  padding-top: 30px;
  }
+
+
+#metrics-list .activated a,
+#filters-list .activated a,
+#values-list .activated a {
+                            background-color: red;
+}

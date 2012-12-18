@@ -15,14 +15,17 @@
       <button class="btn" data-type="week">неделям</button>
       <button class="btn" data-type="day">дням</button>
       <button class="btn" data-type="hour">часам</button>
-      <button class="btn" data-type="monute">минутам</button>
+      <button class="btn" data-type="minute">минутам</button>
     </div>
   </div>
 
-  <div class="span6 intervals">
+  <div class="span5 intervals">
     <span>Интервал: </span>
     с <input type="date" name="start-date" class="input_date start-date">
     по <input type="date" name="end-date" class="input_date end-date">
+  </div>
+  <div class="span2 redraw">
+    <button class="btn" id="redraw-button">Перерисовать</button>
   </div>
 </div>
 
@@ -32,11 +35,16 @@
   </div>
 </div>
 
+<div class="row">
+  <div class="span3 selected-metrics">
+    <h2>Selected metrics</h2>
+    <ul class="nav selected-metrics-list" id="selected-metrics"></ul>
+  </div>
+</div>
 <div class="row selectors">
   <div class="span4 metrics" id="metrics-selector">
     <h2>Metrics</h2>
-    <ul class="nav metrics-list" id="metrics-list">
-</ul>
+    <ul class="nav metrics-list" id="metrics-list"></ul>
   </div>
   <div class="span4 filters" id="filters-selector">
     <h2>Filters</h2>

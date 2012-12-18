@@ -79,13 +79,19 @@
 
 
 var GottWall = Class.extend({
-  metrics_template: '{% for x in items %}<li><a href="#metric/{{ x }}" data-name="{{ x }}">{{ x }}</a></li>{% endfor %}',
-  values_template: '{% for value in items %}<li><a href="#filters/{{ metric_name }}/{{ filter_name }}/{{ value }}" data-name="{{ value }}">{{ value }}</a></li>{% endfor %}',
+  // Local storage keys
+  activated_metrics_key: "activated_metrics",
+  current_project_key: "current_project",
+  current_period_key: "current_period",
+
+  metrics_template: '{% for x in items %}<li {% if x[1] %}class="activated"{% endif %}><a href="#metric/{{ x[0] }}" data-name="{{ x[0] }}">{{ x[0] }}</a></li>{% endfor %}',
+  values_template: '{% for value in items %}<li {% if value[1] %}class="activated"{% endif %}><a href="#filters/{{ metric_name }}/{{ filter_name }}/{{ value[0] }}" data-name="{{ value[0] }}">{{ value[0] }}</a></li>{% endfor %}',
   filters_template: '{% for f in items %}<li><a href="#filters/{{ metric_name }}/{{ f }}" data-name="{{ f }}">{{ f }}</a></li>{% endfor %}',
 
   init: function(debug){
     this.debug_flag = debug || false;
     this.metrics = {};
+    this.activated_metrics = {};
 
     this.current_project = null;
     this.chart_container = $('#chart');
@@ -102,13 +108,17 @@ var GottWall = Class.extend({
 
   setup_defaults: function(){
     // Setup defaul values for project, period and date selectors
+
+    // Load data from localStorage
+    this.load();
+
     if(this.current_project){
-      this.debug('a[data-name='+this.current_project+']');
       this.project_selector.find('a[data-name='+this.current_project+']').parent().addClass('active');
       this.project_selector.parent().find('.js-current-project').text(this.current_project);
     }
 
-    if(this.current_period){
+    if(!this.current_period){
+      this.current_period = 'month';
       this.period_selector.find('button[data-type='+this.current_period+']').addClass('active');
     }
   },
@@ -137,7 +147,8 @@ var GottWall = Class.extend({
 	button.parent().children().removeClass('active');
 	button.addClass('active');
       };
-
+      // Save data to storage
+      self.save();
     });
   },
   bind_project_selector: function(){
@@ -149,45 +160,143 @@ var GottWall = Class.extend({
       item.parent().parent().children().removeClass('active');
       item.parent().addClass('active');
       self.render_selectors();
+
+      // Save data to localStorage
+      self.save();
     });
+  },
+  bind_redraw_button: function(){
+    var self = this;
+    $('#redraw-button').bind('click', function(){
+      self.render_chart();
+    });
+    // Save data to storage
+    this.save();
   },
   add_bindings: function(){
     this.bind_period_selectors();
     this.bind_project_selector();
+    this.bind_redraw_button();
   },
-  add_metric: function(project, name, filter_name, filter_value){
-    //Add metrics to global storage
-    if(!_.has(this.metrics, project)){
-      this.metrics[project] = {};
-    };
 
-    if(!_.has(this.metrics[project], name)){
-      this.metrics[project][name] = {};
+  save: function(){
+    if(_.keys(this.activated_metrics).length>0){
+      localStorage.setItem(this.activated_metrics_key, JSON.stringify(this.activated_metrics));
+    }
+
+    if(this.current_project){
+      localStorage.setItem(this.current_project_key, this.current_project);
+    }
+    if(this.current_period){
+      localStorage.setItem(this.current_period_key, this.current_period);
+    }
+
+  },
+  load: function(){
+    // Load data from localStorage
+    this.debug('Loading data from storage...');
+
+    this.current_project = this.current_project || localStorage.getItem(this.current_project_key);
+    this.current_period = this.current_period || localStorage.getItem(this.current_period_key);
+
+    if(!this.activated_metrics){
+      this.activated_metrics = {};
+    }
+    if(_.keys(this.activated_metrics).length<=0){
+      this.activated_metrics = JSON.parse(localStorage.getItem(this.activated_metrics_key)) || {};
     }
   },
-  delete_metric: function(project, name){
-    // Remove metric from global storage
-  },
-  save: function(){},
-  load: function(){},
   get_metrics: function(project){},
   get_activated_metrics: function(){
     // Get activated metrics for project
+    var self = this;
+    var metrics = [];
+    _.each(this.activated_metrics, function(name, value){
+      self.debug(name);
+      self.debug(value);
+    });
+    return []
+    // for (var metric in this.activated_metrics[this.current_project][name]
   },
+  is_activated_metric: function(name, filter, value){
+    var self = this;
+    var metrics = this.activated_metrics;
+    var project = this.current_project;
+
+    filter = filter || null;
+    value = value || null;
+
+    if(!_.has(metrics, project)){
+      return false
+    }
+
+    if(!_.has(metrics[project], name)){
+      return false;
+    }
+
+    if(!_.has(metrics[project][name], filter)){
+      return false;
+    }
+
+    if(metrics[project][name][filter].indexOf(value) <0){
+      return false;
+    }
+    return true;
+  },
+  activate_metric: function(name, filter, value){
+    // Activate metric for current project with `name`, `filter` and `value`
+    var metric = new Metric(this, this.current_project, name, filter, value);
+    filter = filter || null;
+    value = value || null;
+
+    if(!_.has(this.activated_metrics, this.current_project)){
+      this.activated_metrics[this.current_project] = {};
+    }
+    if(!_.has(this.activated_metrics[this.current_project], name)){
+      this.activated_metrics[this.current_project][name] = {}
+    }
+    if(!_.has(this.activated_metrics[this.current_project][name], filter)){
+      this.activated_metrics[this.current_project][name][filter] = [];
+    }
+
+    if(this.activated_metrics[this.current_project][name][filter].indexOf(value)<0){
+      this.activated_metrics[this.current_project][name][filter].push(value);
+    }
+  },
+  deactivate_metric: function(name, filter, value){
+    if(value){
+      var index = this.activated_metrics[this.current_project][name][filter].indexOf(value);
+
+      if(index >= 0){
+	this.activated_metrics[this.current_project][name][filter].splice(index, 1);
+      }
+    }
+    else if (filter){
+      // Delete filter
+      delete this.activated_metrics[this.current_project][name][filter];
+    }
+    else{
+      // Delete metrics
+      delete this.activated_metrics[this.current_project][name];
+    }
+  },
+
   render_selectors: function(){
     // Render metrics selectors
-    this.reload_metrics(this.current_project);
+    if(this.current_project){
+      this.reload_metrics(this.current_project);
+    }
   },
   render_filters: function(metric_name, filters){
     // Render filters for metric_name
     var self = this;
     var filters_template = swig.compile(this.filters_template);
-    this.debug(filters);
+
     this.filters_container.html(filters_template({metric_name: metric_name,
 					 items: _.keys(filters)}));
     this.filters_container.find('li a').bind('click', function() {
       var filter = $(this);
-      self.debug(filter);
+
       if(filter.parent().hasClass('active')){
 	// Deactivate all
 	filter.parent().parent().children().removeClass('active');
@@ -203,27 +312,52 @@ var GottWall = Class.extend({
   },
   render_filter_values: function(metric_name, filter_name, values){
     // Render values for filter_name
+    var self = this;
     var values_template = swig.compile(this.values_template);
-    this.values_container.html(values_template({metric_name: metric_name,
-				       filter_name: filter_name,
-				       items: values}));
+    this.values_container.html(values_template(
+      {metric_name: metric_name,
+       filter_name: filter_name,
+
+       // Check activation
+       items: _.map(values, function(value){
+	 return [value, self.is_activated_metric(metric_name, filter_name, value)];
+       })}));
+
+    this.values_container.find('li a').bind(
+      {'click': function(){
+	var value = $(this);
+
+	if(value.parent().hasClass('activated')){
+	  value.parent().removeClass('activated');
+	  self.deactivate_metric(metric_name, filter_name, value.data('name'));
+	}
+	else{
+	  value.parent().addClass('activated');
+	  self.activate_metric(metric_name, filter_name, value.data('name'));
+	}
+	self.save();
+      }
+      });
   },
   render_metrics: function(metrics){
     // Render metrics selector
     this.debug("Render selectors");
     var self = this;
     var items = swig.compile(this.metrics_template);
-    this.metrics_container.html(items({"items": _.keys(metrics)}));
+    this.metrics_container.html(items({"items": _.map(metrics, function(value, key){
+      return [key, self.is_activated_metric(key)];
+    })}));
 
     // bind metrics items
-    this.metrics_container.find('li a').bind('click', function() {
-      var metric = $(this);
+    this.metrics_container.find('li a').bind(
+      {'click': function() {
+	var metric = $(this);
 
-      if(metric.parent().hasClass('active')){
+	if(metric.parent().hasClass('active')){
 	// Deactivate all, remove filters, values
-	metric.parent().parent().children().removeClass('active');
-	self.filters_container.children().remove();
-	self.values_container.children().remove();
+	  metric.parent().parent().children().removeClass('active');
+	  self.filters_container.children().remove();
+	  self.values_container.children().remove();
 	}
 	else{
 	  // Activate metric and show filters
@@ -231,7 +365,19 @@ var GottWall = Class.extend({
 	  metric.parent().toggleClass('active');
 	  self.render_filters(metric.data('name'), metrics[metric.data('name')]);
 	};
-    })},
+      },
+       'dblclick': function(){
+	 var metric = $(this);
+	 if(metric.parent().hasClass('activated')){
+	   self.deactivate_metric(metric.data('name'));
+	   metric.parent().removeClass('activated');
+	 }
+	 else{
+	   self.activate_metric(metric.data('name'));
+	   metric.parent().addClass('activated');
+	 }
+	 self.save();
+       }})},
   get_metrics_url: function(project_name){
     // Metrics structure url
     return project_name + "/api/metrics";
@@ -258,6 +404,8 @@ var GottWall = Class.extend({
   },
   render_chart: function(){
     this.debug("Chart rendering");
+    var activated_metrics = this.get_activated_metrics();
+
     // $.when.apply($, _.map(this.activated_metrics, function(){})).\
     //done(function(){
     //   var responses = arguments;
@@ -277,12 +425,12 @@ var GottWall = Class.extend({
 
 
 var Metric = Class.extend({
-  init: function(gottwall, project, name){
+  init: function(gottwall, project, name, filter, value){
     this.gottwall = gottwall;
     this.project = project;
     this.name = name;
-    this.filter_name = null;
-    this.filter_value = null;
+    this.filter_name = filter;
+    this.filter_value = value;
     this.data = null; //loaded metric data
   },
   load: function(){},
@@ -295,6 +443,14 @@ var Metric = Class.extend({
       type: "GET",
       url: this.start_url(this.project, this.name, period),
       dataType: 'json'});
+  },
+  is_equal: function(){
+    return {
+      project: this.project,
+      name: this.name,
+      filter_name: this.filter_name,
+      filter_value: this.filter_value
+    }
   }
 });
 
