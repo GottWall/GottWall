@@ -119,8 +119,9 @@ var GottWall = Class.extend({
 
     if(!this.current_period){
       this.current_period = 'month';
-      this.period_selector.find('button[data-type='+this.current_period+']').addClass('active');
     }
+
+    this.period_selector.find('button[data-type='+this.current_period+']').addClass('active');
   },
   get_current_period: function(){
     // Get current period state
@@ -206,16 +207,32 @@ var GottWall = Class.extend({
       this.activated_metrics = JSON.parse(localStorage.getItem(this.activated_metrics_key)) || {};
     }
   },
-  get_metrics: function(project){},
+  get_metrics_list: function(){
+    // Get metrics as plain list
+    var self = this;
+    var metrics = [];
+
+    _.each(this.activated_metrics[this.current_project], function(filters, metric){
+      var self2 = this;
+      _.each(filters, function(values, filter){
+	if(filter=='null'){
+	  filter = null;
+	}
+	for(var value in values){
+	  metrics.push([metric, filter, values[value]]);
+	}
+      });
+    });
+    return metrics;
+  },
   get_activated_metrics: function(){
     // Get activated metrics for project
     var self = this;
+    var metrics_list = this.get_metrics_list();
     var metrics = [];
-    _.each(this.activated_metrics, function(name, value){
-      self.debug(name);
-      self.debug(value);
-    });
-    return []
+
+    console.debug(metrics_list);
+    return metrics;
     // for (var metric in this.activated_metrics[this.current_project][name]
   },
   is_activated_metric: function(name, filter, value){
@@ -403,7 +420,7 @@ var GottWall = Class.extend({
     });
   },
   render_chart: function(){
-    this.debug("Chart rendering");
+    this.debug("Chart rendering...");
     var activated_metrics = this.get_activated_metrics();
 
     // $.when.apply($, _.map(this.activated_metrics, function(){})).\
