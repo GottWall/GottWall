@@ -189,7 +189,13 @@ class StatsHandler(APIHandler):
         data = yield gen.Task(self.application.storage.slice_data,
                               project, name, period, from_date, to_date, filter_name, filter_value)
 
-        self.json_response({"range": list(data)})
+        self.json_response({"range": list(data),
+                            "project": project,
+                            "period": period,
+                            "name": name,
+                            "filter_name": filter_name,
+                            "filter_value": filter_value,
+                            "avg": 0})
 
 
 class MetricsHandler(APIHandler):
