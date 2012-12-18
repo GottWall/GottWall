@@ -78,7 +78,7 @@
 })(jQuery);
 
 
-var Storage = Class.extend({
+var GottWall = Class.extend({
   metrics_template: '{% for x in items %}<li><a href="#metric/{{ x }}" data-name="{{ x }}">{{ x }}</a></li>{% endfor %}',
   values_template: '{% for value in items %}<li><a href="#filters/{{ metric_name }}/{{ filter_name }}/{{ value }}" data-name="{{ value }}">{{ value }}</a></li>{% endfor %}',
   filters_template: '{% for f in items %}<li><a href="#filters/{{ metric_name }}/{{ f }}" data-name="{{ f }}">{{ f }}</a></li>{% endfor %}',
@@ -86,13 +86,43 @@ var Storage = Class.extend({
   init: function(debug){
     this.debug_flag = debug || false;
     this.metrics = {};
+
     this.current_project = "test_project";
     this.chart_container = $('#chart');
     this.filters_container = $('#filters-selector #filters-list');
     this.metrics_container = $('#metrics-selector #metrics-list');
     this.values_container = $('#values-selector #values-list');
+    this.period_selector = $('.chart-control .periods .selector');
+    this.current_period = null;
+
+    this.add_bindings();
   },
 
+  get_current_period: function(){
+    // Get current period state
+  },
+  bind_period_selectors: function(){
+    var self = this;
+
+    this.period_selector.children().bind('click', function(){
+      var button = $(this);
+      self.current_period = button.data('type');
+
+      if(button.hasClass('active')){
+	// Deactivate all
+	button.parent().children().removeClass('active');
+      }
+      else{
+	// Activate filter
+	button.parent().children().removeClass('active');
+	button.addClass('active');
+      };
+
+    });
+  },
+  add_bindings: function(){
+    this.bind_period_selectors();
+  },
   add_metric: function(project, name, filter_name, filter_value){
     //Add metrics to global storage
     if(!_.has(this.metrics, project)){
@@ -153,22 +183,21 @@ var Storage = Class.extend({
     var self = this;
     var items = swig.compile(this.metrics_template);
     this.metrics_container.html(items({"items": _.keys(metrics)}));
+
+    // bind metrics items
     this.metrics_container.find('li a').bind('click', function() {
       var metric = $(this);
 
       if(metric.parent().hasClass('active')){
-	// Deactivate all
+	// Deactivate all, remove filters, values
 	metric.parent().parent().children().removeClass('active');
 	self.filters_container.children().remove();
 	self.values_container.children().remove();
 	}
 	else{
-	  // Activate metric
+	  // Activate metric and show filters
 	  metric.parent().parent().children().removeClass('active');
 	  metric.parent().toggleClass('active');
-	  console.log(metrics);
-	  console.log("Fuck");
-	  console.log(metrics[metric.data('name')]);
 	  self.render_filters(metric.data('name'), metrics[metric.data('name')]);
 	};
     })},
@@ -180,7 +209,8 @@ var Storage = Class.extend({
     // Reload metrics from server
     var api_url = this.get_metrics_url(project_name);
     var self = this;
-    this.debug("Loading: "+ api_url);
+
+    this.debug("Loading metrics structure: "+ api_url);
 
     $.ajax({
       type: "GET",
@@ -197,7 +227,8 @@ var Storage = Class.extend({
   },
   render_chart: function(){
     this.debug("Chart rendering");
-    // $.when.apply($, activated_metrics).done(function(){
+    // $.when.apply($, _.map(this.activated_metrics, function(){})).\
+    //done(function(){
     //   var responses = arguments;
     //   var metrics = {};
 
@@ -239,15 +270,16 @@ var Metric = Class.extend({
 
 (function($, nv, swig, _){
 
+  var self = this;
   $(function() {
     var global_metrics = {};
     var activate_metrics = {};
     var chart = null;
 
-    var storage = new Storage(true);
+    self.gottwall = new GottWall(true);
 
-    storage.render_selectors();
-    storage.render_chart();
+    self.gottwall.render_selectors();
+    self.gottwall.render_chart();
 
     // nv.addGraph(function(){
     //   var chart = nv.models.lineWithFocusChart();
