@@ -96,3 +96,7 @@
 #values-list .activated a {
                             background-color: red;
 }
+
+#chart {
+         height: 450px;
+ }

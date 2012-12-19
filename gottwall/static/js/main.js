@@ -461,6 +461,7 @@ var GottWall = Class.extend({
     var self = this;
 
     $.when.apply($, _.map(metrics, function(metric){
+      console.debug(metric);
       return metric.get_resource_loader(self.current_period);
     })).done(
       function(){
@@ -486,13 +487,11 @@ var GottWall = Class.extend({
       var chart = nv.models.lineChart();
 
       chart.xAxis.axisLabel('Count').tickFormat(function(d) {
-	console.log(d);
         return d;
       });
 
       d3.select('#chart svg').datum(
 	_.map(metrics, function(metric){
-	  console.log(metric.get_chart_data());
 	  return metric.get_chart_data()})).call(chart);
       nv.utils.windowResize(chart.update);
 
@@ -513,19 +512,28 @@ var Metric = Class.extend({
     this.gottwall = gottwall;
     this.project = project;
     this.name = name;
-    this.filter_name = filter;
+    if(filter == 'null'){
+      this.filter_name = null;
+    }
+    else{
+      this.filter_name = name;
+    }
     this.filter_value = value;
     this.data = data; //loaded metric data
   },
   load: function(){},
   show: function(){},
-  stats_url: function(period, date_from, date_to){
-      return this.project + "/api/stats?period="+this.gottwall.current_period+"&name="+this.name;
+  stats_url: function(date_from, date_to){
+    var url = this.project + "/api/stats?period="+this.gottwall.current_period+"&name="+this.name;
+    if(this.filter_name && this.filter_value){
+      url = url + "&filter_name="+this.filter_name+"&filter_value="+this.filter_value;
+    }
+    return url;
   },
-  get_resource_loader: function(period){
+  get_resource_loader: function(){
     return $.ajax({
       type: "GET",
-      url: this.stats_url(this.project, this.name, period),
+      url: this.stats_url(),
       dataType: 'json'});
   },
   is_equal: function(){
