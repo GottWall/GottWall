@@ -483,16 +483,12 @@ var GottWall = Class.extend({
     this.debug("Chart rendering...");
 
     nv.addGraph(function(){
-      var chart = nv.models.discreteBarChart()//.lineChart();
+      var chart = nv.models.lineChart();
 
       chart.xAxis.axisLabel('Count').tickFormat(function(d) {
-	console.log("axis");
 	console.log(d);
         return d;
       });
-      // chart.yAxis.axisLabel('Count').tickFormat(d3.format('.2f'));
-
-      // chart.xAxis.axisLabel('Date range');
 
       d3.select('#chart svg').datum(
 	_.map(metrics, function(metric){
