@@ -79,6 +79,8 @@
 
 
 var GottWall = Class.extend({
+
+
   // Local storage keys
   activated_metrics_key: "activated_metrics",
   current_project_key: "current_project",
@@ -87,6 +89,14 @@ var GottWall = Class.extend({
   metrics_template: '{% for x in items %}<li {% if x[1] %}class="activated"{% endif %}><a href="#metric/{{ x[0] }}" data-name="{{ x[0] }}">{{ x[0] }}</a></li>{% endfor %}',
   values_template: '{% for value in items %}<li {% if value[1] %}class="activated"{% endif %}><a href="#filters/{{ metric_name }}/{{ filter_name }}/{{ value[0] }}" data-name="{{ value[0] }}">{{ value[0] }}</a></li>{% endfor %}',
   filters_template: '{% for f in items %}<li><a href="#filters/{{ metric_name }}/{{ f }}" data-name="{{ f }}">{{ f }}</a></li>{% endfor %}',
+
+  date_formats: {
+    "day": "%Y-%m-%d",
+    "year": "%Y",
+    "month": "%Y-%m",
+    "hour": "%Y-%m-%dT%H",
+    "minute": "%Y-%m-%dT%H:%M",
+  },
 
   init: function(debug){
     this.debug_flag = debug || false;
@@ -101,6 +111,7 @@ var GottWall = Class.extend({
     this.period_selector = $('.chart-control .periods .selector');
     this.project_selector = $("#project-selector");
     this.current_period = null;
+    this.current_date_format = null;
 
     this.setup_defaults();
     this.add_bindings();
@@ -118,10 +129,35 @@ var GottWall = Class.extend({
     }
 
     if(!this.current_period){
-      this.current_period = 'month';
+      this.set_period("month");
     }
 
     this.period_selector.find('button[data-type='+this.current_period+']').addClass('active');
+  },
+  set_period: function(period){
+    // Setup period and datetime format
+    this.current_period = period;
+
+    if(_.has(this.date_formats, period)){
+      var format = d3.time.format("%Y-%m-%d");
+      this.current_date_format = d3.time.format(this.date_formats[period]);
+    }
+  },
+  get_date_format: function(){
+    if(!this.current_date_format){
+      if(_.has(this.date_formats, this.current_period)){
+	this.current_date_format = this.date_formats[this.current_period];
+      }
+    }
+    return this.current_date_format;
+  },
+  date_to_timestamp: function(d){
+    // Convert date string to date object
+    var date_format = this.get_date_format();
+
+    if(date_format){
+      return this.current_date_format.parse(d);
+    }
   },
   get_current_period: function(){
     // Get current period state
@@ -198,7 +234,7 @@ var GottWall = Class.extend({
     this.debug('Loading data from storage...');
 
     this.current_project = this.current_project || localStorage.getItem(this.current_project_key);
-    this.current_period = this.current_period || localStorage.getItem(this.current_period_key);
+    this.current_period = this.set_period(this.current_period || localStorage.getItem(this.current_period_key));
 
     if(!this.activated_metrics){
       this.activated_metrics = {};
@@ -476,6 +512,7 @@ var GottWall = Class.extend({
 
 
 var Metric = Class.extend({
+
   init: function(gottwall, project, name, filter, value, data){
     this.gottwall = gottwall;
     this.project = project;
@@ -504,9 +541,10 @@ var Metric = Class.extend({
     }
   },
   get_range: function(){
+    var self =  this;
     if(this.data){
       return _.map(this.data['range'], function(item){
-	return {"x": item[0], "y": parseInt(item[1])};
+	return {"x": self.gottwall.date_to_timestamp(item[0]), "y": parseInt(item[1])};
       });
     }
     return [];
