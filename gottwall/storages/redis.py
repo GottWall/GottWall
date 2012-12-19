@@ -141,9 +141,12 @@ class RedisStorage(BaseStorage):
         parts = [project, name, period]
 
         if isinstance(filters, dict):
-            parts.append("/".join(
+            filters_part = "/".join(
                 ["{0}|{1}".format(f, filters[f])
-                 for f in sorted(filters.keys(), key=lambda x: x)]))
+                 for f in sorted(filters.keys(), key=lambda x: x) if f])
+
+            if filters_part:
+                parts.append(filters_part)
 
         return ';'.join(parts)
 

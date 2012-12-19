@@ -229,11 +229,10 @@ var GottWall = Class.extend({
     // Get activated metrics for project
     var self = this;
     var metrics_list = this.get_metrics_list();
-    var metrics = [];
 
-    console.debug(metrics_list);
-    return metrics;
-    // for (var metric in this.activated_metrics[this.current_project][name]
+    return _.map(metrics_list, function(item){
+      return new Metric(self, self.current_project, item[0], item[1], item[2]);
+    });
   },
   is_activated_metric: function(name, filter, value){
     var self = this;
@@ -419,19 +418,54 @@ var GottWall = Class.extend({
       }
     });
   },
-  render_chart: function(){
+  load_stats: function(){
+    this.debug("Load stats...");
+
+    var metrics = this.get_activated_metrics();
+    var self = this;
+
+    $.when.apply($, _.map(metrics, function(metric){
+      return metric.get_resource_loader(self.current_period);
+    })).done(
+      function(){
+	var responses = arguments;
+	var metrics = _.map(responses, function(r){
+	  return new Metric(self, r[0]["project"], r[0]["name"], r[0]["filter_name"], r[0]["filter_value"], r[0]);
+	});
+	return self.render_chart(metrics);
+      });
+  },
+  chart_callback: function(){
+    var chart = nv.models.lineChart();
+    chart.yAxis.axisLabel('Count').tickFormat(d3.format('.2f'));
+
+    chart.xAxis.axisLabel('Date range');
+
+
+  },
+  render_chart: function(metrics){
     this.debug("Chart rendering...");
-    var activated_metrics = this.get_activated_metrics();
 
-    // $.when.apply($, _.map(this.activated_metrics, function(){})).\
-    //done(function(){
-    //   var responses = arguments;
-    //   var metrics = {};
+    nv.addGraph(function(){
+      var chart = nv.models.discreteBarChart()//.lineChart();
 
-    //   var metrics = _.map(responses, function(response){
-    // 	metrics[response[0]['name']] = response[0];
-    // 	return response[0];
-    //   });})
+      chart.xAxis.axisLabel('Count').tickFormat(function(d) {
+	console.log("axis");
+	console.log(d);
+        return d;
+      });
+      // chart.yAxis.axisLabel('Count').tickFormat(d3.format('.2f'));
+
+      // chart.xAxis.axisLabel('Date range');
+
+      d3.select('#chart svg').datum(
+	_.map(metrics, function(metric){
+	  console.log(metric.get_chart_data());
+	  return metric.get_chart_data()})).call(chart);
+      nv.utils.windowResize(chart.update);
+
+      return chart;
+    });
   },
   debug: function(value){
     if(this.debug_flag){
@@ -442,23 +476,23 @@ var GottWall = Class.extend({
 
 
 var Metric = Class.extend({
-  init: function(gottwall, project, name, filter, value){
+  init: function(gottwall, project, name, filter, value, data){
     this.gottwall = gottwall;
     this.project = project;
     this.name = name;
     this.filter_name = filter;
     this.filter_value = value;
-    this.data = null; //loaded metric data
+    this.data = data; //loaded metric data
   },
   load: function(){},
   show: function(){},
   stats_url: function(period, date_from, date_to){
-      return this.project + "/api/stats?period="+this.gottwall.period+"&name="+this.name;
+      return this.project + "/api/stats?period="+this.gottwall.current_period+"&name="+this.name;
   },
-  resource_loader: function(period){
+  get_resource_loader: function(period){
     return $.ajax({
       type: "GET",
-      url: this.start_url(this.project, this.name, period),
+      url: this.stats_url(this.project, this.name, period),
       dataType: 'json'});
   },
   is_equal: function(){
@@ -468,6 +502,18 @@ var Metric = Class.extend({
       filter_name: this.filter_name,
       filter_value: this.filter_value
     }
+  },
+  get_range: function(){
+    if(this.data){
+      return _.map(this.data['range'], function(item){
+	return {"x": item[0], "y": parseInt(item[1])};
+      });
+    }
+    return [];
+  },
+  get_chart_data: function(){
+    return {"values": this.get_range(),
+	    "key": this.name+":"+this.filter_name+":"+this.filter_value}
   }
 });
 
@@ -483,40 +529,7 @@ var Metric = Class.extend({
     self.gottwall = new GottWall(true);
 
     self.gottwall.render_selectors();
-    self.gottwall.render_chart();
-
-    // nv.addGraph(function(){
-    //   var chart = nv.models.lineWithFocusChart();
-
-    //   chart.xAxis.tickFormat(d3.format(',f'));
-
-    //   chart.yAxis.tickFormat(d3.format(',.2f'));
-
-    //   chart.y2Axis.tickFormat(d3.format(',.2f'));
-
-    //   d3.select('#chart svg').datum(testData()).transition().duration(500).call(chart);
-    //   d3.select('#chart svg').datum(testData2()).transition().duration(500).call(chart);
-
-    //   nv.utils.windowResize(chart.update);
-
-    //   return chart;
-    // });
-
-    // function testData(){
-    // 	return [{"key": "Filter name", values: [{x:1, y: 20}, {x:2, y: 30}]}];
-    // };
-    // });
-
-    // function testData() {
-    // 	return nv.stream_layers(3,128,.1).map(function(data, i) {
-    // 	  return {
-    // 	    key: 'Stream' + i,
-    // 	    values: data
-    // 	  };
-    // 	});
-    // }
-
-    //} //redner chart
+    self.gottwall.load_stats();
   });
 
 

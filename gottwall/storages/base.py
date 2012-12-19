@@ -12,12 +12,15 @@ GottWall storages backends
 """
 
 
+from logging import getLogger
 import tornadoredis
 import tornado.gen
 
 
 from gottwall.utils import get_by_period, MagicDict, get_datetime
 from gottwall.settings import STORAGE_SETTINGS_KEY
+
+logger = getLogger("gottwall.storages")
 
 
 class BaseStorage(object):
@@ -31,6 +34,9 @@ class BaseStorage(object):
     def setup(cls, application):
         """Setup storage to application
         """
+        logger.info("Setup storage: {0}".format(cls.__name__))
+        print("Setup storage: {0}".format(cls.__name__))
+
         storage = cls(application)
         application.storage = storage
         return storage
