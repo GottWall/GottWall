@@ -49,13 +49,14 @@ class HTTPApplication(Application):
                   "env": self.jinja_env}
 
         self.dirty_handlers = [
-            (r"/login", LoginHandler, params),
-            (r"/dashboard", DashboardHandler, params),
-            (r"/(?P<project>.+)/api/stats", StatsHandler, params),
-            (r"/(?P<project>.+)/api/metrics", MetricsHandler, params),
+            (r"{0}/login".format(self.config['PREFIX']), LoginHandler, params),
+            (r"{0}/dashboard".format(self.config['PREFIX']), DashboardHandler, params),
+            (r"{0}/(?P<project>.+)/api/stats".format(self.config['PREFIX']), StatsHandler, params),
+            (r"{0}/(?P<project>.+)/api/metrics".format(self.config['PREFIX']), MetricsHandler, params),
             # Default HTTP backend
-            (r"/(?P<project>.+)/api/store", HTTPBackendHandler, params),
-            (r"/", HomeHandler, params),]
+            (r"{0}/(?P<project>.+)/api/store".format(self.config['PREFIX']),
+             HTTPBackendHandler, params),
+            (r"{0}/".format(self.config['PREFIX']), HomeHandler, params),]
 
         tornado.web.Application.__init__(self, self.dirty_handlers, **config)
 

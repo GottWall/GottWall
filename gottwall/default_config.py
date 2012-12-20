@@ -41,3 +41,5 @@ DATABASE = {
     "PASSWORD": "",
     "HOST": "",
     "PORT": ""}
+
+PREFIX = '/gottwall'
