@@ -491,7 +491,7 @@ var GottWall = Class.extend({
 
       d3.select('#chart svg').datum(
 	_.map(metrics, function(metric){
-	  return metric.get_chart_data()})).call(chart);
+	  return metric.get_chart_data()})).transition().duration(500).call(chart);
       nv.utils.windowResize(chart.update);
 
       return chart;
