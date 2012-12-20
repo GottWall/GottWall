@@ -48,20 +48,20 @@ class APITestCase(AsyncHTTPBaseTestCase):
 
 
         # Get statistics by weeks
-        response = self.fetch("/test_project/api/stats?from_date=2012-01-20&to_date=2012-12-31&period=week",
+        response = self.fetch("/gottwall/test_project/api/stats?from_date=2012-01-20&to_date=2012-12-31&period=week",
                               method="GET")
 
         self.assertEquals(response.code, 400)
         self.assertTrue('You need specify name and period' in response.body)
 
-        response = self.fetch("/test_project/api/stats?from_date=2012-01&to_date=2012-12-31&period={0}&name=metric_name".format(x),
+        response = self.fetch("/gottwall/test_project/api/stats?from_date=2012-01&to_date=2012-12-31&period={0}&name=metric_name".format(x),
                               method="GET")
 
         self.assertEquals(response.code, 400)
         self.assertTrue("Invalid date range params" in response.body)
 
         for x in ['month', 'day', 'year', 'week', 'minute', 'all']:
-            response = self.fetch("/test_project/api/stats?from_date=2011-01-20&to_date=2013-12-31&period={0}&name=metric_name".format(x),
+            response = self.fetch("/gottwall/test_project/api/stats?from_date=2011-01-20&to_date=2013-12-31&period={0}&name=metric_name".format(x),
                               method="GET")
             self.assertEquals(response.code, 200)
 
@@ -84,7 +84,7 @@ class APITestCase(AsyncHTTPBaseTestCase):
                                  filters=filters)
 
         # Get statistics by weeks
-        response = self.fetch("/test_project/api/metrics",
+        response = self.fetch("/gottwall/test_project/api/metrics",
                               method="GET")
 
         response_data = json.loads(response.body)

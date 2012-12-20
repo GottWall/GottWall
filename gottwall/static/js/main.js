@@ -115,6 +115,9 @@ var GottWall = Class.extend({
     this.current_date_format = null;
     this.current_date_formatter = null;
 
+    this.current_from_date = null;
+    this.current_to_date = null;
+
     this.setup_defaults();
     this.add_bindings();
   },
@@ -135,6 +138,8 @@ var GottWall = Class.extend({
     }
 
     this.period_selector.find('button[data-type='+this.current_period+']').addClass('active');
+  },
+  set_dates: function(){
   },
   set_period: function(period){
     // Setup period and datetime format
@@ -215,6 +220,11 @@ var GottWall = Class.extend({
     });
     // Save data to storage
     this.save();
+  },
+  bind_dates_selector: function(){
+    var self = this;
+
+    //$(".intervals ");
   },
   add_bindings: function(){
     this.bind_period_selectors();
@@ -486,7 +496,8 @@ var GottWall = Class.extend({
       var chart = nv.models.lineChart();
 
       chart.xAxis.tickFormat(function(d) {
-        return d3.time.format(self.current_date_format)(new Date(d))
+	return self.current_date_formatter(new Date(d));
+//        return d3.time.format(self.current_date_format)(new Date(d))
       });
 
       d3.select('#chart svg').datum(
@@ -522,7 +533,7 @@ var Metric = Class.extend({
   },
   load: function(){},
   show: function(){},
-  stats_url: function(date_from, date_to){
+  stats_url: function(){
     var url = this.project + "/api/stats?period="+this.gottwall.current_period+"&name="+this.name;
     if(this.filter_name && this.filter_value){
       url = url + "&filter_name="+this.filter_name+"&filter_value="+this.filter_value;
