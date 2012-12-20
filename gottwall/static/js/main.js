@@ -96,6 +96,7 @@ var GottWall = Class.extend({
     "month": "%Y-%m",
     "hour": "%Y-%m-%dT%H",
     "minute": "%Y-%m-%dT%H:%M",
+    "week": "%Y-%W"
   },
 
   init: function(debug){
@@ -112,6 +113,7 @@ var GottWall = Class.extend({
     this.project_selector = $("#project-selector");
     this.current_period = null;
     this.current_date_format = null;
+    this.current_date_formatter = null;
 
     this.setup_defaults();
     this.add_bindings();
@@ -137,11 +139,14 @@ var GottWall = Class.extend({
   set_period: function(period){
     // Setup period and datetime format
     this.current_period = period;
-
+    console.log("Set period"+period);
+    console.log(_.has(this.date_formats, period));
     if(_.has(this.date_formats, period)){
-      var format = d3.time.format("%Y-%m-%d");
-      this.current_date_format = d3.time.format(this.date_formats[period]);
+      console.log("Setup current date formatter");
+      this.current_date_format = this.date_formats[period];
+      this.current_date_formatter = d3.time.format(this.date_formats[period]);
     }
+    return period
   },
   get_date_format: function(){
     if(!this.current_date_format){
@@ -156,7 +161,7 @@ var GottWall = Class.extend({
     var date_format = this.get_date_format();
 
     if(date_format){
-      return this.current_date_format.parse(d);
+      return this.current_date_formatter.parse(d);
     }
   },
   get_current_period: function(){
@@ -183,6 +188,7 @@ var GottWall = Class.extend({
 	// Activate filter
 	button.parent().children().removeClass('active');
 	button.addClass('active');
+	self.set_period(self.current_period);
       };
       // Save data to storage
       self.save();
@@ -205,7 +211,7 @@ var GottWall = Class.extend({
   bind_redraw_button: function(){
     var self = this;
     $('#redraw-button').bind('click', function(){
-      self.render_chart();
+      self.load_stats();
     });
     // Save data to storage
     this.save();
@@ -472,22 +478,16 @@ var GottWall = Class.extend({
 	return self.render_chart(metrics);
       });
   },
-  chart_callback: function(){
-    var chart = nv.models.lineChart();
-    chart.yAxis.axisLabel('Count').tickFormat(d3.format('.2f'));
-
-    chart.xAxis.axisLabel('Date range');
-
-
-  },
   render_chart: function(metrics){
     this.debug("Chart rendering...");
+    var self = this;
 
     nv.addGraph(function(){
       var chart = nv.models.lineChart();
 
-      chart.xAxis.axisLabel('Count').tickFormat(function(d) {
-        return d;
+      chart.xAxis.tickFormat(function(d) {
+	console.log(self.current_date_format);
+        return d3.time.format(self.current_date_format)(new Date(d))
       });
 
       d3.select('#chart svg').datum(
@@ -516,7 +516,7 @@ var Metric = Class.extend({
       this.filter_name = null;
     }
     else{
-      this.filter_name = name;
+      this.filter_name = filter;
     }
     this.filter_value = value;
     this.data = data; //loaded metric data
