@@ -486,7 +486,6 @@ var GottWall = Class.extend({
       var chart = nv.models.lineChart();
 
       chart.xAxis.tickFormat(function(d) {
-	console.log(self.current_date_format);
         return d3.time.format(self.current_date_format)(new Date(d))
       });
 
