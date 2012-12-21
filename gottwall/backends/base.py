@@ -35,12 +35,17 @@ class BaseBackend(object):
     def process_data(self, project, data, callback=None):
         """Process `data`
         """
+        res = False
         if data.get('action', 'incr') == 'incr':
             data.pop('action', None)
-            self.storage.incr(project, **data)
+
+            res = (yield gen.Task(self.storage.incr, project, **data))
+
+        if callback:
+            callback(res)
 
 
-    def setup_backend(self, io_loop, config, storage):
+    def setup_backend(self, io_loop, config, storage, tasks):
         """Setup backend for application
 
         :param io_loop: :class:`tornado.ioloop.IOLoop` instance

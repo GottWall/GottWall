@@ -17,6 +17,7 @@ from backends import TCPBackendTestCase, HTTPBackendTestCase, RedisBackendTestCa
 from api import APITestCase
 from storages import StorageTestCase, RedisStorageTestCase, MemoryStorageTestCase
 from utils import UtilsTestCase
+from app import ProcessorTestCase
 
 
 def suite():
@@ -30,6 +31,7 @@ def suite():
     suite.addTest(unittest.makeSuite(RedisStorageTestCase))
     suite.addTest(unittest.makeSuite(MemoryStorageTestCase))
     suite.addTest(unittest.makeSuite(UtilsTestCase))
+    suite.addTest(unittest.makeSuite(ProcessorTestCase))
     return suite
 
 if __name__ == '__main__':

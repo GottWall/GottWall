@@ -78,7 +78,7 @@ class RedisBackendTestCase(AsyncHTTPBaseTestCase, RedisTestCaseMixin):
         app.configure_app(self.io_loop)
         return app
 
-    #@async_test
+    @async_test
     @tornado.gen.engine
     def test_subscribe(self):
         app = self.get_app()
@@ -86,7 +86,8 @@ class RedisBackendTestCase(AsyncHTTPBaseTestCase, RedisTestCaseMixin):
                        "timestamp": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S"),
                        "filters": {"views": "anonymouse"},
                        "action": "incr",
-                       "value": 2}
+                       "value": 2,
+                       "type": "        import ipdb; ipdb.set_trace()bucket"}
 
         client = self.client
         key = "gottwall:{0}:{1}:{2}".format("test_project",
@@ -96,8 +97,9 @@ class RedisBackendTestCase(AsyncHTTPBaseTestCase, RedisTestCaseMixin):
         (yield tornado.gen.Task(client.publish, key,
                                 json.dumps(metric_data)))
 
-        ## keys = yield tornado.gen.Task(client.keys, "{0}:{1}*".format("test_project", metric_data['name']))
-        ## print(keys)
+        from pprint import pprint
+        pprint(app.storage._store)
+
 
         self.stop()
 
@@ -136,6 +138,7 @@ class HTTPBackendTestCase(AsyncHTTPBaseTestCase):
                               headers={"content-type": "application/json",
                                        "Authorization": b64encode(authorization)})
 
+
         self.assertEquals(response.body, "OK")
         self.assertEquals(response.code, 200)
 
@@ -147,6 +150,8 @@ class HTTPBackendTestCase(AsyncHTTPBaseTestCase):
                               body=json.dumps(metric_data),
                               headers={"content-type": "application/json",
                                        "X-GottWall-Auth": auth_value})
+        from pprint import pprint
+        pprint(app.storage._store)
 
         self.assertEquals(response.body, "OK")
         self.assertEquals(response.code, 200)

@@ -20,7 +20,7 @@ from gottwall.config import Config, default_settings
 import gottwall.default_config
 from base import BaseTestCase, AsyncHTTPBaseTestCase
 from gottwall.utils import MagicDict
-import datetime
+
 
 class APITestCase(AsyncHTTPBaseTestCase):
 

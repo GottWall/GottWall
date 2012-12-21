@@ -34,9 +34,6 @@ class BaseStorage(object):
     def setup(cls, application):
         """Setup storage to application
         """
-        logger.info("Setup storage: {0}".format(cls.__name__))
-        print("Setup storage: {0}".format(cls.__name__))
-
         storage = cls(application)
         application.storage = storage
         return storage

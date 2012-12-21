@@ -108,7 +108,7 @@ class BaseHandler(RequestHandler):
 
 
 class DashboardHandler(BaseHandler):
-    #@authenticated
+    @authenticated
     def get(self, *args, **kwargs):
         self.render("dashboard.html", config=self.application.config,
                     projects=self.config['PROJECTS'])
@@ -119,6 +119,10 @@ class HomeHandler(BaseHandler):
     def get(self, *args, **kwargs):
         storage = self.application.storage
         config = self.application.config
+
+        if not self.current_user:
+            self.redirect(self.reverse_url('login'))
+
         self.render("index.html", storage=storage.__class__.__name__,
                     backends=self.application.config['BACKENDS'],
                     projects=config['PROJECTS'],
