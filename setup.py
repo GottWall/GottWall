@@ -101,7 +101,7 @@ if not (is_py3 or (is_py2 and py_ver[1] >= 7)):
 setup(
     name="gottwall",
     version=VERSION,
-    description="Simple cURL wrapper for Humans",
+    description="Realtime statistics aggregation platform",
     long_description=readme_content,
     author="Alex Lispython",
     author_email="alex@obout.ru",
