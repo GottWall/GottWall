@@ -41,3 +41,8 @@ DATABASE = {
     "PASSWORD": "",
     "HOST": "",
     "PORT": ""}
+
+PREFIX = '/gottwall'
+
+# Run every minute
+PERIODIC_PROCESSOR_TIME = 1000*60*1

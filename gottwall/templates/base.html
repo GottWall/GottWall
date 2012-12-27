@@ -2,15 +2,23 @@
 <html>
   <head>
     <title>{% block title %}{{ handler.settings['site_title'] }}{% endblock %}</title>
-    <meta name="description" content="{{ handler.settings['site_title'] }}" />
-    <link rel="stylesheet" type="text/css" media="all"  href="{{ static }}vendor/bootstrap/css/bootstrap.css"/>
+    <meta name="description" content="{{ handler.settings['site_title'] }}"/>
+    <link rel="stylesheet" type="text/css" media="all" href="{{ static }}vendor/bootstrap/css/bootstrap.css"/>
+    <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/metric.css"/>
     <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/main.css"/>
+    <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/nv.d3.css"/>
 
-    <script type="text/javascript" src="/static/js/jquery.js"></script>
+    <script type="text/javascript" src="{{ static }}js/underscore-min.js"></script>
+    <script type="text/javascript" src="{{ static }}js/jquery.js"></script>
     <script type="text/javascript" src="{{ static }}vendor/bootstrap/js/bootstrap.js"></script>
+    <script type="text/javascript" src="{{ static }}js/d3.v2.js"></script>
+    <script type="text/javascript" src="{{ static }}js/nv.d3.js"></script>
+    <script type="text/javascript" src="{{ static }}js/swig.pack.min.js"></script>
+    <script type="text/javascript" src="{{ static }}js/main.js"></script>
+    {% block head %}{% endblock %}
   </head>
   <body>
-
+    {% block header %}
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
@@ -19,42 +27,52 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="brand" href="./index.html">Statistics</a>
-            <div class="pull-right">
-                <ul class="nav secondary-nav project-dropdown">
-                    <li class="dropdown js-project-dropdown">
-                      <a class="dropdown-toggle" data-toggle="dropdown" href="">
-                        <small>Project:</small>
-                        <span class="js-current-project">inTaxi</span>
-                        <b class="caret"></b>
-                      </a>
-                      <ul class="dropdown-menu pull-right">
-                            <li><a href="?project=intaxi" title="inTaxi" class="js-project-link">inTaxi</a></li>
-                            <li><a href="?project=test2" title="test2" class="js-project-link">test2</a></li>
-                      </ul>
-                    </li>
+          <a class="brand" href="/">{{ handler.settings['site_title'] }}</a>
+          <div class="pull-left">
+            <ul class="nav secondary-nav project-dropdown">
+              <li class="dropdown js-project-dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="">
+                  <span class="js-current-project">Projects</span>
+                  <b class="caret"></b>
+                </a>
+                <ul class="dropdown-menu pull-right" id="project-selector">
+		  {% for project in projects -%}
+		  <li><a href="#project" title="{{ project }}" data-name="{{ project }}" class="js-project-link active">{{ project }}</a></li>
+		  {%- endfor %}
                 </ul>
-            </div>
+              </li>
+            </ul>
+          </div>
+	  <ul class="nav pull-right">
+	    {% if user.is_authenticated() %}
+	    <ul class="nav secondary-nav">
+              <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="">
+                  <span>{{ user.username }}</span>
+                  <b class="caret"></b>
+                </a>
+                <ul class="dropdown-menu pull-right">
+		  <li><a href="#{{ logout }}">Logout</a></li>
+                </ul>
+              </li>
+            </ul>
+	    {% else %}
+	    <li><a href="{{ reverse('login') }}">Login</a></li>
+	    {% endif %}
+          </ul>
         </div>
       </div>
     </div>
-    <div class="main">
-        <div class="container">
-            <div class="raw">
-                <div class="span3 bs-docs-sidebar">
-                    <ul class="nav nav-list bs-docs-sidenav affix">
-                      <li class=""><a href="#"><i class="icon-chevron-right"></i> Metrica 1</a></li>
-                      <li class=""><a href="#"><i class="icon-chevron-right"></i> Metrica 2</a></li>
-                      <li class="active"><a href="#"><i class="icon-chevron-right"></i> Metrica 3</a></li>
-                    </ul>
-                </div>
-                <div class="span9">
-                    <h1>{{ handler.settings['site_title'] }}</h1>
-                    <p>Simple statistics aggregation platform</p>.
-                    <h2>Store backend: {{ storage }}</h2>
-                </div>
-            </div>
-        </div>
+    {% endblock %}
+    <div class="container">
+    {% block content %}
+    <h1>Not implemented error</h1>
+    {% endblock %}
+    {% block footer %}
+    <footer>
+      <p>© Company 2012</p>
+    </footer>
+    {% endblock %}
     </div>
-  </body>
+</body>
 </html>

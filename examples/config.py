@@ -5,7 +5,7 @@ STORAGE = 'gottwall.storages.RedisStorage'
 
 BACKENDS = {
     'gottwall.backends.redis.RedisBackend': {
-        'HOST': 'localhost',
+        'HOST': "127.0.0.1",
         'PORT': 6379,
         'PASSWORD': None,
         'DB': 2,
@@ -22,7 +22,7 @@ STORAGE_SETTINGS = dict(
     REDIS_DB = 2
 )
 
-REDIS = {"CHANNEL": "test"}
+REDIS = {"CHANNEL": "gottwall"}
 
 
 USERS = []
@@ -31,9 +31,8 @@ SECRET_KEY = "dwefwefwefwecwef"
 
 # http://public_key:secret_key@host.com
 
-PROJECTS = {"test_project": "public key",
+PROJECTS = {"test_project": "my_public_key",
             "another_project": "public_key2"}
-
 
 cookie_secret="fkewrlhfwhrfweiurbweuybfrweoubfrowebfioubweoiufbwbeofbowebfbwup2XdTP1o/Vo=",
 

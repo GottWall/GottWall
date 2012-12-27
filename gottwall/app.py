@@ -17,7 +17,7 @@ import os
 import importlib
 import os.path
 import tornado.ioloop
-from tornado.web import Application
+from tornado.web import Application, URLSpec
 from tornado.options import define, options
 from tornado import httpserver
 from tornado import autoreload
@@ -27,6 +27,7 @@ from config import Config, default_settings
 from handlers import BaseHandler, DashboardHandler, LoginHandler, HomeHandler,\
      StatsHandler, MetricsHandler
 from backends import HTTPBackend as HTTPBackendHandler
+from processing import PeriodicProcessor, Tasks
 from jinja_utils import load_filters, load_extensions, load_globals
 from jinja2 import Environment, FileSystemLoader, TemplateNotFound
 
@@ -43,21 +44,25 @@ class HTTPApplication(Application):
         self.config = config
         self.db = self.configure_db()
         self.jinja_env = self.configure_env()
+        self.data_processor = None
+        self.tasks = Tasks()
 
         params = {"config": self.config,
                   "db": self.db,
                   "env": self.jinja_env}
 
         self.dirty_handlers = [
-            (r"/login", LoginHandler, params),
-            (r"/dashboard", DashboardHandler, params),
-            (r"/(?P<project>.+)/api/stats", StatsHandler, params),
-            (r"/(?P<project>.+)/api/metrics", MetricsHandler, params),
+            (r"{0}/login".format(self.config['PREFIX']), LoginHandler, params, 'login'),
+            (r"{0}/dashboard".format(self.config['PREFIX']), DashboardHandler, params, 'dashboard'),
+            (r"{0}/(?P<project>.+)/api/stats".format(self.config['PREFIX']), StatsHandler, params, 'api-stats'),
+            (r"{0}/(?P<project>.+)/api/metrics".format(self.config['PREFIX']), MetricsHandler, params, 'api-metrics'),
             # Default HTTP backend
-            (r"/(?P<project>.+)/api/store", HTTPBackendHandler, params),
-            (r"/", HomeHandler, params),]
+            (r"{0}/(?P<project>.+)/api/store".format(self.config['PREFIX']),
+             HTTPBackendHandler, params, 'store'),
+            (r"{0}/".format(self.config['PREFIX']), HomeHandler, params, 'home'),]
 
-        tornado.web.Application.__init__(self, self.dirty_handlers, **config)
+        tornado.web.Application.__init__(
+            self, [URLSpec(*x) for x in self.dirty_handlers], **config)
 
     def configure_env(self):
         """Configure template env
@@ -70,6 +75,7 @@ class HTTPApplication(Application):
                           extensions=self.config.get('JINJA2_EXTENSIONS', ()))
         filters = self.config.get('JINJA2_FILTERS', ())
         globals = self.config.get('JINJA2_GLOBALS', ())
+
         env.filters.update(load_filters(filters))
         env.globals.update(load_globals(globals))
 
@@ -85,7 +91,12 @@ class HTTPApplication(Application):
         """Configure application backends and storages
         """
         storage = self.configure_storage(self.config['STORAGE'])
-        self.configure_backends(self.config['BACKENDS'], io_loop, self.config, storage)
+        self.configure_backends(self.config['BACKENDS'], io_loop, self.config, storage, self.tasks)
+
+        # Add periodic processing
+        self.data_processor = PeriodicProcessor(self, io_loop=io_loop)
+        self.data_processor.start()
+
 
     def configure_storage(self, storage_path):
         """Configure data storage by path
@@ -101,7 +112,7 @@ class HTTPApplication(Application):
         return storage.setup(self)
 
     @staticmethod
-    def configure_backends(backends, io_loop, config, storage):
+    def configure_backends(backends, io_loop, config, storage, tasks):
         """Configture data receive backends
 
         :param backends: list of backends
@@ -115,7 +126,7 @@ class HTTPApplication(Application):
                 backend = getattr(backend_module, name)
             except (ImportError, AttributeError), e:
                 raise Exception("Invalid backend: {0}".format(e))
-            backend.setup_backend(io_loop, config, storage)
+            backend.setup_backend(io_loop, config, storage, tasks)
 
         return True
 

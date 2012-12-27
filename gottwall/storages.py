@@ -85,6 +85,7 @@ class MemoryStorage(BaseStorage):
     def __init__(self, application):
         super(MemoryStorage, self).__init__(application)
         self._store = MagicDict()
+        self._metrics = {}
 
     def save_value(self, project, name, period, timestamp, fname=None, fvalue=None, value=1):
         """Save value to store dict
@@ -96,6 +97,31 @@ class MemoryStorage(BaseStorage):
         else:
             self._store[project][name][period][timestamp][fname][fvalue] += value
         return self._store[project][name][period][timestamp][fname][fvalue]
+
+    def save_metric_info(self, project, name, filters={}):
+        """Save metric filters
+
+        :param project: project name
+        :param name: metric name
+        :param filters: metric filters
+        """
+        if project not in self._metrics:
+            self._metrics[project] = {}
+
+        if name not in self._metrics[project].keys():
+            self._metrics[project][name] = {}
+
+        if not filters:
+            return False
+
+        for f, value in filters.iteritems():
+
+            if f not in self._metrics[project][name].keys():
+                self._metrics[project][name][f] = []
+
+            if value not in self._metrics[project][name][f]:
+                self._metrics[project][name][f].append(value)
+
 
     def incr(self, project, name, timestamp, value=1, filters=None, **kwargs):
         """Add value to metric counter
@@ -112,6 +138,8 @@ class MemoryStorage(BaseStorage):
                 for fname, fvalue in filters.iteritems():
                     self.save_value(project, name, period, get_by_period(timestamp, period), fname, fvalue, value)
             self.save_value(project, name, period, get_by_period(timestamp, period), None, None, value)
+
+        self.save_metric_info(project, name, filters)
         return True
 
 
@@ -145,7 +173,7 @@ class MemoryStorage(BaseStorage):
         :param project: project name
         :returns: result dict
         """
-        return {}
+        return self._metrics[project]
 
 
 class RedisStorage(BaseStorage):
@@ -163,8 +191,22 @@ class RedisStorage(BaseStorage):
 
         self.client.connect()
 
+    def save_metric_info(self, pipe, project, name, filters=None):
+        """Save metric filters
+
+        :param project: project name
+        :param name: metric name
+        :param filters: metric filters
+        """
+        if not filters:
+            return False
+
+        for f, value in filters.iteritems():
+            pipe.sadd("{0}-metrics:{1}".format(project, name), value)
+
     @tornado.gen.engine
     def incr(self, project, name, timestamp, value=1, filters=None, **kwargs):
+
         pipe = self.client.pipeline()
 
         for period in self._application.config['PERIODS']:
@@ -172,9 +214,9 @@ class RedisStorage(BaseStorage):
                 for fname, fvalue in filters.iteritems():
                     pipe.incr(self.make_key(project, name, period, timestamp, fname, fvalue), value)
             pipe.incr(self.make_key(project, name, period, timestamp, None, None), value)
+            self.save_metric_info(pipe, project, name, filters)
 
-        res = yield tornado.gen.Task(pipe.execute)
-        #yield tornado.gen.Callback("done")
+        yield tornado.gen.Task(pipe.execute)
 
     def save_value(self, project, key, value):
         """Increment key value
@@ -186,7 +228,6 @@ class RedisStorage(BaseStorage):
 
         self.client.incr(key, value)
 
-
     def make_key(self, project, name, period, timestamp,
                  fname=None, fvalue=None):
         """Make key from parameters
@@ -196,29 +237,61 @@ class RedisStorage(BaseStorage):
         :param period: period prefix
         :param timestamp: timestamp
         :param filter: filtername
+
         """
         parts = [project, name, period, get_by_period(timestamp, period)]
-        if fname and fvalue:
+
+        if not fname and not fvalue:
+            parts.append("{0}|{1}".format('none', 'none'))
+        else:
             parts.append("{0}|{1}".format(fname, fvalue))
 
         return ';'.join(parts)
 
-    def slice_data(self, project, name, period, from_date=None, to_date=None, filter_name=None, filter_value=None):
-        return []
+    def slice_data(self, project, name, period, from_date=None, to_date=None,
+                   fname=None, fvalue=None, callback=None):
 
-    @tornado.gen.engine
-    def metrics(self, project):
+        parts = [project, name, period, "*"]
+
+        if not fname and not fvalue:
+            parts.append("{0}|{1}".format('none', 'none'))
+        else:
+            parts.append("{0}|{1}".format(fname, fvalue))
+
+        key = ';'.join(parts)
+
+
+        @tornado.gen.engine
+        def parse_keys(keys):
+
+            items = yield tornado.gen.Task(self.client.mget, keys)
+
+            if callback:
+                callback(zip(map(lambda key: key.split(";")[3], keys), items))
+
+        self.client.keys(key, callback=parse_keys)
+
+    #@tornado.gen.engine
+    def metrics(self, project, callback=None):
         """Return all metrics with filters
 
         :param project: project name
         :returns: result dict
         """
+        res = {}
 
-        #metrics = self.client.smembers("{0}-metrics")
+        @tornado.gen.engine
+        def parse_keys(keys):
+            for key in keys:
+                items = yield tornado.gen.Task(self.client.smembers, key)
+                _, name = key.split(":")
+                res[name] = list(items)
 
-        return {}
+            if callback:
+                callback(res)
 
-    @tornado.gen.engine
+        self.client.keys("{0}-metrics:*".format(project), callback=parse_keys)
+
     def get_metric_value(self, project, name, period, timestamp,
                          fvalue=None, fname=None):
         """Get value from metric
@@ -232,7 +305,6 @@ class RedisStorage(BaseStorage):
         pipe = self.client.pipeline()
 
         pipe.get(self.make_key(project, name, period, timestamp, fvalue, fname))
-        res = yield tornado.gen.Task(pipe.execute)
-
-        print(" >>>>> ", res)
-
+        def callback(*args, **kwargs):
+            print(args, kwargs)
+        pipe.execute(callback=callback)

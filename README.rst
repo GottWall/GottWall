@@ -14,6 +14,24 @@ Features
 - Data aggregation
 
 
+Backend
+-------
+
+- TCP/IP backend
+- Redis Pub/Sub backend
+- HTTP Backend
+
+Storages
+--------
+
+Storages used to store statistics
+
+- Memory storage (not optimal for hightload projects)
+- Redis storage (fast for counters increment, but time complexity O(N) for data range select)
+- TODO: mongodb
+- TODO: SQL
+
+
 INSTALLATION
 ------------
 
@@ -26,8 +44,10 @@ or
 `easy_install gottwall`
 
 
-USAGE
------
+CONFIGURATION
+-------------
+
+See gottwall/examples/config.py
 
 
 

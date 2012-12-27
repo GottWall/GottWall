@@ -3,7 +3,7 @@
 }
 
 .bs-docs-sidenav {
-    width: 228px;
+    width: 220px;
     margin: 30px 0 0;
     padding: 0;
     background-color: #fff;
@@ -84,3 +84,19 @@
     top: auto;
     bottom: 270px;
 }
+
+.chart-control {
+                 margin-top: 40px;
+                 padding-top: 30px;
+ }
+
+
+#metrics-list .activated a,
+#filters-list .activated a,
+#values-list .activated a {
+                            background-color: red;
+}
+
+#chart {
+         height: 450px;
+ }

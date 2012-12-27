@@ -10,10 +10,9 @@ Core GottWall utilities
 :license: , see LICENSE for more details.
 :github: http://github.com/Lispython/projectname
 """
-
 import os.path
-from urllib2 import parse_http_list
 from datetime import datetime, timedelta, date
+from urllib2 import parse_http_list
 
 from settings import PROJECT_ROOT, TIMESTAMP_FORMAT, PERIOD_PATTERNS
 
@@ -25,32 +24,50 @@ def rel(*args):
     return os.path.join(PROJECT_ROOT, *args)
 
 
-def timestamp_to_datetime(timestamp):
+def timestamp_to_datetime(timestamp, format=TIMESTAMP_FORMAT):
     """Convert `timestamp` to `datetime`
 
     :param timestamp: str
     """
     if isinstance(timestamp, (str, unicode)):
-        return datetime.strptime(timestamp, TIMESTAMP_FORMAT)
+        return datetime.strptime(timestamp, format)
     return timestamp
 
 
-def get_by_period(timestamp, period):
+def get_by_period(dt, period):
     """Ge"%Y-%m-%dT%H:%M"t period value by timestamp
 
-    :param timestamp: `datetime.datetime` instance
+    :param dt: `datetime.datetime` instance
     :param period: period name
+    :returns: str repr of timestamp
     """
-    timestamp = timestamp_to_datetime(timestamp)
+    ts = timestamp_to_datetime(dt)
 
     if period == "week":
-        return "{0}-{1}".format(timestamp.year, timestamp.isocalendar()[1])
+        return "{0}-{1}".format(ts.year, ts.isocalendar()[1])
     elif period in PERIOD_PATTERNS:
-        return timestamp.strftime(PERIOD_PATTERNS[period])
+        return ts.strftime(PERIOD_PATTERNS[period])
     return None
 
+
 def get_datetime(timestamp, period):
-    if period in PERIOD_PATTERNS:
+    """Convert str timestamp to datetime object
+
+    Reverse for ``get_by_period``
+
+    :param timestamp: str representation of time
+    :param perid: period
+    """
+    if period == 'week' and isinstance(timestamp, (str, unicode)):
+        year, week = timestamp.split("-")
+        ret = datetime.strptime("{0}-{1}-1".format(year, week), '%Y-%W-%w')
+        if date(int(year), 1, 4).isoweekday() > 4:
+            ret -= timedelta(days=7)
+        return ret
+    if isinstance(timestamp, datetime):
+        return timestamp
+
+    elif period in PERIOD_PATTERNS:
         return datetime.strptime(timestamp, PERIOD_PATTERNS[period])
     return None
 

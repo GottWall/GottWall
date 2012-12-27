@@ -5,6 +5,7 @@ from datetime import datetime
 import unittest
 
 from gottwall.utils import timestamp_to_datetime, get_by_period, MagicDict
+import tornadoredis
 
 
 def async_test_ex(timeout=5):
@@ -13,6 +14,7 @@ def async_test_ex(timeout=5):
             try:
                 func(self, *args, **kwargs)
             except Exception, e:
+                print(e)
                 self.stop()
                 raise
             return self.wait(timeout=timeout)
@@ -36,3 +38,6 @@ class UtilsTestCase(unittest.TestCase):
         magic_dict = MagicDict()
 
         self.assertTrue(isinstance(magic_dict['key'], MagicDict))
+
+
+
