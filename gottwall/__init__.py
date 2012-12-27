@@ -14,8 +14,8 @@ Simple statistics aggregator
 __all__ = 'get_version',
 __author__ = "Alex Lispython (alex@obout.ru)"
 __license__ = "BSD, see LICENSE for more details"
-__version_info__ = (0, 1, 2)
-__build__ = 0x00003
+__version_info__ = (0, 1, 3)
+__build__ = 0x00004
 __version__ = ".".join(map(str, __version_info__))
 __maintainer__ = "Alexandr Lispython"
 

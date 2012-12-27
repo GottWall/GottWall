@@ -27,7 +27,7 @@ except Exception, e:
     print(e)
     readme_content = __doc__
 
-VERSION = "0.1.2"
+VERSION = "0.1.3"
 
 
 class run_audit(Command):
@@ -102,7 +102,6 @@ for folder in ['static', 'templates']:
     for root, dirs, files in os.walk(os.path.join(PROJECT, folder)):
         for filename in files:
             PACKAGE_DATA.append("%s/%s" % (root[len(PROJECT) + 1:], filename))
-
 
 setup(
     name="gottwall",
