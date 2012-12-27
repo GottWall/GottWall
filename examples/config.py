@@ -7,7 +7,7 @@ BACKENDS = {
     'gottwall.backends.redis.RedisBackend': {
         'HOST': 'localhost',
         'PORT': 6379,
-        'PASSWORD': '',
+        'PASSWORD': None,
         'DB': 2,
         "CHANNEL": "gottwall"},
     'gottwall.backends.tcpip.TCPIPBackend': {}
@@ -15,10 +15,12 @@ BACKENDS = {
 
 TEMPLATE_DEBUG = True
 
-REDIS_HOST = 'localhost'
-REDIS_PORT = 6379
-REDIS_PASSWORD = None
-REDIS_DB = 2
+STORAGE_SETTINGS = dict(
+    REDIS_HOST = 'localhost',
+    REDIS_PORT = 6379,
+    REDIS_PASSWORD = None,
+    REDIS_DB = 2
+)
 
 REDIS = {"CHANNEL": "test"}
 
