@@ -10,7 +10,6 @@ Realtime statistics aggregation platform
 :license: BSD, see LICENSE for more details.
 """
 
-
 import sys
 import os
 try:
@@ -19,7 +18,7 @@ try:
 except:
     has_subprocess = False
 
-from setuptools import Command, setup
+from setuptools import Command, setup, find_packages
 
 try:
     readme_content = open(os.path.join(os.path.abspath(
@@ -28,7 +27,7 @@ except Exception, e:
     print(e)
     readme_content = __doc__
 
-VERSION = "0.1.0"
+VERSION = "0.1.1"
 
 
 class run_audit(Command):
@@ -97,6 +96,13 @@ install_requires = [
 if not (is_py3 or (is_py2 and py_ver[1] >= 7)):
     install_requires.append("importlib==1.0.2")
 
+PACKAGE_DATA = []
+PROJECT = 'gottwall'
+for folder in ['static', 'templates']:
+    for root, dirs, files in os.walk(os.path.join(PROJECT, folder)):
+        for filename in files:
+            PACKAGE_DATA.append("%s/%s" % (root[len(PROJECT) + 1:], filename))
+
 
 setup(
     name="gottwall",
@@ -108,7 +114,8 @@ setup(
     maintainer="Alexandr Lispython",
     maintainer_email="alex@obout.ru",
     url="https://github.com/lispython/gottwall",
-    packages=["gottwall"],
+    packages=find_packages(),
+    package_data={'': PACKAGE_DATA},
     entry_points={
         'console_scripts': [
             'gottwall = gottwall.runner:main',
