@@ -157,9 +157,9 @@ class RedisStorage(BaseStorage):
         config = self._application.config
 
         self.client = tornadoredis.Client(host=config[STORAGE_SETTINGS_KEY].get('REDIS_HOST', 'localhost'),
-                                          port=config[STORAGE_SETTINGS_KEY].get('REDIS_PORT', 6379),
+                                          port=int(config[STORAGE_SETTINGS_KEY].get('REDIS_PORT', 6379)),
                                           password=config[STORAGE_SETTINGS_KEY].get('REDIS_PASSWORD', None),
-                                          selected_db=config[STORAGE_SETTINGS_KEY].get('REDIS_DB', 0))
+                                          selected_db=int(config[STORAGE_SETTINGS_KEY].get('REDIS_DB', 0)))
 
         self.client.connect()
 
