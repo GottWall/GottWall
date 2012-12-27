@@ -216,7 +216,6 @@ class RedisStorage(BaseStorage):
 
         #metrics = self.client.smembers("{0}-metrics")
 
-        import ipdb; ipdb.set_trace()
         return {}
 
     @tornado.gen.engine
@@ -235,6 +234,5 @@ class RedisStorage(BaseStorage):
         pipe.get(self.make_key(project, name, period, timestamp, fvalue, fname))
         res = yield tornado.gen.Task(pipe.execute)
 
-        import ipdb; ipdb.set_trace()
         print(" >>>>> ", res)
 
