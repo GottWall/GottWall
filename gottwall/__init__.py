@@ -1,21 +1,21 @@
 #!/usr/bin/env python
-# -*- coding:  utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 gottwall
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~
 
 Simple statistics aggregator
 
 
-:copyright: (c) 2012 by GottWall team, see AUTHORS for more details.
+:copyright: (c) 2012 - 2013 by GottWall team, see AUTHORS for more details.
 :license: BSD, see LICENSE for more details.
 """
 
 __all__ = 'get_version',
-__author__ = "Alex Lispython (alex@obout.ru)"
+__author__ = "GottWal team"
 __license__ = "BSD, see LICENSE for more details"
-__version_info__ = (0, 1, 4)
-__build__ = 0x00005
+__version_info__ = (0, 1, 5)
+__build__ = 0x000015
 __version__ = ".".join(map(str, __version_info__))
 __maintainer__ = "Alexandr Lispython"
 
