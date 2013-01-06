@@ -6,7 +6,7 @@ gottwall
 
 Realtime statistics aggregation platform
 
-:copyright: (c) 2012 by GottWall team, see AUTHORS for more details.
+:copyright: (c) 2012 - 2013 by GottWall team, see AUTHORS for more details.
 :license: BSD, see LICENSE for more details.
 """
 
@@ -111,7 +111,7 @@ setup(
     author_email="alex@obout.ru",
     maintainer="Alexandr Lispython",
     maintainer_email="alex@obout.ru",
-    url="https://github.com/lispython/gottwall",
+    url="https://github.com/gottwall/gottwall",
     packages=find_packages(),
     package_data={'': PACKAGE_DATA},
     entry_points={
