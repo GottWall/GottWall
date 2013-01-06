@@ -1,6 +1,8 @@
 #files to ignoring
 *.pyc
 *.pyo
+*.swp
+*.swo
 *.hg*
 *.kpf
 *.sock
@@ -24,3 +26,4 @@ pip-log.txt
 *.egg-info*
 dist/*
 _build/*
+build/*

@@ -184,10 +184,11 @@ class RedisStorage(BaseStorage):
         super(RedisStorage, self).__init__(application)
         config = self._application.config
 
-        self.client = tornadoredis.Client(host=config[STORAGE_SETTINGS_KEY].get('HOST', 'localhost'),
-                                          port=config[STORAGE_SETTINGS_KEY].get('PORT', 6379),
-                                          password=config[STORAGE_SETTINGS_KEY].get('PASSWORD', None),
-                                          selected_db=config[STORAGE_SETTINGS_KEY].get('DB', 0))
+        self.client = tornadoredis.Client(host=config[STORAGE_SETTINGS_KEY].get('REDIS_HOST', 'localhost'),
+                                          port=int(config[STORAGE_SETTINGS_KEY].get('REDIS_PORT', 6379)),
+                                          password=config[STORAGE_SETTINGS_KEY].get('REDIS_PASSWORD', None),
+                                          selected_db=int(config[STORAGE_SETTINGS_KEY].get('REDIS_DB', 0)))
+
         self.client.connect()
 
     def save_metric_info(self, pipe, project, name, filters=None):
@@ -291,7 +292,6 @@ class RedisStorage(BaseStorage):
 
         self.client.keys("{0}-metrics:*".format(project), callback=parse_keys)
 
-
     def get_metric_value(self, project, name, period, timestamp,
                          fvalue=None, fname=None):
         """Get value from metric
@@ -308,4 +308,3 @@ class RedisStorage(BaseStorage):
         def callback(*args, **kwargs):
             print(args, kwargs)
         pipe.execute(callback=callback)
-

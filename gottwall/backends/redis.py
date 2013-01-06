@@ -38,9 +38,9 @@ class RedisBackend(BaseBackend):
 
         client = tornadoredis.Client(
             host=self.backend_settings.get('HOST', 'localhost'),
-            port=self.backend_settings.get('PORT', 6379),
+            port=int(self.backend_settings.get('PORT', 6379)),
             password=self.backend_settings.get('PASSWORD', None),
-            selected_db=self.backend_settings.get('DB', 0),
+            selected_db=int(self.backend_settings.get('DB', 0)),
             io_loop=self.io_loop)
 
         return client
