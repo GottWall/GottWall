@@ -83,9 +83,9 @@ class HTTPApplication(Application):
 
     def configure_db(self):
         return None
-        engine = create_engine("{ENGINE}://{USER}:{PASSWORD}@{HOST}:{PORT}/{NAME}".\
-                                    format(**self.config['DATABASE']), echo=False)
-        return scoped_session(sessionmaker(bind=engine))
+        # engine = create_engine("{ENGINE}://{USER}:{PASSWORD}@{HOST}:{PORT}/{NAME}".\
+        #                             format(**self.config['DATABASE']), echo=False)
+        # return scoped_session(sessionmaker(bind=engine))
 
     def configure_app(self, io_loop=None):
         """Configure application backends and storages

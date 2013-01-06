@@ -90,7 +90,6 @@ class HTTPBackend(BaseBackend, BaseHandler):
 
         return self.check_basic_auth(header, project)
 
-
     def check_basic_auth(self, header, project):
         """Parse basic authorization header
 
