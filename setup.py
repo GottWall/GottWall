@@ -27,7 +27,7 @@ except Exception, e:
     print(e)
     readme_content = __doc__
 
-VERSION = "0.1.5"
+VERSION = "0.1.6"
 
 
 class run_audit(Command):
@@ -83,14 +83,14 @@ tests_require = [
     'nose']
 
 install_requires = [
-    "redis",
+    "redis==2.7.2",
     "tornado==2.4",
     "python-dateutil==2.1",
-    "tornado-redis",
-    "commandor",
-    "SQLAlchemy",
+    "tornado-redis==1.0.1",
+    "commandor==0.1.1",
+    "SQLAlchemy==0.7.9",
     "alembic==0.4.0",
-    "Jinja2"]
+    "Jinja2==2.6"]
 
 if not (is_py3 or (is_py2 and py_ver[1] >= 7)):
     install_requires.append("importlib==1.0.2")
