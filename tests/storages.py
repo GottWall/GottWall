@@ -106,7 +106,7 @@ class MemoryStorageTestCase(AsyncBaseTestCase):
         self.assertTrue(isinstance(app.storage, MemoryStorage))
 
         project_name = "test_memory_project"
-        timestamp = datetime.datetime.utcnow()
+        timestamp = datetime.datetime(2012, 4, 10, 4, 5)
 
         for x in xrange(10):
             self.assertTrue((yield Task(storage.incr, project_name, "metric_name",
@@ -272,7 +272,7 @@ class RedisStorageTestCase(AsyncBaseTestCase, RedisTestCaseMixin):
         self.assertTrue(isinstance(app.storage, RedisStorage))
 
         project_name = "test_redis_project"
-        timestamp = datetime.datetime.utcnow()
+        timestamp = datetime.datetime(2012, 4, 10, 4, 5)
 
         for x in xrange(10):
             self.assertTrue((yield Task(storage.incr, project_name, "redis_metric_name",
