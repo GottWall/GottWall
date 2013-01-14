@@ -25,7 +25,7 @@ from utils import rel
 from config import Config, default_settings
 
 from handlers import BaseHandler, DashboardHandler, LoginHandler, HomeHandler,\
-     StatsHandler, MetricsHandler
+     StatsHandler, MetricsHandler, LogoutHandler
 from backends import HTTPBackend as HTTPBackendHandler
 from processing import PeriodicProcessor, Tasks
 from jinja_utils import load_filters, load_extensions, load_globals
@@ -53,6 +53,7 @@ class HTTPApplication(Application):
 
         self.dirty_handlers = [
             (r"{0}/login".format(self.config['PREFIX']), LoginHandler, params, 'login'),
+            (r"{0}/logout".format(self.config['PREFIX']), LogoutHandler, params, 'logout'),
             (r"{0}/dashboard".format(self.config['PREFIX']), DashboardHandler, params, 'dashboard'),
             (r"{0}/(?P<project>.+)/api/stats".format(self.config['PREFIX']), StatsHandler, params, 'api-stats'),
             (r"{0}/(?P<project>.+)/api/metrics".format(self.config['PREFIX']), MetricsHandler, params, 'api-metrics'),
@@ -60,6 +61,8 @@ class HTTPApplication(Application):
             (r"{0}/(?P<project>.+)/api/store".format(self.config['PREFIX']),
              HTTPBackendHandler, params, 'store'),
             (r"{0}/".format(self.config['PREFIX']), HomeHandler, params, 'home'),]
+
+        config['login_url'] = config['PREFIX'] + config['login_url']
 
         tornado.web.Application.__init__(
             self, [URLSpec(*x) for x in self.dirty_handlers], **config)

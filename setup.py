@@ -80,7 +80,8 @@ is_py2 = (py_ver[0] == 2)
 is_py3 = (py_ver[0] == 3)
 
 tests_require = [
-    'nose']
+    'nose',
+    'mock==1.0.1']
 
 install_requires = [
     "redis==2.7.2",
