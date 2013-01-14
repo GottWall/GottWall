@@ -85,6 +85,8 @@ var GottWall = Class.extend({
   activated_metrics_key: "activated_metrics",
   current_project_key: "current_project",
   current_period_key: "current_period",
+  from_date_key: "from-date",
+  to_date: "to-date",
 
   metrics_template: '{% for x in items %}<li {% if x[1] %}class="activated"{% endif %}><a href="#metric/{{ x[0] }}" data-name="{{ x[0] }}">{{ x[0] }}</a></li>{% endfor %}',
   values_template: '{% for value in items %}<li {% if value[1] %}class="activated"{% endif %}><a href="#filters/{{ metric_name }}/{{ filter_name }}/{{ value[0] }}" data-name="{{ value[0] }}">{{ value[0] }}</a></li>{% endfor %}',
@@ -115,8 +117,11 @@ var GottWall = Class.extend({
     this.current_date_format = null;
     this.current_date_formatter = null;
 
-    this.current_from_date = null;
-    this.current_to_date = null;
+    this.from_date = null;
+    this.to_date = null;
+
+    this.from_date_selector = $("#"+this.from_date_key);
+    this.to_date_selector = $("#"+this.to_date_key);
 
     this.setup_defaults();
     this.add_bindings();
@@ -221,15 +226,31 @@ var GottWall = Class.extend({
     // Save data to storage
     this.save();
   },
-  bind_dates_selector: function(){
+  bind_dates_selectors: function(){
     var self = this;
+    this.from_date_selector.bind('click', function(e){
+      var input = $(this);
 
-    //$(".intervals ");
+      if(input.val() != self.from_date){
+	self.from_date = input.val();
+      }
+    });
+
+    this.to_date_selector.bind('click', function(e){
+      var input = $(this);
+
+      if(input.val() != self.to_date){
+	self.to_date = input.val();
+      }
+    });
+
+
   },
   add_bindings: function(){
     this.bind_period_selectors();
     this.bind_project_selector();
     this.bind_redraw_button();
+    this.bind_dates_selectors();
   },
 
   save: function(){
@@ -258,6 +279,8 @@ var GottWall = Class.extend({
     if(_.keys(this.activated_metrics).length<=0){
       this.activated_metrics = JSON.parse(localStorage.getItem(this.activated_metrics_key)) || {};
     }
+    this.from_date = this.from_date || localStorage.getItem(this.from_date_key);
+    this.to_date = this.to_date || localStorage.getItem(this.to_date_key);
   },
   get_metrics_list: function(){
     // Get metrics as plain list

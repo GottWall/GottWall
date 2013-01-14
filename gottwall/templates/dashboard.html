@@ -7,7 +7,7 @@
 {% block content %}
 <div class="row chart-control">
   <div class="span8 periods">
-    <span>Детализация по:</span>
+    <button class="btn" id="chart-add">+</button>
 
     <div class="btn-group selector">
       <button class="btn" data-type="year">годам</button>
@@ -20,7 +20,7 @@
   </div>
 
   <div class="span5 intervals">
-    <span>Интервал: </span>
+    Интервал:
     с <input type="date" name="start-date" class="input_date start-date" id="from-date">
     по <input type="date" name="end-date" class="input_date end-date" id="to-date">
   </div>
@@ -29,7 +29,7 @@
   </div>
 </div>
 
-<div class="hero-unit chart-area">
+<div class="hero-unit chart-area" id="charts">
   <div id="chart">
     <svg></svg>
   </div>
