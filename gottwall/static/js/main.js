@@ -78,13 +78,61 @@
 })(jQuery);
 
 
-var GottWall = Class.extend({
+var Chart = Class.extend({
+  //chart_template: '<div class="hero-unit chart-area"><ul class="dropdown-menu" role="menu" id="chart-{{ id }}-metrics-selector"></ul><ul class="dropdown-menu" role="menu" id="chart-{{ id }}-filters-selector"></ul><div id="chart-{{ id }}"><svg></svg></div></div>',
+  metrics_template: '{% for x in items %}<li {% if x[1] %}class="activated"{% endif %}><a href="#metric/{{ x[0] }}" data-name="{{ x[0] }}">{{ x[0] }}</a></li>{% endfor %}',
+  filter_template: '',
+  filter_value_template: '',
 
+  init: function(gottwall, project, id, period){
+    this.id = id;
+    this.gottwall = gottwall;
+    this.period = period || 'month';
+    this.node = null;
+  },
+  node_key: function(){
+    return "chart-"+this.id;
+  },
+  render: function(){
+    // Rendering chart
+    // this.debug("Chart rendering...");
+//     var self = this;
+
+//     nv.addGraph(function(){
+//       var chart = nv.models.lineChart();
+
+//       chart.xAxis.tickFormat(function(d) {
+// 	return self.current_date_formatter(new Date(d));
+// //        return d3.time.format(self.current_date_format)(new Date(d))
+//       });
+
+//       d3.select('#chart svg').datum(
+// 	_.map(metrics, function(metric){
+// 	  return metric.get_chart_data()})).transition().duration(500).call(chart);
+//       nv.utils.windowResize(chart.update);
+
+//       return chart;
+//     });
+
+  },
+  render_filters: function(){
+    // Render filters selector for chart
+  },
+  render_metrics: function(){
+    // Render metrics selector for chart
+    var self = this;
+    var items = swig.compile(this.metrics_template);
+  }
+});
+
+
+var GottWall = Class.extend({
 
   // Local storage keys
   activated_metrics_key: "activated_metrics",
   current_project_key: "current_project",
   current_period_key: "current_period",
+  charts_key: "charts",
 
   metrics_template: '{% for x in items %}<li {% if x[1] %}class="activated"{% endif %}><a href="#metric/{{ x[0] }}" data-name="{{ x[0] }}">{{ x[0] }}</a></li>{% endfor %}',
   values_template: '{% for value in items %}<li {% if value[1] %}class="activated"{% endif %}><a href="#filters/{{ metric_name }}/{{ filter_name }}/{{ value[0] }}" data-name="{{ value[0] }}">{{ value[0] }}</a></li>{% endfor %}',
@@ -103,14 +151,20 @@ var GottWall = Class.extend({
     this.debug_flag = debug || false;
     this.metrics = {};
     this.activated_metrics = {};
+    this.charts = {};
 
     this.current_project = null;
     this.chart_container = $('#chart');
+    this.charts_container = $('#charts');
+
     this.filters_container = $('#filters-selector #filters-list');
     this.metrics_container = $('#metrics-selector #metrics-list');
     this.values_container = $('#values-selector #values-list');
     this.period_selector = $('.chart-control .periods .selector');
     this.project_selector = $("#project-selector");
+
+    this.add_chart = $('');
+
     this.current_period = null;
     this.current_date_format = null;
     this.current_date_formatter = null;
@@ -122,6 +176,8 @@ var GottWall = Class.extend({
     this.add_bindings();
   },
 
+  render_charts: function(){
+  },
   setup_defaults: function(){
     // Setup defaul values for project, period and date selectors
 
@@ -236,14 +292,27 @@ var GottWall = Class.extend({
     if(_.keys(this.activated_metrics).length>0){
       localStorage.setItem(this.activated_metrics_key, JSON.stringify(this.activated_metrics));
     }
-
     if(this.current_project){
       localStorage.setItem(this.current_project_key, this.current_project);
     }
     if(this.current_period){
       localStorage.setItem(this.current_period_key, this.current_period);
     }
-
+    if(this.charts){
+      var tmp = new Array();
+      _.each(this.charts, function(item){
+	tmp[item.id] = {};
+      });
+      localStorage.setItem(this.charts_key, JSON.stringify(tmp));
+    }
+  },
+  load_charts: function(){
+    // Load graphs data
+    var self = this;
+    var charts_data = JSON.parse(localStorage.getItem(this.charts_key)) || {};
+    return _.map(charts_data, function(value, key){
+      return new Chart(self, self.current_project,  key, value.period);
+    });
   },
   load: function(){
     // Load data from localStorage
@@ -258,6 +327,8 @@ var GottWall = Class.extend({
     if(_.keys(this.activated_metrics).length<=0){
       this.activated_metrics = JSON.parse(localStorage.getItem(this.activated_metrics_key)) || {};
     }
+
+    this.charts = null;
   },
   get_metrics_list: function(){
     // Get metrics as plain list
@@ -579,6 +650,8 @@ var Metric = Class.extend({
     var chart = null;
 
     self.gottwall = new GottWall(true);
+
+    self.gottwall.render_charts();
 
     self.gottwall.render_selectors();
     self.gottwall.load_stats();

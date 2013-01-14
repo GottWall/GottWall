@@ -5,6 +5,16 @@
 
 
 {% block content %}
+
+<div class="navbar">
+  <div class="navbar-inner">
+    <form class="navbar-form pull-left">
+      <input type="text" class="span2">
+      <button type="submit" class="btn">Submit</button>
+    </form>
+  </div>
+</div>
+
 <div class="row chart-control">
   <div class="span8 periods">
     <span>Детализация по:</span>
@@ -29,9 +39,11 @@
   </div>
 </div>
 
-<div class="hero-unit chart-area">
-  <div id="chart">
-    <svg></svg>
+<div class="charts" id="charts">
+  <div class="hero-unit chart-area">
+    <div id="chart">
+      <svg></svg>
+    </div>
   </div>
 </div>
 
