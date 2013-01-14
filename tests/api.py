@@ -13,7 +13,7 @@ Unittests for gottwall api
 import datetime
 import json
 
-from tornado.web import Application
+from tornado.web import Application, RequestHandler
 
 from gottwall.app import HTTPApplication
 from gottwall.config import Config, default_settings
@@ -29,6 +29,7 @@ class APITestCase(AsyncHTTPBaseTestCase):
         config.from_module(gottwall.default_config)
 
         config.update({"BACKENDS": []})
+
         self.app = HTTPApplication(config)
         self.app.configure_app(self.io_loop)
         return self.app

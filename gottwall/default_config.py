@@ -46,3 +46,6 @@ PREFIX = '/gottwall'
 
 # Run every minute
 PERIODIC_PROCESSOR_TIME = 1000*60*1
+
+
+cookie_secret = 'cookie_secret'

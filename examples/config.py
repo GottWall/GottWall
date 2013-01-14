@@ -34,7 +34,7 @@ SECRET_KEY = "dwefwefwefwecwef"
 PROJECTS = {"test_project": "my_public_key",
             "another_project": "public_key2"}
 
-cookie_secret="fkewrlhfwhrfweiurbweuybfrweoubfrowebfioubweoiufbwbeofbowebfbwup2XdTP1o/Vo=",
+cookie_secret="fkewrlhfwhrfweiurbweuybfrweoubfrowebfioubweoiufbwbeofbowebfbwup2XdTP1o/Vo="
 
 TEMPLATE_DEBUG = True
 

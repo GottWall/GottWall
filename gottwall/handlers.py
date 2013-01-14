@@ -64,12 +64,12 @@ class BaseHandler(RequestHandler):
             return None
         return json_decode(user_json)
 
-    @property
-    def current_user(self):
-        """Get request user object
-        """
+    ## @property
+    ## def current_user(self):
+    ##     """Get request user object
+    ##     """
 
-        return User(self, self.request)
+    ##     return User(self, self.request)
 
     def render(self, template, **kwargs):
         """Render template with \*\*kwargs context
@@ -82,6 +82,7 @@ class BaseHandler(RequestHandler):
             kwargs['static'] = self.config.get('static_url_prefix')
 
         kwargs['user'] = self.current_user
+        kwargs['reverse'] = self.reverse_url
         data = self.render_to_string(template, context=kwargs)
         return self.finish(data)
 
@@ -110,6 +111,7 @@ class BaseHandler(RequestHandler):
 class DashboardHandler(BaseHandler):
     @authenticated
     def get(self, *args, **kwargs):
+
         self.render("dashboard.html", config=self.application.config,
                     projects=self.config['PROJECTS'])
 
@@ -117,16 +119,7 @@ class DashboardHandler(BaseHandler):
 class HomeHandler(BaseHandler):
 
     def get(self, *args, **kwargs):
-        storage = self.application.storage
-        config = self.application.config
-
-        if not self.current_user:
-            self.redirect(self.reverse_url('login'))
-
-        self.render("index.html", storage=storage.__class__.__name__,
-                    backends=self.application.config['BACKENDS'],
-                    projects=config['PROJECTS'],
-                    config=self.application.config)
+        self.redirect(self.reverse_url('dashboard'))
 
 
 class APIHandler(BaseHandler):
@@ -168,6 +161,7 @@ class StatsHandler(APIHandler):
         to_date = timestamp_to_datetime(to_date, DATE_FILTER_FORMAT) if to_date else to_date
         return from_date, to_date
 
+    @authenticated
     @tornado.web.asynchronous
     @gen.engine
     def get(self, project, *args, **kwargs):
@@ -206,13 +200,14 @@ class StatsHandler(APIHandler):
 class MetricsHandler(APIHandler):
     """Load metrics structure
     """
+    @authenticated
     @tornado.web.asynchronous
     @gen.engine
     def get(self, project, *args, **kwargs):
         metrics = yield gen.Task(self.application.storage.metrics, project)
         self.json_response(metrics)
 
-class LogoutHandelr(BaseHandler):
+class LogoutHandler(BaseHandler):
 
     def get(self):
         self.clear_cookie('user')
@@ -229,11 +224,12 @@ class LoginHandler(BaseHandler, GoogleMixin):
         self.authenticate_redirect()
 
     def _on_auth(self, user):
+
         if not user:
             raise HTTPError(500, "Google auth failed")
 
         if self.application.config.get('USERS') and \
-               not user.get('email') in self.application.config['USERS']:
+               user.get('email') not in self.application.config['USERS']:
             raise HTTPError(403, "%s access forbiden." % user.get('name'))
 
         self.set_secure_cookie("user", json_encode(user))
