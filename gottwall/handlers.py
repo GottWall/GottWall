@@ -59,6 +59,7 @@ class BaseHandler(RequestHandler):
     def get_current_user(self):
         """ Return current logged user or None.
         """
+
         user_json = self.get_secure_cookie("user")
         if not user_json:
             return None
