@@ -86,7 +86,7 @@ var GottWall = Class.extend({
   current_project_key: "current_project",
   current_period_key: "current_period",
   from_date_key: "from-date",
-  to_date: "to-date",
+  to_date_key: "to-date",
 
   metrics_template: '{% for x in items %}<li {% if x[1] %}class="activated"{% endif %}><a href="#metric/{{ x[0] }}" data-name="{{ x[0] }}">{{ x[0] }}</a></li>{% endfor %}',
   values_template: '{% for value in items %}<li {% if value[1] %}class="activated"{% endif %}><a href="#filters/{{ metric_name }}/{{ filter_name }}/{{ value[0] }}" data-name="{{ value[0] }}">{{ value[0] }}</a></li>{% endfor %}',
@@ -126,7 +126,18 @@ var GottWall = Class.extend({
     this.setup_defaults();
     this.add_bindings();
   },
-
+  get_from_date: function(){
+    if(this.from_date_selector){
+      return this.from_date_selector.val() || null;
+    }
+    return null;
+  },
+  get_to_date: function(){
+    if(this.to_date_selector){
+      return this.to_date_selector.val() || null;
+    }
+    return null;
+  },
   setup_defaults: function(){
     // Setup defaul values for project, period and date selectors
 
@@ -560,6 +571,15 @@ var Metric = Class.extend({
     var url = this.project + "/api/stats?period="+this.gottwall.current_period+"&name="+this.name;
     if(this.filter_name && this.filter_value){
       url = url + "&filter_name="+this.filter_name+"&filter_value="+this.filter_value;
+    }
+    console.log(this.gottwall.from_date_selector);
+    var from_date = this.gottwall.get_from_date();
+    if(from_date){
+      url = url + "&from_date=" + from_date
+    }
+    var to_date = this.gottwall.get_to_date();
+    if(to_date){
+      url = url + "&to_date=" + to_date;
     }
     return url;
   },
