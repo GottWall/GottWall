@@ -94,7 +94,8 @@
 #metrics-list .activated a,
 #filters-list .activated a,
 #values-list .activated a {
-                            background-color: red;
+                            background-color: #666;
+                            color: #fff;
 }
 
 #chart {
