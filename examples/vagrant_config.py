@@ -50,3 +50,5 @@ DATABASE = {
 
 
 PREFIX = ''
+
+site_title = "Stats"

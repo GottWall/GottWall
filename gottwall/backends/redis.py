@@ -21,6 +21,7 @@ from gottwall.backends.base import BaseBackend
 from gottwall.handlers import BaseHandler
 
 import tornadoredis
+from tornadoredis.exceptions import ConnectionError
 
 
 class RedisBackend(BaseBackend):
@@ -69,11 +70,15 @@ class RedisBackend(BaseBackend):
 
         :param client: redis client
         """
-        self.client.connect()
+        try:
+            self.client.connect()
 
-        yield tornado.gen.Task(self.client.psubscribe,
-                               "{0}:*".format(self.backend_settings.get('CHANNEL', 'gottwall')))
-        self.client.listen(self.callback)
+            yield tornado.gen.Task(self.client.psubscribe,
+                                   "{0}:*".format(self.backend_settings.get('CHANNEL', 'gottwall')))
+            self.client.listen(self.callback)
+        except ConnectionError:
+            print("Connection losed")
+            self.listen()
 
     def callback(self, message):
 
@@ -129,6 +134,7 @@ class RedisBackend(BaseBackend):
 
         while True:
             raw_data = (yield gen.Task(client.spop, key))
+            print(raw_data)
             if not raw_data:
                 break
             try:

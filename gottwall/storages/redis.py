@@ -162,7 +162,7 @@ class RedisStorage(BaseStorage):
             return data
 
         return ifilter(lambda x: (True if from_date is None else get_datetime(x[0], period) >= from_date) and \
-                       (True if to_date is None else get_datetime(x[0]) <= to_date), data)
+                       (True if to_date is None else get_datetime(x[0], period) <= to_date), data)
 
 
 
