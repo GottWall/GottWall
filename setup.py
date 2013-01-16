@@ -27,11 +27,8 @@ except Exception, e:
     print(e)
     readme_content = __doc__
 
-<<<<<<< HEAD
-VERSION = "0.1.9"
-=======
+
 VERSION = "0.1.10"
->>>>>>> graphics-refactoring
 
 
 class run_audit(Command):
