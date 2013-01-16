@@ -518,6 +518,8 @@ var GottWall = Class.extend({
     }
 
     this.period_selector.find('button[data-type='+this.current_period+']').addClass('active');
+
+
   },
   set_dates: function(){
   },
@@ -683,6 +685,12 @@ var GottWall = Class.extend({
     if(this.current_period){
       localStorage.setItem(this.current_period_key, this.current_period);
     }
+    if(this.get_from_date()){
+      localStorage.setItem(this.from_date_key, this.get_from_date());
+    }
+    if(this.get_to_date()){
+      localStorage.setItem(this.to_date_key, this.get_to_date());
+    }
   },
   restore_charts: function(){
     console.log("Restore charts");
@@ -722,7 +730,10 @@ var GottWall = Class.extend({
       });
 
     this.from_date = this.from_date || localStorage.getItem(this.from_date_key);
+    this.from_date_selector.val(this.from_date);
+
     this.to_date = this.to_date || localStorage.getItem(this.to_date_key);
+    this.to_date_selector.val(this.to_date);
   },
 
   debug: function(value){
@@ -803,8 +814,6 @@ var Metric = Class.extend({
     }
     var data = {"values": this.get_range(),
 		"key": key}
-    console.log(data['key']);
-    console.log(data['values']);
     return data
   }
 });
