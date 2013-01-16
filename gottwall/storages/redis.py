@@ -86,7 +86,10 @@ class RedisStorage(BaseStorage):
         :param metric_name:
         :param f: filter name
         """
-        return u"{0}-metrics-filter-values:{1}:{2}".format(project, metric_name, f)
+        try:
+            return u"{0}-metrics-filter-values:{1}:{2}".format(project, metric_name, f)
+        except UnicodeDecodeError:
+            return u"{0}-metrics-filter-values:{1}:{2}".format(project, metric_name.decode("utf-8"), f)
 
 
     def get_filters_names_key(self, project, metric_name):
@@ -95,7 +98,10 @@ class RedisStorage(BaseStorage):
         :param project: project name
         :param metric_name: metric name
         """
-        return u"{0}-metrics-filters:{1}".format(project, metric_name)
+        try:
+            return u"{0}-metrics-filters:{1}".format(project, metric_name)
+        except UnicodeDecodeError:
+            return u"{0}-metrics-filters:{1}".format(project, metric_name.decode("utf-8"))
 
 
     @tornado.gen.engine
