@@ -18,7 +18,9 @@ import tornado.gen
 from tornado import gen
 from tornado.gen import Task
 
-from gottwall.utils import get_by_period, get_datetime
+from collections import OrderedDict
+
+from gottwall.utils import get_by_period, get_datetime, date_range
 from gottwall.settings import STORAGE_SETTINGS_KEY
 from gottwall.storages.base import BaseStorage
 
@@ -157,14 +159,21 @@ class RedisStorage(BaseStorage):
         :param from_data:
         :param to_date:
         :return: ifilter generator
+
         """
+
+        if from_date and to_date:
+            new_data = OrderedDict(map(lambda x: (x, 0), date_range(from_date, to_date, period)))
+            new_data.update(data)
+        else:
+            new_data = data
+
         if period == 'all':
-            return data
+            return new_data
 
-        return ifilter(lambda x: (True if from_date is None else get_datetime(x[0], period) >= from_date) and \
-                       (True if to_date is None else get_datetime(x[0], period) <= to_date), data)
-
-
+        return map(lambda x: (get_by_period(x[0], period), x[1]), sorted(ifilter(lambda x: (True if from_date is None else x[0] >= from_date) and \
+                                                                             (True if to_date is None else x[0] <= to_date), new_data.iteritems()),
+                                                                     key=lambda x: x[0]))
 
     @gen.engine
     def slice_data(self, project, name, period, from_date=None, to_date=None,
@@ -176,8 +185,7 @@ class RedisStorage(BaseStorage):
         items = yield Task(self.client.hgetall, key)
 
         if callback:
-            callback(self.filter_by_period(
-                sorted(items.iteritems(), key=lambda x: x[0]),
+            callback(self.filter_by_period(map(lambda x: (get_datetime(x[0], period), x[1]), items.iteritems()),
                 period,
                 from_date, to_date))
 
