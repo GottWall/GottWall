@@ -134,10 +134,11 @@ class RedisBackend(BaseBackend):
 
         while True:
             raw_data = (yield gen.Task(client.spop, key))
-            print(raw_data)
+
             if not raw_data:
                 break
             try:
                 self.process_data(project, self.parse_data(raw_data))
             except Exception, e:
                 print(e)
+

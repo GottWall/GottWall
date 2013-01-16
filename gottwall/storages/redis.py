@@ -86,7 +86,7 @@ class RedisStorage(BaseStorage):
         :param metric_name:
         :param f: filter name
         """
-        return "{0}-metrics-filter-values:{1}:{2}".format(project, metric_name, f)
+        return u"{0}-metrics-filter-values:{1}:{2}".format(project, metric_name, f)
 
 
     def get_filters_names_key(self, project, metric_name):
@@ -95,7 +95,7 @@ class RedisStorage(BaseStorage):
         :param project: project name
         :param metric_name: metric name
         """
-        return "{0}-metrics-filters:{1}".format(project, metric_name)
+        return u"{0}-metrics-filters:{1}".format(project, metric_name)
 
 
     @tornado.gen.engine
@@ -141,14 +141,14 @@ class RedisStorage(BaseStorage):
         parts = [project, name, period]
 
         if isinstance(filters, dict):
-            filters_part = "/".join(
-                ["{0}|{1}".format(f, filters[f])
+            filters_part = u"/".join(
+                [u"{0}|{1}".format(f, filters[f])
                  for f in sorted(filters.keys(), key=lambda x: x) if f])
 
             if filters_part:
                 parts.append(filters_part)
 
-        return ';'.join(parts)
+        return u';'.join(parts)
 
 
     def filter_by_period(self, data, period, from_date=None, to_date=None):
