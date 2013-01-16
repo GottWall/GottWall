@@ -98,10 +98,10 @@ class Start(Command):
         self.display("Server running on 127.0.0.1:{0}".format(port))
 
         # Init signals handler
-        signal.signal(signal.SIGTERM, self.sig_handler)
+        #signal.signal(signal.SIGTERM, self.sig_handler)
 
         # This will also catch KeyboardInterrupt exception
-        signal.signal(signal.SIGINT, self.sig_handler)
+        #signal.signal(signal.SIGINT, self.sig_handler)
 
         ioloop.start()
 

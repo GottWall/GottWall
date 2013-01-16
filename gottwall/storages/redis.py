@@ -170,13 +170,13 @@ class RedisStorage(BaseStorage):
             new_data = OrderedDict(map(lambda x: (x, 0), date_range(from_date, to_date, period)))
             new_data.update(data)
         else:
-            new_data = data
+            new_data = OrderedDict(data)
 
         if period == 'all':
             return new_data
 
         return map(lambda x: (get_by_period(x[0], period), x[1]), sorted(ifilter(lambda x: (True if from_date is None else x[0] >= from_date) and \
-                                                                             (True if to_date is None else x[0] <= to_date), new_data.iteritems()),
+                                                                                 (True if to_date is None else x[0] <= to_date), new_data.iteritems()),
                                                                      key=lambda x: x[0]))
 
     @gen.engine
