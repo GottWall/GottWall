@@ -99,3 +99,15 @@ class MagicDict(dict):
         if key not in self:
             self[key] = self.__class__()
         return dict.__getitem__(self, key)
+
+
+def date_range(from_date, to_date, period="month"):
+    delta =  to_date - from_date
+
+    if period == "hour":
+        return [to_date - timedelta(hours=x) for x in range(0, delta.days * 24)]
+    elif period == "minute":
+        return [to_date - timedelta(minutes=x) for x in range(0, delta.days * 24 * 60)]
+    elif period == "day":
+        return [to_date - timedelta(days=x) for x in range(0, delta.days)]
+    return []

@@ -299,9 +299,6 @@ var Chart = Class.extend({
     this.bars = [];
     this.gottwall.charts_container.append($(this.render()));
     this.node = $('#chart-'+this.id);
-    console.log("Chart node");
-    console.log(this.node);
-    console.log(this.gottwall.charts_container);
 
     this.add_bindings();
 
@@ -799,9 +796,10 @@ var Metric = Class.extend({
     var self =  this;
 
     if(this.data){
-      return _.map(this.data['range'], function(item){
-	return {"x": self.gottwall.date_to_timestamp(item[0]), "y": parseInt(item[1])};
-      });
+      return _.sortBy(_.map(this.data['range'],
+			    function(item){
+			      return {"x": self.gottwall.date_to_timestamp(item[0]), "y": parseInt(item[1])};
+			    }), function(sub_item){return sub_item['x']});
     }
     return [];
   },
