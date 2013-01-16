@@ -230,7 +230,7 @@ class LoginHandler(BaseHandler, GoogleMixin):
             raise HTTPError(500, "Google auth failed")
 
         if self.application.config.get('USERS') and \
-               user.get('email') not in self.application.config['USERS']:
+               user.get('email').lower() not in [x.lower() for x in self.application.config['USERS']]:
             raise HTTPError(403, "%s access forbiden." % user.get('name'))
 
         self.set_secure_cookie("user", json_encode(user))
