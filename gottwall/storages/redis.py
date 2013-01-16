@@ -18,9 +18,7 @@ import tornado.gen
 from tornado import gen
 from tornado.gen import Task
 
-from collections import OrderedDict
-
-from gottwall.utils import get_by_period, get_datetime, date_range
+from gottwall.utils import get_by_period, get_datetime, date_range, OrderedDict
 from gottwall.settings import STORAGE_SETTINGS_KEY
 from gottwall.storages.base import BaseStorage
 
