@@ -714,7 +714,7 @@ var GottWall = Class.extend({
 	}
       }
     }
-  }
+  },
   restore_from_storage: function(){
     // Load data from localStorage
     var self = this;
