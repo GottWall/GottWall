@@ -84,6 +84,7 @@ class BaseHandler(RequestHandler):
 
         kwargs['user'] = self.current_user
         kwargs['reverse'] = self.reverse_url
+        kwargs['version'] = get_version()
         data = self.render_to_string(template, context=kwargs)
         return self.finish(data)
 
