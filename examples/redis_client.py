@@ -41,7 +41,7 @@ with measure_time("Test stats"):
 
         stats_client.incr(choice([u"Hello", "Test", "test2"]),
                           timestamp=datetime.datetime(choice([2012]), randint(1, 12), randint(1, 27)),
-                          value=1.7,
+                          value=1,
                           filters={choice(["views", "orders", "filter1", "filter2"]): choice(["hello", "world", "registered"]),
                                    "clicks": "anonymouse"})
 
