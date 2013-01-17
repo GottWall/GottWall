@@ -98,6 +98,41 @@
                             color: #fff;
 }
 
+.hero-unit {
+    position: relative;
+}
+.hero-unit .close {
+    font-size: 32px;
+}
+.hero-unit .chart-controls {
+    margin-bottom: 20px;
+}
+
 .chart-area svg {
          height: 450px;
  }
+
+.navbar_filters {
+
+}
+.navbar_filters .navbar-inner {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+.navbar_filters .nav > li > a {
+    padding: 5px;
+}
+.remove-chart {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+}
+.navbar_filters .delete-bar {
+    font-size: 28px
+}
+.chart-control {
+    margin-bottom: 10px;
+}
+.chart-control .input_date {
+    margin-bottom: 0;
+}

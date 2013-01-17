@@ -78,7 +78,7 @@ class MemoryStorage(BaseStorage):
             self._metrics[project][name] = {}
 
         if not filters:
-            return False
+            filters = {}
 
         for f, values in filters.iteritems():
 

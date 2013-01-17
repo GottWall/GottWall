@@ -8,21 +8,21 @@ Redis storage for collect statistics
 
 :copyright: (c) 2012 by GottWall Team, see AUTHORS for more details.
 :license: BSD, see LICENSE for more details.
-:github: http://github.com/Lispython/gottwall
+:github: http://github.com/gottwall/gottwall
 """
-
+from itertools import ifilter
 from logging import getLogger
 
-from itertools import ifilter
-import tornadoredis
 import tornado.gen
+import tornadoredis
 from tornado import gen
 from tornado.gen import Task
+from tornadoredis.exceptions import ConnectionError
 
-from gottwall.utils import get_by_period, get_datetime, date_range, OrderedDict
 from gottwall.settings import STORAGE_SETTINGS_KEY
 from gottwall.storages.base import BaseStorage
-from tornadoredis.exceptions import ConnectionError
+from gottwall.utils import get_by_period, get_datetime, date_range, OrderedDict
+
 
 logger = getLogger()
 
@@ -35,8 +35,8 @@ class Client(tornadoredis.Client):
     def on_disconnect(self):
         if self.subscribed:
             self.subscribed = False
-        #self._reconnect_callback()
-        logger.wart("Reconnect client")
+
+        # self._reconnect_callback()
         raise ConnectionError("Connection lost")
 
 
@@ -66,7 +66,8 @@ class RedisStorage(BaseStorage):
         self.client.connect()
 
     @gen.engine
-    def save_metric_meta(self, pipe, project, name, filters=None, callback=None):
+    def save_metric_meta(self, pipe, project, name,
+                         filters=None, callback=None):
         """Save metric filters
 
         :param project: project name
@@ -74,7 +75,7 @@ class RedisStorage(BaseStorage):
         :param filters: metric filters
         """
         if not filters:
-            return False
+            filters = {}
 
         pipe.sadd(self.get_metrics_key(project), name)
 
@@ -89,7 +90,6 @@ class RedisStorage(BaseStorage):
 
         if callback:
             callback()
-
 
     def get_metrics_key(self, project):
         """Get key for metrics list
@@ -110,7 +110,6 @@ class RedisStorage(BaseStorage):
         except UnicodeDecodeError:
             return u"{0}-metrics-filter-values:{1}:{2}".format(project, metric_name.decode("utf-8"), f)
 
-
     def get_filters_names_key(self, project, metric_name):
         """Get key for metrics filters names
 
@@ -121,7 +120,6 @@ class RedisStorage(BaseStorage):
             return u"{0}-metrics-filters:{1}".format(project, metric_name)
         except UnicodeDecodeError:
             return u"{0}-metrics-filters:{1}".format(project, metric_name.decode("utf-8"))
-
 
     @tornado.gen.engine
     def incr(self, project, name, timestamp, value=1, filters=None, callback=None, **kwargs):
@@ -151,7 +149,6 @@ class RedisStorage(BaseStorage):
         if callback:
             callback(res)
 
-
     def make_key(self, project, name, period, filters=None):
         """Make key from parameters
 
@@ -175,7 +172,6 @@ class RedisStorage(BaseStorage):
 
         return u';'.join(parts)
 
-
     def filter_by_period(self, data, period, from_date=None, to_date=None):
         """Fulter statistics by `from_date` and `to_date`
 
@@ -194,9 +190,10 @@ class RedisStorage(BaseStorage):
         if period == 'all':
             return new_data
 
-        return map(lambda x: (get_by_period(x[0], period), x[1]), sorted(ifilter(lambda x: (True if from_date is None else x[0] >= from_date) and \
-                                                                                 (True if to_date is None else x[0] <= to_date), new_data.iteritems()),
-                                                                     key=lambda x: x[0]))
+        return map(lambda x: (get_by_period(x[0], period), x[1]),
+                   sorted(ifilter(lambda x: (True if from_date is None else x[0] >= from_date) and \
+                                  (True if to_date is None else x[0] <= to_date), new_data.iteritems()),
+                          key=lambda x: x[0]))
 
     @gen.engine
     def slice_data(self, project, name, period, from_date=None, to_date=None,
@@ -236,5 +233,3 @@ class RedisStorage(BaseStorage):
 
         if callback:
             callback(metrics)
-
-

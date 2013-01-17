@@ -3,6 +3,7 @@
   <head>
     <title>{% block title %}{{ handler.settings['site_title'] }}{% endblock %}</title>
     <meta name="description" content="{{ handler.settings['site_title'] }}"/>
+    <meta name="version" content="{{ version }}"/>
     <link rel="stylesheet" type="text/css" media="all" href="{{ static }}vendor/bootstrap/css/bootstrap.css"/>
     <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/metric.css"/>
     <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/main.css"/>
@@ -14,7 +15,14 @@
     <script type="text/javascript" src="{{ static }}js/d3.v2.js"></script>
     <script type="text/javascript" src="{{ static }}js/nv.d3.js"></script>
     <script type="text/javascript" src="{{ static }}js/swig.pack.min.js"></script>
+    <script type="text/javascript" src="{{ static }}js/bootstrap-datepicker.js"></script>
+    <script type="text/javascript" src="{{ static }}js/locales/bootstrap-datepicker.ru.js"></script>
     <script type="text/javascript" src="{{ static }}js/main.js"></script>
+    <script>
+      $(function() {
+          $('.input_date').datepicker();
+      });
+    </script>
     {% block head %}{% endblock %}
   </head>
   <body>
@@ -70,7 +78,7 @@
     {% endblock %}
     {% block footer %}
     <footer>
-      <p>© Company 2012</p>
+      <p>© </p>
     </footer>
     {% endblock %}
     </div>

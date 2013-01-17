@@ -96,23 +96,23 @@ function GUID ()
 };
 
 var selectors_bar_template = swig.compile(
-  '<div class="navbar" id="bar-{{ id }}">'+
+  '<div class="navbar navbar_filters" id="bar-{{ id }}">'+
     '<div class="navbar-inner">'+
       '<div class="container">'+
         '<a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse"></a>'+
-          '<ul class="nav pull-left">'+
+          '<ul class="nav pull-right">'+
+              '<li class="divider-vertical"></li>'+
+              '<li><a href="#" class="delete-bar">×</a></li>'+
+          '</ul>'+
+          '<ul class="nav" style="float:none;margin-right:46px;">'+
            '<li class="dropdown metrics-selector">'+
-            '<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="current">Параметр</span><b class="caret"></b></a>'+
+            '<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="current">Параметр</span><!--<b class="caret"></b>--></a>'+
             '<ul class="dropdown-menu"></ul>'+
            '</li>'+
            '<li class="dropdown filters-selector">'+
-            '<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="current">Фильтр</span><b class="caret"></b></a>'+
+            '<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="current">Фильтр</span></a>'+
             '<ul class="dropdown-menu"></ul>'+
           '</li></ul>'+
-    '<ul class="nav pull-right">'+
-    '<li class="divider-vertical"></li>'+
-    '<li><a href="#" class="delete-bar">х</a></li>'+
-    '</ul>'+
     '</div><!-- /.nav-collapse -->'+
     '</div>'+
   '</div><!-- /navbar-inner -->'+'</div>');
@@ -126,7 +126,13 @@ var filters_selector_template = swig.compile('{% for filter in filters %}'+
 var metrics_selector_template = swig.compile(
     '{% for metric in metrics %}<li><a href="#" data-name="{{ metric }}">{{ metric }}</a>{% endfor %}');
 
-var chart_template = swig.compile('<div class="hero-unit chart-area" id="chart-{{ id }}"><div class="row chart-controls"><button class="add-bar">+</button><button class="remove-chart">-</button></div><div class="selectors"></div><svg></svg></div>');
+var chart_template = swig.compile('<div class="hero-unit chart-area container-fluid" id="chart-{{ id }}"><div class="row-fluid">'
+    +'<div class="span8"><svg></svg></div>'
+    +'<div class="span4">'
+        +'<div class="chart-controls"><button class="add-bar"><i class="icon-plus"></i>добавить фильтр</button><button class="close remove-chart">×</button></div>'
+        +'<div class="selectors"></div>'
+    +'</div>'
+    +'</div></div>');
 
 
 var Bar = Class.extend({
@@ -408,10 +414,12 @@ var GottWall = Class.extend({
   from_date_key: "from-date",
   to_date_key: "to-date",
 
-  chart_template: '<div class="hero-unit chart-area" id="chart-{{ id }}"><svg></svg></div>',
-  metrics_template: '{% for x in items %}<li {% if x[1] %}class="activated"{% endif %}><a href="#metric/{{ x[0] }}" data-name="{{ x[0] }}">{{ x[0] }}</a></li>{% endfor %}',
-  values_template: '{% for value in items %}<li {% if value[1] %}class="activated"{% endif %}><a href="#filters/{{ metric_name }}/{{ filter_name }}/{{ value[0] }}" data-name="{{ value[0] }}">{{ value[0] }}</a></li>{% endfor %}',
-  filters_template: '{% for f in items %}<li><a href="#filters/{{ metric_name }}/{{ f }}" data-name="{{ f }}">{{ f }}</a></li>{% endfor %}',
+  //chart_template: '<div class="hero-unit chart-area" id="chart-{{ id }}"><div class=""><svg></svg></div></div>',
+
+
+  //metrics_template: '{% for x in items %}<li {% if x[1] %}class="activated"{% endif %}><a href="#metric/{{ x[0] }}" data-name="{{ x[0] }}">{{ x[0] }}</a></li>{% endfor %}',
+  //values_template: '{% for value in items %}<li {% if value[1] %}class="activated"{% endif %}><a href="#filters/{{ metric_name }}/{{ filter_name }}/{{ value[0] }}" data-name="{{ value[0] }}">{{ value[0] }}</a></li>{% endfor %}',
+  //filters_template: '{% for f in items %}<li><a href="#filters/{{ metric_name }}/{{ f }}" data-name="{{ f }}">{{ f }}</a></li>{% endfor %}',
 
   date_formats: {
     "day": "%Y-%m-%d",
@@ -517,6 +525,12 @@ var GottWall = Class.extend({
 
     this.period_selector.find('button[data-type='+this.current_period+']').addClass('active');
 
+    var d = new Date();
+    this.to_date = d3.time.format("%Y-%m-%d")(d);
+    this.from_date = d3.time.format("%Y-%m-%d")(new Date(d.getFullYear(), d.getMonth()-1, d.getDate()));
+
+    this.from_date_selector.val(this.from_date);
+    this.to_date_selector.val(this.to_date);
 
   },
   set_dates: function(){
@@ -727,11 +741,6 @@ var GottWall = Class.extend({
 	self.restore_charts();
       });
 
-    this.from_date = this.from_date || localStorage.getItem(this.from_date_key);
-    this.from_date_selector.val(this.from_date);
-
-    this.to_date = this.to_date || localStorage.getItem(this.to_date_key);
-    this.to_date_selector.val(this.to_date);
   },
 
   debug: function(value){
@@ -826,6 +835,9 @@ var Metric = Class.extend({
     var global_metrics = {};
     var activate_metrics = {};
     var chart = null;
+
+    $('.input_date').datepicker();
+
 
     self.gottwall = new GottWall(true);
   });
