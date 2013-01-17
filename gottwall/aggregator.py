@@ -9,7 +9,7 @@ Gottwall main loop
 
 :copyright: (c) 2012 by GottWall team, see AUTHORS for more details.
 :license: BSD, see LICENSE for more details.
-:github: http://github.com/Lispython/gottwall
+:github: http://github.com/gottwall/gottwall
 """
 import importlib
 
@@ -73,7 +73,6 @@ class AggregatorApplication(Application):
 
         :param backends: list of backends
         """
-
         for backend_path in backends:
             module_path, name = backend_path.rsplit('.', 1)
             try:

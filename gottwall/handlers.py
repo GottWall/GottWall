@@ -51,10 +51,8 @@ class BaseHandler(RequestHandler):
         super(BaseHandler, self).__init__(*args, **kwargs)
         self.set_header("Server", "GottWall/{0}".format(get_version()))
 
-    def initialize(self, config, db, env):
+    def initialize(self, config):
         self.config = config
-        self.db = db
-        self.jinja_env = env
 
     def get_current_user(self):
         """ Return current logged user or None.

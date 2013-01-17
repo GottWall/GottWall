@@ -11,17 +11,16 @@ Gottwall main loop
 :license: BSD, see LICENSE for more details.
 :github: http://github.com/Lispython/gottwall
 """
-
 import importlib
 
 import tornado.ioloop
+from jinja2 import Environment, FileSystemLoader
 from tornado.web import Application, URLSpec
 
 from handlers import DashboardHandler, LoginHandler, HomeHandler,\
      StatsHandler, MetricsHandler, LogoutHandler
-from processing import PeriodicProcessor, Tasks
 from jinja_utils import load_filters, load_globals
-from jinja2 import Environment, FileSystemLoader
+from processing import Tasks
 
 
 ## from sqlalchemy import create_engine
@@ -83,7 +82,6 @@ class HTTPApplication(Application):
         """Configure application backends and storages
         """
         self.configure_storage(self.config['STORAGE'])
-
 
     def configure_storage(self, storage_path):
         """Configure data storage by path

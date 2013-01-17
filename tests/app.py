@@ -10,20 +10,17 @@ Application test case
 :license: BSD, see LICENSE for more details.
 :github: http://github.com/Lispython/gottwall
 """
-
-from base import AsyncBaseTestCase
+import datetime
 
 import tornado.ioloop
-from gottwall.config import Config
-import gottwall.default_config
 
+import gottwall.default_config
+from base import AsyncBaseTestCase
+from gottwall.config import Config
+from gottwall.aggregator import AggregatorApplication
+from gottwall.processing import PeriodicProcessor
 from utils import async_test
 
-from gottwall.app import HTTPApplication
-from gottwall.processing import PeriodicProcessor
-
-import random
-import datetime
 
 class ProcessorTestCase(AsyncBaseTestCase):
 
@@ -31,7 +28,7 @@ class ProcessorTestCase(AsyncBaseTestCase):
         config = Config()
         config.from_module(gottwall.default_config)
         config.update({"TASKS_CHUNK": 15})
-        app = HTTPApplication(config)
+        app = AggregatorApplication(config)
         app.configure_app(tornado.ioloop.IOLoop().instance())
         return app
 
