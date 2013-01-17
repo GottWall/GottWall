@@ -835,6 +835,9 @@ var Metric = Class.extend({
     var activate_metrics = {};
     var chart = null;
 
+    $('.input_date').datepicker();
+
+
     self.gottwall = new GottWall(true);
   });
 
