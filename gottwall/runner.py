@@ -11,30 +11,28 @@ GottWall runner for standalone applications
 :license: BSD, see LICENSE for more details.
 :github: http://github.com/Lispython/gottwall
 """
-
-import sys
 import os.path
+import sys
 import time
-import signal
 from logging import StreamHandler
 from optparse import OptionParser, Option
 
-from commandor import Command, Commandor
 import tornado.ioloop
-from tornado import httpserver
-from tornado import autoreload
+from commandor import Command
+from tornado import httpserver, autoreload
 from tornado.options import _LogFormatter
 
 import gottwall.default_config
-from gottwall.config import Config
-from gottwall.app import HTTPApplication
 from gottwall.aggregator import AggregatorApplication
+from gottwall.app import HTTPApplication
+from gottwall.config import Config
 from gottwall.log import logger
 
 
 def configure_logging(logging):
     """Configure logging handler"""
-    if logging.upper() not in ['DEBUG', 'INFO', 'CRITICAL', 'WARNING', 'ERROR']:
+    if logging.upper() not in ['DEBUG', 'INFO', 'CRITICAL',
+                               'WARNING', 'ERROR']:
         return
     print("Setup {0} log level".format(logging))
     logger.setLevel(logging.upper())
@@ -71,10 +69,12 @@ class Commandor(Commandor):
 
         return config
 
+
 class Aggregator(Command):
     """Tools for aggregator
     """
     commandor = Commandor
+
 
 class Start(Command):
     """Aggregator starter
@@ -126,6 +126,7 @@ class Start(Command):
         #signal.signal(signal.SIGINT, self.sig_handler)
 
         ioloop.start()
+
 
 class Server(Command):
     """Server commands
@@ -225,11 +226,13 @@ class Alembic(Command):
 
         config = self._commandor_res
 
-        alembic_cfg = AlembicConfig(os.path.join(os.path.dirname(gottwall.default_config.__file__), 'alembic.ini'))
+        alembic_cfg = AlembicConfig(os.path.join(os.path.dirname(
+            gottwall.default_config.__file__), 'alembic.ini'))
         alembic_cfg.set_main_option("script_location",
                                    config['ALEMBIC_SCRIPT_LOCATION'])
 
-        alembic_cfg.set_main_option("sqlalchemy.url","{ENGINE}://{USER}:{PASSWORD}@{HOST}:{PORT}/{NAME}".\
+        alembic_cfg.set_main_option("sqlalchemy.url",
+                                    "{ENGINE}://{USER}:{PASSWORD}@{HOST}:{PORT}/{NAME}".\
                                     format(**config['DATABASE']))
 
         try:
@@ -246,8 +249,7 @@ def main():
         add_help_option=False)
 
     commandor_options = [Option('-c', '--config',
-                                metavar="FILE",
-                                help='Configuration file')]
+                                metavar="FILE", help='Configuration file')]
 
     manager = Commandor(parser, sys.argv[1:], commandor_options)
     manager.process()

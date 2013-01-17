@@ -51,7 +51,9 @@ class BaseHandler(RequestHandler):
         super(BaseHandler, self).__init__(*args, **kwargs)
         self.set_header("Server", "GottWall/{0}".format(get_version()))
 
-    def initialize(self, config):
+    def initialize(self, config, db, env):
+        self.config = config
+        self.env = env
         self.config = config
 
     def get_current_user(self):

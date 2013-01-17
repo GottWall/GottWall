@@ -22,4 +22,3 @@ __maintainer__ = "Alexandr Lispython"
 
 def get_version():
     return __version__
-

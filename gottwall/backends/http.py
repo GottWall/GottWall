@@ -7,23 +7,25 @@ gottwall.backends.base
 
 Base backends for metric calculation
 
-:copyright: (c) 2012 by GottWall team, see AUTHORS for more details.
+:copyright: (c) 2012 - 2013 by GottWall team, see AUTHORS for more details.
 :license: BSD, see LICENSE for more details.
-:github: http://github.com/Lispython/gottwall
+:github: http://github.com/gottwall/gottwall
 """
-
 import json
-from tornado.web import HTTPError
+from base64 import b64decode
+
 import tornado.gen
+from tornado.web import HTTPError
 
 from gottwall.backends.base import BaseBackend
 from gottwall.handlers import BaseHandler
-
 from gottwall.utils import parse_dict_header
-from base64 import b64decode
 
 
 class HTTPBackend(BaseBackend, BaseHandler):
+
+    def initialize(self, config):
+        self.config = config
 
     ## def __init__(self, io_loop, config, storage, *args, **kwargs):
     ##     self.io_loop = io_loop

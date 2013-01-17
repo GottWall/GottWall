@@ -21,7 +21,8 @@ from tornadoredis.exceptions import ConnectionError
 
 from gottwall.settings import STORAGE_SETTINGS_KEY
 from gottwall.storages.base import BaseStorage
-from gottwall.utils import get_by_period, get_datetime, date_range, OrderedDict
+from gottwall.utils import get_by_period, get_datetime, date_range
+from gottwall.compat import OrderedDict
 
 
 logger = getLogger()
@@ -186,9 +187,6 @@ class RedisStorage(BaseStorage):
             new_data.update(data)
         else:
             new_data = OrderedDict(data)
-
-        if period == 'all':
-            return new_data
 
         return map(lambda x: (get_by_period(x[0], period), x[1]),
                    sorted(ifilter(lambda x: (True if from_date is None else x[0] >= from_date) and \

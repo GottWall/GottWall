@@ -9,10 +9,11 @@ Gottwall configs wrapper
 
 :copyright: (c) 2012 by GottWall team, see AUTHORS for more details.
 :license: BSD, see LICENSE for more details.
-:github: http://github.com/Lispython/gottwall
+:github: http://github.com/gottwall/gottwall
 """
 import imp
 import os.path
+
 from settings import PERIODS
 
 
@@ -31,7 +32,8 @@ class Config(dict):
         try:
             execfile(filename, d.__dict__)
         except IOError, e:
-            raise Exception("Unable to load configuration file {0}: ".format(filename, e))
+            raise Exception("Unable to load configuration file {0}: ".\
+                            format(filename, e))
 
         self.from_object(d)
 
@@ -56,8 +58,6 @@ class Config(dict):
 
     def __repr__(self):
         return '<{0} {1}>'.format(self.__class__.__name__, dict.__repr__(self))
-
-
 
 default_settings = Config(**{
     "BACKENDS": ['gottwall.backends.HTTPBackend'],
