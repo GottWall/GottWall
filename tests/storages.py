@@ -296,7 +296,6 @@ class RedisStorageTestCase(AsyncBaseTestCase, RedisTestCaseMixin):
                     self.assertEquals(int(x[1]), 10)
 
         for period in ["year"]:
-
             for filter_name, filter_value in (("filter1", True),
                                               ("filter2", "web"),
                                               ("filter2", "iphone"),
