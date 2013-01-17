@@ -130,3 +130,9 @@
 .navbar_filters .delete-bar {
     font-size: 28px
 }
+.chart-control {
+    margin-bottom: 10px;
+}
+.chart-control .input_date {
+    margin-bottom: 0;
+}
