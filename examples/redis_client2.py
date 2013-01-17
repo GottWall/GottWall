@@ -37,14 +37,13 @@ def measure_time(title, logger=None, **debug_params):
 
 
 with measure_time("Test stats"):
-    for x in xrange(5):
+    for x in xrange(1000):
 
-        stats_client.incr(choice([u"Fucking metric"]),
-                          #filters={"hello": "world"},
+        stats_client.incr(choice([u"Test"]),
                           timestamp=datetime.datetime(choice([2012]), randint(1, 12), randint(1, 27)),
                           value=1,
-                          #filters={choice(["views", "orders", "filter1", "filter2"]): choice(["hello", "world", "registered"]),
-                          #         "clicks": "anonymouse"}
+                          filters={choice(["views", "orders", "filter1", "filter2"]): choice(["hello", "world", "registered"]),
+                                  "clicks": "anonymouse"}
                           )
 
 print("finish")
