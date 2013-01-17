@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import os.path
 
-BACKENDS = []
+BACKENDS = {}
 
 STORAGE = "gottwall.storages.MemoryStorage"
 STORAGE_SETTINGS = {}
@@ -24,6 +24,7 @@ PERIODS = [
 TEMPLATES_PATH = [
     os.path.join(os.path.dirname(__file__), "templates")
     ]
+
 static_path = os.path.join(os.path.dirname(__file__), "static")
 static_url_prefix = "/static/"
 
@@ -45,7 +46,6 @@ DATABASE = {
 PREFIX = '/gottwall'
 
 # Run every minute
-PERIODIC_PROCESSOR_TIME = 1000*60*1
-
+PERIODIC_PROCESSOR_TIME = 1000*60*5
 
 cookie_secret = 'cookie_secret'

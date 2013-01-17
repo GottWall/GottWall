@@ -13,6 +13,7 @@ Redis pub/sub backend
 """
 
 import json
+from logging import getLogger
 from tornado.web import HTTPError
 import tornado.ioloop
 from tornado import gen
@@ -22,6 +23,30 @@ from gottwall.handlers import BaseHandler
 
 import tornadoredis
 from tornadoredis.exceptions import ConnectionError
+
+logger = getLogger()
+
+
+class Client(tornadoredis.Client):
+    def __init__(self, reconnect_callback=None, **kwargs):
+        self._reconnect_callback = reconnect_callback
+        super(Client, self).__init__(**kwargs)
+
+    def on_disconnect(self):
+        if self.subscribed:
+            self.subscribed = False
+        self._reconnect_callback()
+        logger.warn("Reconnect client")
+
+    def connect(self):
+        if not self.connection.connected():
+            pool = self._connection_pool
+            if pool:
+                old_conn = self.connection
+                self.connection = pool.get_connection(event_handler_proxy=self)
+                self.connection.ready_callbacks = old_conn.ready_callbacks
+            else:
+                self.connection.connect()
 
 
 class RedisBackend(BaseBackend):
@@ -37,12 +62,14 @@ class RedisBackend(BaseBackend):
         """Get redis client instance
         """
 
-        client = tornadoredis.Client(
+        client = Client(
+            #connection_pool=connection_pool,
             host=self.backend_settings.get('HOST', 'localhost'),
             port=int(self.backend_settings.get('PORT', 6379)),
+            io_loop=self.io_loop,
             password=self.backend_settings.get('PASSWORD', None),
             selected_db=int(self.backend_settings.get('DB', 0)),
-            io_loop=self.io_loop)
+            reconnect_callback=self.listen)
 
         return client
 
@@ -70,15 +97,12 @@ class RedisBackend(BaseBackend):
 
         :param client: redis client
         """
-        try:
-            self.client.connect()
+        self.client.connect()
 
-            yield tornado.gen.Task(self.client.psubscribe,
-                                   "{0}:*".format(self.backend_settings.get('CHANNEL', 'gottwall')))
-            self.client.listen(self.callback)
-        except ConnectionError:
-            print("Connection losed")
-            self.listen()
+        yield tornado.gen.Task(self.client.psubscribe,
+                               "{0}:*".format(self.backend_settings.get('CHANNEL', 'gottwall')))
+        self.client.listen(self.callback)
+
 
     def callback(self, message):
 
@@ -89,7 +113,7 @@ class RedisBackend(BaseBackend):
         try:
             project, public_key, private_key = self.parse_channel(message.channel)
         except ValueError:
-            print("Invalid channel credentails")
+            logger.warn("Invalid channel credentails")
             return
 
         data = self.parse_data(message.body.strip())
@@ -127,12 +151,12 @@ class RedisBackend(BaseBackend):
         """
         client = self.get_redis_client()
         key = self.bucket_key(project)
-        #length = (yield gen.Task(client.scard, key))
+        length = (yield gen.Task(client.scard, key))
 
         # Max load elements at once
-        #i = min(self.backend_settings.get("MAX_LOADING", 20), length)
+        i = min(self.backend_settings.get("MAX_LOADING", 20), length)
 
-        while True:
+        while i > 0:
             raw_data = (yield gen.Task(client.spop, key))
 
             if not raw_data:
@@ -140,5 +164,7 @@ class RedisBackend(BaseBackend):
             try:
                 self.process_data(project, self.parse_data(raw_data))
             except Exception, e:
-                print(e)
+                logger.warning(e)
+
+            i -= 1
 

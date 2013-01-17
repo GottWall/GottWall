@@ -9,7 +9,8 @@ BACKENDS = {
         'PORT': 6379,
         'PASSWORD': None,
         'DB': 2,
-        "CHANNEL": "gottwall"},
+        "CHANNEL": "gottwall",
+        "MAX_LOADING": 30},
     'gottwall.backends.tcpip.TCPIPBackend': {}
     }
 

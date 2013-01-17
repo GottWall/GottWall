@@ -28,7 +28,7 @@ except Exception, e:
     readme_content = __doc__
 
 
-VERSION = "0.1.15"
+VERSION = "0.1.16"
 
 
 class run_audit(Command):
@@ -86,7 +86,7 @@ tests_require = [
 
 install_requires = [
     "redis==2.7.2",
-    "tornado==2.4",
+    "tornado==2.4.1",
     "python-dateutil==2.1",
     "tornado-redis==1.0.1",
     "commandor==0.1.1",

@@ -98,6 +98,6 @@
                             color: #fff;
 }
 
-#chart {
+.chart-area svg {
          height: 450px;
  }

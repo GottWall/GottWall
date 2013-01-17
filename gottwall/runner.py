@@ -16,16 +16,32 @@ import sys
 import os.path
 import time
 import signal
+from logging import StreamHandler
 from optparse import OptionParser, Option
 
 from commandor import Command, Commandor
 import tornado.ioloop
 from tornado import httpserver
 from tornado import autoreload
+from tornado.options import _LogFormatter
 
 import gottwall.default_config
 from gottwall.config import Config
 from gottwall.app import HTTPApplication
+from gottwall.log import logger
+
+
+def configure_logging(logging):
+    """Configure logging handler"""
+    if logging.upper() not in ['DEBUG', 'INFO', 'CRITICAL', 'WARNING', 'ERROR']:
+        return
+    print("Setup {0} log level".format(logging))
+    logger.setLevel(logging.upper())
+
+    if not logger.handlers:
+        channel = StreamHandler()
+        channel.setFormatter(_LogFormatter(color=False))
+        logger.addHandler(channel)
 
 
 class Commandor(Commandor):
@@ -79,10 +95,17 @@ class Start(Command):
         Option("-h", "--host",
                metavar="str",
                default="127.0.0.1",
-               help="Port for server")]
+               help="Port for server"),
+        Option("-l", "--logging",
+               metavar="str",
+               default="none",
+               help="Log level")]
 
-    def run(self, port, reload, host, **kwargs):
+    def run(self, port, reload, host, logging, **kwargs):
         config = self._commandor_res
+
+        configure_logging(logging)
+
         application = HTTPApplication(config)
         ioloop = tornado.ioloop.IOLoop.instance()
 

@@ -11,6 +11,7 @@ Redis storage for collect statistics
 :github: http://github.com/Lispython/gottwall
 """
 
+from logging import getLogger
 
 from itertools import ifilter
 import tornadoredis
@@ -21,6 +22,21 @@ from tornado.gen import Task
 from gottwall.utils import get_by_period, get_datetime, date_range, OrderedDict
 from gottwall.settings import STORAGE_SETTINGS_KEY
 from gottwall.storages.base import BaseStorage
+from tornadoredis.exceptions import ConnectionError
+
+logger = getLogger()
+
+
+class Client(tornadoredis.Client):
+    def __init__(self, reconnect_callback=None, **kwargs):
+        self._reconnect_callback = reconnect_callback
+        super(Client, self).__init__(**kwargs)
+
+    def on_disconnect(self):
+        if self.subscribed:
+            self.subscribed = False
+        self._reconnect_callback()
+        logger.wart("Reconnect client")
 
 
 class RedisStorage(BaseStorage):
@@ -38,11 +54,13 @@ class RedisStorage(BaseStorage):
         super(RedisStorage, self).__init__(application)
         config = self._application.config
 
-        self.client = tornadoredis.Client(
+        self.client = Client(
             host=config[STORAGE_SETTINGS_KEY].get('HOST', 'localhost'),
             port=int(config[STORAGE_SETTINGS_KEY].get('PORT', 6379)),
             password=config[STORAGE_SETTINGS_KEY].get('PASSWORD', None),
             selected_db=int(config[STORAGE_SETTINGS_KEY].get('DB', 0)))
+
+        self.client._reconnect_callback = self.client.connect
 
         self.client.connect()
 

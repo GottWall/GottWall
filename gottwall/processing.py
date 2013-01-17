@@ -11,12 +11,11 @@ GottWall dataprocessing
 :github: http://github.com/Lispython/GottWall
 """
 
-import logging
 from collections import deque
 import tornado.ioloop
 
 from gottwall.settings import PERIODIC_PROCESSOR_TIME, TASKS_CHUNK
-
+from gottwall.log import logger
 
 def process_bucket(processor, app, data, callback=None):
     """Process bucket
@@ -52,7 +51,7 @@ class PeriodicProcessor(tornado.ioloop.PeriodicCallback):
         try:
             self.callback()
         except Exception:
-            logging.error("Error in periodic callback", exc_info=True)
+            logger.error("Error in periodic callback", exc_info=True)
         self._schedule_next()
 
     def callback(self):
@@ -60,6 +59,7 @@ class PeriodicProcessor(tornado.ioloop.PeriodicCallback):
 
         :param application: application instance
         """
+        logger.info("Periodic processor callback")
         try:
             i = 0
             while i < self._deque_chunk_len:
@@ -69,15 +69,14 @@ class PeriodicProcessor(tornado.ioloop.PeriodicCallback):
         except IndexError:
             pass
         except Exception, e:
-            logging.error(e)
-
+            logger.error(e)
 
     def process_task(self, task_type, data):
         f = TASK_TYPES.get(task_type, None)
 
         if f:
             return f(self, self.application, data)
-        logging.error("Invalid task type: {0}".format(task_type))
+        logger.error("Invalid task type: {0}".format(task_type))
 
 
 class Tasks(deque):
