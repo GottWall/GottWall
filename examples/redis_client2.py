@@ -10,7 +10,7 @@ from stati import RedisClient, Client
 stats_client = RedisClient(private_key="my_private_key",
                            public_key="my_public_key",
                            project="test_project",
-                           host="localhost",
+                           host="10.8.9.8",
                            db=2)
 import time
 from contextlib import contextmanager
@@ -39,7 +39,7 @@ def measure_time(title, logger=None, **debug_params):
 with measure_time("Test stats"):
     for x in xrange(1000):
 
-        stats_client.incr(choice([u"Hello", "Test", "test2"]),
+        stats_client.incr(choice([u"Ебаное ничего"]),
                           timestamp=datetime.datetime(choice([2012]), randint(1, 12), randint(1, 27)),
                           value=1.7,
                           filters={choice(["views", "orders", "filter1", "filter2"]): choice(["hello", "world", "registered"]),
