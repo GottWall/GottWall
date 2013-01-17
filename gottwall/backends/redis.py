@@ -165,6 +165,7 @@ class RedisBackend(BaseBackend):
                 self.process_data(project, self.parse_data(raw_data))
             except Exception, e:
                 logger.warning(e)
+                print(e)
 
             i -= 1
 

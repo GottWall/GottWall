@@ -28,7 +28,7 @@ except Exception, e:
     readme_content = __doc__
 
 
-VERSION = "0.1.16"
+VERSION = "0.1.17"
 
 
 class run_audit(Command):
