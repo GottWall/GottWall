@@ -525,6 +525,12 @@ var GottWall = Class.extend({
 
     this.period_selector.find('button[data-type='+this.current_period+']').addClass('active');
 
+    var d = new Date();
+    this.to_date = d3.time.format("%Y-%m-%d")(d);
+    this.from_date = d3.time.format("%Y-%m-%d")(new Date(d.getFullYear(), d.getMonth()-1, d.getDate()));
+
+    this.from_date_selector.val(this.from_date);
+    this.to_date_selector.val(this.to_date);
 
   },
   set_dates: function(){
@@ -735,11 +741,6 @@ var GottWall = Class.extend({
 	self.restore_charts();
       });
 
-    this.from_date = this.from_date || localStorage.getItem(this.from_date_key);
-    this.from_date_selector.val(this.from_date);
-
-    this.to_date = this.to_date || localStorage.getItem(this.to_date_key);
-    this.to_date_selector.val(this.to_date);
   },
 
   debug: function(value){
