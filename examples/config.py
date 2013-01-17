@@ -16,16 +16,16 @@ BACKENDS = {
 TEMPLATE_DEBUG = True
 
 STORAGE_SETTINGS = dict(
-    REDIS_HOST = 'localhost',
-    REDIS_PORT = 6379,
-    REDIS_PASSWORD = None,
-    REDIS_DB = 2
+    HOST = 'localhost',
+    PORT = 6379,
+    PASSWORD = None,
+    DB = 2
 )
 
 REDIS = {"CHANNEL": "gottwall"}
 
 
-USERS = []
+USERS = ["sergeevvv@gmail.com"]
 
 SECRET_KEY = "dwefwefwefwecwef"
 
@@ -47,3 +47,4 @@ DATABASE = {
     "PASSWORD": "none",
     "NAME": "gottwall"
     }
+PREFIX = ""

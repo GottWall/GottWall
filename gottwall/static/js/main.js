@@ -96,22 +96,22 @@ function GUID ()
 };
 
 var selectors_bar_template = swig.compile(
-  '<div class="navbar" id="bar-{{ id }}">'+
+  '<div class="navbar navbar_filters" id="bar-{{ id }}">'+
     '<div class="navbar-inner">'+
       '<div class="container">'+
         '<a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse"></a>'+
           '<ul class="nav pull-left">'+
            '<li class="dropdown metrics-selector">'+
-            '<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="current">Параметр</span><b class="caret"></b></a>'+
+            '<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="current">Параметр</span><!--<b class="caret"></b>--></a>'+
             '<ul class="dropdown-menu"></ul>'+
            '</li>'+
            '<li class="dropdown filters-selector">'+
-            '<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="current">Фильтр</span><b class="caret"></b></a>'+
+            '<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="current">Фильтр</span></a>'+
             '<ul class="dropdown-menu"></ul>'+
           '</li></ul>'+
     '<ul class="nav pull-right">'+
     '<li class="divider-vertical"></li>'+
-    '<li><a href="#" class="delete-bar">х</a></li>'+
+    '<li><a href="#" class="delete-bar">×</a></li>'+
     '</ul>'+
     '</div><!-- /.nav-collapse -->'+
     '</div>'+
@@ -126,7 +126,13 @@ var filters_selector_template = swig.compile('{% for filter in filters %}'+
 var metrics_selector_template = swig.compile(
     '{% for metric in metrics %}<li><a href="#" data-name="{{ metric }}">{{ metric }}</a>{% endfor %}');
 
-var chart_template = swig.compile('<div class="hero-unit chart-area" id="chart-{{ id }}"><div class="row chart-controls"><button class="add-bar">+</button><button class="remove-chart">-</button></div><div class="selectors"></div><div class=""><svg></svg></div></div>');
+var chart_template = swig.compile('<div class="hero-unit chart-area container-fluid" id="chart-{{ id }}"><div class="row-fluid">'
+    +'<div class="span8"><svg></svg></div>'
+    +'<div class="span4">'
+        +'<div class="chart-controls"><button class="add-bar"><i class="icon-plus"></i>добавить фильтр</button><button class="close remove-chart">×</button></div>'
+        +'<div class="selectors"></div>'
+    +'</div>'
+    +'</div></div>');
 
 
 var Bar = Class.extend({
