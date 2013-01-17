@@ -35,8 +35,9 @@ class Client(tornadoredis.Client):
     def on_disconnect(self):
         if self.subscribed:
             self.subscribed = False
-        self._reconnect_callback()
+        #self._reconnect_callback()
         logger.wart("Reconnect client")
+        raise ConnectionError("Connection lost")
 
 
 class RedisStorage(BaseStorage):

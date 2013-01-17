@@ -28,6 +28,7 @@ from tornado.options import _LogFormatter
 import gottwall.default_config
 from gottwall.config import Config
 from gottwall.app import HTTPApplication
+from gottwall.aggregator import AggregatorApplication
 from gottwall.log import logger
 
 
@@ -70,6 +71,61 @@ class Commandor(Commandor):
 
         return config
 
+class Aggregator(Command):
+    """Tools for aggregator
+    """
+    commandor = Commandor
+
+class Start(Command):
+    """Aggregator starter
+    """
+    parent = Aggregator
+
+    options = [
+        Option("-p", "--port",
+               metavar=int,
+               default=8890,
+               help="Port to run http server"),
+        Option("-r", "--reload",
+               action="store_true",
+               dest="reload",
+               default=False,
+               help="Auto realod source on changes"),
+        Option("-h", "--host",
+               metavar="str",
+               default="127.0.0.1",
+               help="Port for server"),
+        Option("-l", "--logging",
+               metavar="str",
+               default="none",
+               help="Log level")]
+
+    def run(self, port, reload, host, logging, **kwargs):
+        config = self._commandor_res
+
+        configure_logging(logging)
+
+        application = AggregatorApplication(config)
+        ioloop = tornado.ioloop.IOLoop.instance()
+
+        application.configure_app(ioloop)
+
+        self.http_server = httpserver.HTTPServer(application)
+        self.http_server.listen(port, host)
+
+        if reload:
+            self.display("Autoreload enabled")
+            autoreload.start(io_loop=ioloop, check_time=100)
+
+        self.display("Aggregator running on 127.0.0.1:{0}".format(port))
+
+        # Init signals handler
+        #signal.signal(signal.SIGTERM, self.sig_handler)
+
+        # This will also catch KeyboardInterrupt exception
+        #signal.signal(signal.SIGINT, self.sig_handler)
+
+        ioloop.start()
 
 class Server(Command):
     """Server commands

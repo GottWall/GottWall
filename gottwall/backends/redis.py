@@ -35,7 +35,8 @@ class Client(tornadoredis.Client):
     def on_disconnect(self):
         if self.subscribed:
             self.subscribed = False
-        self._reconnect_callback()
+        #self._reconnect_callback()
+        raise ConnectionError("Conneciton loast")
         logger.warn("Reconnect client")
 
     def connect(self):
@@ -158,6 +159,8 @@ class RedisBackend(BaseBackend):
 
         while i > 0:
             raw_data = (yield gen.Task(client.spop, key))
+
+            logger.info(raw_data)
 
             if not raw_data:
                 break
