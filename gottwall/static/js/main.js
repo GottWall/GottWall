@@ -100,7 +100,11 @@ var selectors_bar_template = swig.compile(
     '<div class="navbar-inner">'+
       '<div class="container">'+
         '<a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse"></a>'+
-          '<ul class="nav pull-left">'+
+          '<ul class="nav pull-right">'+
+              '<li class="divider-vertical"></li>'+
+              '<li><a href="#" class="delete-bar">×</a></li>'+
+          '</ul>'+
+          '<ul class="nav" style="float:none;margin-right:46px;">'+
            '<li class="dropdown metrics-selector">'+
             '<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="current">Параметр</span><!--<b class="caret"></b>--></a>'+
             '<ul class="dropdown-menu"></ul>'+
@@ -109,10 +113,6 @@ var selectors_bar_template = swig.compile(
             '<a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="current">Фильтр</span></a>'+
             '<ul class="dropdown-menu"></ul>'+
           '</li></ul>'+
-    '<ul class="nav pull-right">'+
-    '<li class="divider-vertical"></li>'+
-    '<li><a href="#" class="delete-bar">×</a></li>'+
-    '</ul>'+
     '</div><!-- /.nav-collapse -->'+
     '</div>'+
   '</div><!-- /navbar-inner -->'+'</div>');
