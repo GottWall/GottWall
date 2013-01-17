@@ -191,12 +191,10 @@ class RedisStorage(BaseStorage):
         else:
             new_data = OrderedDict(data)
 
-        if period == 'all':
-            return new_data
-
-        return map(lambda x: (get_by_period(x[0], period), x[1]), sorted(ifilter(lambda x: (True if from_date is None else x[0] >= from_date) and \
-                                                                                 (True if to_date is None else x[0] <= to_date), new_data.iteritems()),
-                                                                     key=lambda x: x[0]))
+        return map(lambda x: (get_by_period(x[0], period), x[1]),
+                   sorted(ifilter(lambda x: (True if from_date is None else x[0] >= from_date) and \
+                                  (True if to_date is None else x[0] <= to_date), new_data.iteritems()),
+                          key=lambda x: x[0]))
 
     @gen.engine
     def slice_data(self, project, name, period, from_date=None, to_date=None,

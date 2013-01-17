@@ -20,6 +20,11 @@ from gottwall.config import Config, default_settings
 import gottwall.default_config
 from base import BaseTestCase, AsyncHTTPBaseTestCase
 from gottwall.utils import MagicDict
+from gottwall.handlers import BaseHandler
+
+
+
+BaseHandler.get_current_user = lambda s: "Test user"
 
 
 class APITestCase(AsyncHTTPBaseTestCase):
