@@ -36,6 +36,7 @@ class Client(tornadoredis.Client):
         if self.subscribed:
             self.subscribed = False
         self._reconnect_callback()
+
         logger.wart("Reconnect client")
 
 
@@ -73,7 +74,7 @@ class RedisStorage(BaseStorage):
         :param filters: metric filters
         """
         if not filters:
-            return False
+            filters = {}
 
         pipe.sadd(self.get_metrics_key(project), name)
 
