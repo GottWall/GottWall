@@ -6,15 +6,6 @@
 
 {% block content %}
 
-<div class="navbar">
-  <div class="navbar-inner">
-    <form class="navbar-form pull-left">
-      <input type="text" class="span2">
-      <button type="submit" class="btn">Submit</button>
-    </form>
-  </div>
-</div>
-
 <div class="row chart-control">
   <div class="span8 periods">
     <button class="btn" id="chart-add"><i class="icon-plus"></i> Добавить график</button>
@@ -32,9 +23,9 @@
   <div class="span5 intervals">
     <span style="display:inline-block;width: 60px;text-align: right;">Интервал:</span>
     <span style="display:inline-block;width: 20px;text-align: right;">с</span>
-    <input type="date" name="start-date" class="input_date start-date" id="from-date">
+    <input data-datepicker="datepicker" data-date-format="yyyy-mm-dd" type="text" name="start-date" class="input_date start-date" id="from-date">
     <span style="display:inline-block;width: 20px;text-align: right;">по</span>
-    <input type="date" name="end-date" class="input_date end-date" id="to-date">
+    <input data-datepicker="datepicker" data-date-format="yyyy-mm-dd" type="text" name="end-date" class="input_date end-date" id="to-date">
   </div>
   <div class="redraw pull-right">
     <button class="btn" id="redraw-button">Перерисовать</button>

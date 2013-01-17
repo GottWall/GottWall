@@ -120,7 +120,7 @@
     padding-right: 10px;
 }
 .navbar_filters .nav > li > a {
-    padding: 8px;
+    padding: 5px;
 }
 .remove-chart {
     position: absolute;
@@ -129,4 +129,10 @@
 }
 .navbar_filters .delete-bar {
     font-size: 28px
+}
+.chart-control {
+    margin-bottom: 10px;
+}
+.chart-control .input_date {
+    margin-bottom: 0;
 }
