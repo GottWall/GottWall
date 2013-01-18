@@ -9,10 +9,6 @@ env: GOTTWALL_REDIS_HOST="127.0.0.1"
 services:
     - redis-server
 
-branches:
-    only:
-        - master
-
 install:
     - pip install nose
 
