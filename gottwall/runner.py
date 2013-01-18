@@ -18,7 +18,7 @@ from logging import StreamHandler
 from optparse import OptionParser, Option
 
 import tornado.ioloop
-from commandor import Command
+from commandor import Command, Commandor
 from tornado import httpserver, autoreload
 from tornado.options import _LogFormatter
 
