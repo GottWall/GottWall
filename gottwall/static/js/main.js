@@ -126,7 +126,7 @@ var filters_selector_template = swig.compile('{% for filter in filters %}'+
 var metrics_selector_template = swig.compile(
     '{% for metric in metrics %}<li><a href="#" data-name="{{ metric }}">{{ metric }}</a>{% endfor %}');
 
-var chart_template = swig.compile('<div class="hero-unit chart-area container-fluid" id="chart-{{ id }}"><div class="row-fluid">'
+var chart_template = swig.compile('<div class="hero-unit chart-area container-fluid {{ project_name }}" id="chart-{{ id }}"><div class="row-fluid">'
     +'<div class="span8"><svg></svg></div>'
     +'<div class="span4">'
         +'<div class="chart-controls"><button class="add-bar"><i class="icon-plus"></i>добавить фильтр</button><button class="close remove-chart">×</button></div>'
@@ -183,6 +183,7 @@ var Bar = Class.extend({
   },
   remove: function(){
     this.chart.remove_bar(this);
+    this.chart.render_chart_graph();
   },
   render: function(){
     return this.selectors_bar_template({"id": this.id});
@@ -233,6 +234,8 @@ var Bar = Class.extend({
 	filter_value.parent().parent().parent().parent().parent().find('.current')
 	  .text(self.filter_name+":"+self.filter_value);
 	filter_value.parent().parent().parent().parent().parent().removeClass('open');
+	//self.graph.render_chart_graph();
+	self.gottwall.save_to_storage();
 	return false;
     });
   },
@@ -258,33 +261,9 @@ var Bar = Class.extend({
       metric.parent().parent().parent().removeClass('open');
       metric.parent().parent().parent().find('.current').text(self.metric_name);
       self.setup_current_filter();
+      //self.graph.render_chart_graph();
+      self.gottwall.save_to_storage();
       return false;
-    });
-  },
-  get_metrics_url: function(){
-    // Metrics structure url
-    return this.gottwall.current_project + "/api/metrics";
-  },
-
-  reload_metrics: function(){
-    // Reload metrics from server
-    var api_url = this.get_metrics_url();
-
-    var self = this;
-
-    this.gottwall.debug("Loading metrics structure: "+ api_url);
-
-    $.ajax({
-      type: "GET",
-      url: api_url,
-      dataType: 'json',
-      success: function(data){
-	// Render metrics list
-	self.render_metrics(data);
-      },
-      error: function(error){
-	$.log(error);
-      }
     });
   },
 });
@@ -399,7 +378,7 @@ var Chart = Class.extend({
   },
   render: function(){
     console.log("Render chart area");
-    return $(this.chart_template({"id": this.id}));
+    return $(this.chart_template({"id": this.id, "project_name": this.gottwall.current_project}));
   }
 });
 
@@ -407,19 +386,11 @@ var Chart = Class.extend({
 var GottWall = Class.extend({
 
   // Local storage keys
-  activated_metrics_key: "activated_metrics",
   current_project_key: "current_project",
   current_period_key: "current_period",
   charts_key: "charts",
   from_date_key: "from-date",
   to_date_key: "to-date",
-
-  //chart_template: '<div class="hero-unit chart-area" id="chart-{{ id }}"><div class=""><svg></svg></div></div>',
-
-
-  //metrics_template: '{% for x in items %}<li {% if x[1] %}class="activated"{% endif %}><a href="#metric/{{ x[0] }}" data-name="{{ x[0] }}">{{ x[0] }}</a></li>{% endfor %}',
-  //values_template: '{% for value in items %}<li {% if value[1] %}class="activated"{% endif %}><a href="#filters/{{ metric_name }}/{{ filter_name }}/{{ value[0] }}" data-name="{{ value[0] }}">{{ value[0] }}</a></li>{% endfor %}',
-  //filters_template: '{% for f in items %}<li><a href="#filters/{{ metric_name }}/{{ f }}" data-name="{{ f }}">{{ f }}</a></li>{% endfor %}',
 
   date_formats: {
     "day": "%Y-%m-%d",
@@ -433,7 +404,6 @@ var GottWall = Class.extend({
   init: function(debug){
     this.debug_flag = debug || false;
     this.metrics = {};
-    this.activated_metrics = {};
     this.charts = {};
 
     this.current_project = null;
@@ -592,18 +562,34 @@ var GottWall = Class.extend({
       self.save_to_storage();
     });
   },
+  change_project: function(){
+    var self = this;
+    console.log("Changed to project: " + self.current_project);
+
+    self.charts_container.children().remove();
+
+    $.when(this.metrics_resource_loader()).done(
+      function(r){
+	self.metrics[self.current_project] = r;
+	self.restore_charts();
+	self.redraw_charts();
+	self.save_to_storage();
+      });
+  },
   bind_project_selector: function(){
     var self = this;
     this.project_selector.find("li a").bind('click', function(){
       var item = $(this);
       self.current_project = item.data('name');
+
       $('.js-project-dropdown .js-current-project').text(self.current_project);
       item.parent().parent().children().removeClass('active');
       item.parent().addClass('active');
-      self.render_selectors();
+
+      self.change_project();
 
       // Save data to localStorage
-      self.save_to_storage();
+      //self.save_to_storage();
     });
   },
   redraw_charts: function(){
@@ -697,12 +683,6 @@ var GottWall = Class.extend({
     if(this.current_period){
       localStorage.setItem(this.current_period_key, this.current_period);
     }
-    if(this.get_from_date()){
-      localStorage.setItem(this.from_date_key, this.get_from_date());
-    }
-    if(this.get_to_date()){
-      localStorage.setItem(this.to_date_key, this.get_to_date());
-    }
   },
   restore_charts: function(){
     console.log("Restore charts");
@@ -710,22 +690,27 @@ var GottWall = Class.extend({
 
     var projects = JSON.parse(localStorage.getItem(this.charts_key)) || {};
 
-    for(var project in projects){
-      console.log("Restore project " + project);
-      this.charts[project] = {};
-      for(var chart_id in projects[project]){
-    	console.log("Restore chart " + chart_id);
-    	this.charts[project][chart_id] = chart = new Chart(self, chart_id);
+    console.log("Restore project " + self.current_project);
+    var project = self.current_project;
 
-	for(var bar_id in projects[project][chart_id]['metrics']){
+    if(!project){
+      console.log("Skip restore charts");
+    }
+    this.charts[project] = {};
+    for(var chart_id in projects[self.current_project]){
+      console.log("Restore chart " + chart_id);
+      this.charts[project][chart_id] = chart = new Chart(self, chart_id);
+
+      for(var bar_id in projects[project][chart_id]['metrics']){
 
 	  chart.add_bar(new Bar(self, chart, projects[project][chart_id]['metrics'][bar_id]['id'],
 	  			projects[project][chart_id]['metrics'][bar_id]['metric_name'],
 	  			projects[project][chart_id]['metrics'][bar_id]['filter_name'],
 	  			projects[project][chart_id]['metrics'][bar_id]['filter_value']));
 	}
-      }
     }
+
+    self.redraw_charts();
   },
   restore_from_storage: function(){
     // Load data from localStorage
