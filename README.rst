@@ -4,8 +4,8 @@ Welcome to gottwall's documentation!
 Simple statistics aggregation platform
 
 
-.. image:: https://secure.travis-ci.org/GottWall/gottwall.png
-	   :target: https://secure.travis-ci.org/GottWall/gottwall
+.. image:: https://secure.travis-ci.org/GottWall/GottWall.png
+	   :target: https://secure.travis-ci.org/GottWall/GottWall
 
 Features
 --------
