@@ -33,7 +33,7 @@ SECRET_KEY = "dwefwefwefwecwef"
 # http://public_key:secret_key@host.com
 
 PROJECTS = {"test_project": "my_public_key",
-            "another_project": "public_key2"}
+            "another_project": "my_public_key"}
 
 cookie_secret="fkewrlhfwhrfweiurbweuybfrweoubfrowebfioubweoiufbwbeofbowebfbwup2XdTP1o/Vo="
 

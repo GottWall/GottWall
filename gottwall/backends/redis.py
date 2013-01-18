@@ -157,8 +157,6 @@ class RedisBackend(BaseBackend):
         while i > 0:
             raw_data = (yield gen.Task(client.spop, key))
 
-            logger.info(raw_data)
-
             if not raw_data:
                 break
             try:
