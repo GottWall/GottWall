@@ -16,6 +16,7 @@ import sys
 import os.path
 import time
 import signal
+import logging as logging_module
 from logging import StreamHandler
 from optparse import OptionParser, Option
 
@@ -35,13 +36,14 @@ def configure_logging(logging):
     """Configure logging handler"""
     if logging.upper() not in ['DEBUG', 'INFO', 'CRITICAL', 'WARNING', 'ERROR']:
         return
-    print("Setup {0} log level".format(logging))
-    logger.setLevel(logging.upper())
+
+    logger.setLevel(getattr(logging_module, logging.upper()))
 
     if not logger.handlers:
         channel = StreamHandler()
         channel.setFormatter(_LogFormatter(color=False))
         logger.addHandler(channel)
+    logger.info("Logging handler configured with level {0}".format(logging))
 
 
 class Commandor(Commandor):
