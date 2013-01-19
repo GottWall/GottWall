@@ -53,7 +53,7 @@ class BaseHandler(RequestHandler):
 
     def initialize(self, config, db, env):
         self.config = config
-        self.env = env
+        self.jinja_env = env
         self.config = config
 
     def get_current_user(self):
