@@ -10,19 +10,18 @@ Redis storage for collect statistics
 :license: BSD, see LICENSE for more details.
 :github: http://github.com/Lispython/gottwall
 """
-
+from itertools import ifilter
 from logging import getLogger
 
-from itertools import ifilter
-import tornadoredis
 import tornado.gen
+import tornadoredis
 from tornado import gen
 from tornado.gen import Task
 
-from gottwall.utils import get_by_period, get_datetime, date_range, OrderedDict
 from gottwall.settings import STORAGE_SETTINGS_KEY
 from gottwall.storages.base import BaseStorage
-from tornadoredis.exceptions import ConnectionError
+from gottwall.utils import get_by_period, get_datetime, date_range, OrderedDict
+
 
 logger = getLogger()
 
@@ -90,7 +89,6 @@ class RedisStorage(BaseStorage):
         if callback:
             callback()
 
-
     def get_metrics_key(self, project):
         """Get key for metrics list
 
@@ -110,7 +108,6 @@ class RedisStorage(BaseStorage):
         except UnicodeDecodeError:
             return u"{0}-metrics-filter-values:{1}:{2}".format(project, metric_name.decode("utf-8"), f)
 
-
     def get_filters_names_key(self, project, metric_name):
         """Get key for metrics filters names
 
@@ -122,13 +119,12 @@ class RedisStorage(BaseStorage):
         except UnicodeDecodeError:
             return u"{0}-metrics-filters:{1}".format(project, metric_name.decode("utf-8"))
 
-
     @tornado.gen.engine
     def incr(self, project, name, timestamp, value=1, filters=None, callback=None, **kwargs):
         """Make incr in redis hash
         """
 
-        pipe = self.client.pipeline()
+        pipe = self.client.pipeline(transactional=True)
 
         for period in self._application.config['PERIODS']:
             if filters:
@@ -150,7 +146,6 @@ class RedisStorage(BaseStorage):
 
         if callback:
             callback(res)
-
 
     def make_key(self, project, name, period, filters=None):
         """Make key from parameters
@@ -174,7 +169,6 @@ class RedisStorage(BaseStorage):
                 parts.append(filters_part)
 
         return u';'.join(parts)
-
 
     def filter_by_period(self, data, period, from_date=None, to_date=None):
         """Fulter statistics by `from_date` and `to_date`
@@ -234,5 +228,3 @@ class RedisStorage(BaseStorage):
 
         if callback:
             callback(metrics)
-
-
