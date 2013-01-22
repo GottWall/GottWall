@@ -176,7 +176,7 @@ var Bar = Class.extend({
     return null;
   },
   add_bindings: function(){
-    var self = this;
+      var self = this;
     this.bar.find('.delete-bar').bind('click', function(){
       self.remove();
     });
@@ -325,10 +325,14 @@ var Chart = Class.extend({
       return metric.get_resource_loader(self.gottwall.current_period);
     })).done(
       function(){
-	var responses = arguments;
+	if(!_.isArray(arguments[1])){
+	  var responses = [arguments];
+	}
+	else{
+	  var responses = arguments;
+	}
 
 	var metrics_with_data = _.map(responses, function(r){
-
 	  return new Metric(self.gottwall,  r[0]["name"], r[0]["filter_name"], r[0]["filter_value"], r[0]);
 	});
 	return self.render_metrics(metrics_with_data);
