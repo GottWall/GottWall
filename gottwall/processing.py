@@ -79,6 +79,29 @@ class PeriodicProcessor(tornado.ioloop.PeriodicCallback):
         logger.error("Invalid task type: {0}".format(task_type))
 
 
+class RedisBackendPeriodicProcessor(PeriodicProcessor):
+
+    def __init__(self, backend, callback_time=None, io_loop=None,
+                 tasks_chunk=None, config={}):
+        self.backend = backend
+        self.config = config
+        self.callback_time = callback_time or self.backend.backend_settings.get('PERIODIC_PROCESSOR_TIME') or \
+                             config.get('PERIODIC_PROCESSOR_TIME', PERIODIC_PROCESSOR_TIME)
+        self.io_loop = io_loop or tornado.ioloop.IOLoop.instance()
+        self._running = False
+        self._timeout = None
+
+    def callback(self):
+        """Periodic processor callback
+
+        :param application: application instance
+        """
+        logger.info("Redis processor periodic load buckets")
+
+        for project in self.config['PROJECTS'].keys():
+            self.backend.load_buckets(project)
+
+
 class Tasks(deque):
     """Custom wrapper for deque
     """

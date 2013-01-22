@@ -109,12 +109,12 @@ class Start(Command):
 
         configure_logging(logging)
 
-        application = AggregatorApplication(config)
+        self.application = AggregatorApplication(config)
         ioloop = tornado.ioloop.IOLoop.instance()
 
-        application.configure_app(ioloop)
+        self.application.configure_app(ioloop)
 
-        self.http_server = httpserver.HTTPServer(application)
+        self.http_server = httpserver.HTTPServer(self.application)
         self.http_server.listen(port, host)
 
         if reload:
@@ -124,12 +124,26 @@ class Start(Command):
         self.display("Aggregator running on 127.0.0.1:{0}".format(port))
 
         # Init signals handler
-        #signal.signal(signal.SIGTERM, self.sig_handler)
+        signal.signal(signal.SIGTERM, self.sig_handler)
 
         # This will also catch KeyboardInterrupt exception
-        #signal.signal(signal.SIGINT, self.sig_handler)
+        signal.signal(signal.SIGINT, self.sig_handler)
 
         ioloop.start()
+
+    def sig_handler(self, sig, frame):
+        """Catch signal and init callback
+        """
+        tornado.ioloop.IOLoop.instance().add_callback(self.shutdown)
+
+    def shutdown(self):
+        """Stop server and add callback to stop i/o loop"""
+        self.display("Shutting down service")
+        self.application.shutdown()
+        self.http_server.stop()
+
+        io_loop = tornado.ioloop.IOLoop.instance()
+        io_loop.add_timeout(time.time() + 2, io_loop.stop)
 
 
 class Server(Command):
@@ -182,10 +196,10 @@ class Start(Command):
         self.display("Server running on 127.0.0.1:{0}".format(port))
 
         # Init signals handler
-        #signal.signal(signal.SIGTERM, self.sig_handler)
+        signal.signal(signal.SIGTERM, self.sig_handler)
 
         # This will also catch KeyboardInterrupt exception
-        #signal.signal(signal.SIGINT, self.sig_handler)
+        signal.signal(signal.SIGINT, self.sig_handler)
 
         ioloop.start()
 

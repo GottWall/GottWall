@@ -24,8 +24,9 @@ from gottwall.utils import parse_dict_header
 
 class HTTPBackend(BaseBackend, BaseHandler):
 
-    def initialize(self, config):
+    def initialize(self, config, app):
         self.config = config
+        self.application = app
 
     ## def __init__(self, io_loop, config, storage, *args, **kwargs):
     ##     self.io_loop = io_loop

@@ -10,7 +10,7 @@ BACKENDS = {
         'PASSWORD': None,
         'DB': 2,
         "CHANNEL": "gottwall",
-        "MAX_LOADING": 30},
+        "MAX_LOADING": 150},
     'gottwall.backends.tcpip.TCPIPBackend': {}
     }
 
@@ -53,3 +53,6 @@ DATABASE = {
 PREFIX = ''
 
 site_title = "Stats"
+
+
+PERIODIC_PROCESSOR_TIME = 1000*60*0.5

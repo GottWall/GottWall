@@ -32,8 +32,10 @@ class AggregatorApplication(Application):
         self.config = config
         self.data_processor = None
         self.tasks = Tasks()
+        self.backends = []
 
-        params = {"config": self.config}
+        params = {"config": self.config,
+                  "app": self}
 
         self.dirty_handlers = [
             # Default HTTP backend
@@ -67,8 +69,7 @@ class AggregatorApplication(Application):
             raise Exception("Invalid storage: {0}".format(e))
         return storage.setup(self)
 
-    @staticmethod
-    def configure_backends(backends, io_loop, config, storage, tasks):
+    def configure_backends(self, backends, io_loop, config, storage, tasks):
         """Configture data receive backends
 
         :param backends: list of backends
@@ -81,6 +82,13 @@ class AggregatorApplication(Application):
                 backend = getattr(backend_module, name)
             except (ImportError, AttributeError), e:
                 raise Exception("Invalid backend: {0}".format(e))
-            backend.setup_backend(io_loop, config, storage, tasks)
+            backend.setup_backend(self, io_loop, config, storage, tasks)
 
         return True
+
+    def shutdown(self):
+        """Shutdown application
+        """
+
+        for backend in self.backends:
+            backend.shutdown()

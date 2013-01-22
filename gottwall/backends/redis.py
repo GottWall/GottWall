@@ -19,6 +19,7 @@ from tornado import gen
 from tornadoredis.exceptions import ConnectionError
 
 from gottwall.backends.base import BaseBackend
+from gottwall.processing import RedisBackendPeriodicProcessor
 
 
 logger = getLogger()
@@ -48,12 +49,17 @@ class Client(tornadoredis.Client):
 
 class RedisBackend(BaseBackend):
 
-    def __init__(self, io_loop, config, storage, tasks):
+    def __init__(self, application, io_loop, config, storage, tasks, data_threshold=500):
         self.io_loop = io_loop
         self.config = config
         self.storage = storage
         self.client = None
         self.tasks = tasks
+        self.data_processing_threshold = data_threshold
+        self.current_in_progress = 0
+        self.data_processor = None
+        self.application = application
+        self.working = True
 
     def get_redis_client(self):
         """Get redis client instance
@@ -76,17 +82,24 @@ class RedisBackend(BaseBackend):
         self.client = self.get_redis_client()
         return self.client
 
+    def configure_processors(self):
+        self.data_processor = RedisBackendPeriodicProcessor(self,
+            io_loop=self.io_loop, config=self.config)
+        self.data_processor.start()
+
     @classmethod
-    def setup_backend(cls, io_loop, config, storage, tasks):
+    def setup_backend(cls, application, io_loop, config, storage, tasks):
         """Setup data handler
 
         :param io_loo: :class:`tornado.ioloop.IOLoop` object
         :param confi: :class:`gottwall.config.Config` object
         :param storage: :class:`gottwall.storage.Storage` object
         """
-        backend = cls(io_loop, config, storage, tasks)
+        backend = cls(application, io_loop, config, storage, tasks)
         backend.configure_client()
+        backend.configure_processors()
         backend.listen()
+        return backend
 
     @gen.engine
     def listen(self):
@@ -152,18 +165,28 @@ class RedisBackend(BaseBackend):
         length = (yield gen.Task(client.scard, key))
 
         # Max load elements at once
-        i = min(self.backend_settings.get("MAX_LOADING", 20), length)
+        i = min(self.backend_settings.get("MAX_LOADING", 100), length)
 
-        while i > 0:
+        while i > 0 and self.current_in_progress < self.data_processing_threshold:
             raw_data = (yield gen.Task(client.spop, key))
 
             if not raw_data:
                 break
 
+            self.current_in_progress += 1
             try:
-                self.process_data(project, self.parse_data(raw_data))
+                self.process_data(project, self.parse_data(raw_data),
+                                  self.process_data_callback)
             except Exception, e:
                 logger.warning(e)
                 print(e)
 
             i -= 1
+
+
+    def process_data_callback(self, res):
+        """Function that called then data processes
+
+        :param res: process result
+        """
+        self.current_in_progress -= 1

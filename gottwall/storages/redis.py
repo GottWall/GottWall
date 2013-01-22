@@ -164,6 +164,7 @@ class RedisStorage(BaseStorage):
         :param fvalue: fil
 
         """
+
         parts = [project, name, period]
 
         if isinstance(filters, dict):
@@ -218,6 +219,8 @@ class RedisStorage(BaseStorage):
         :returns: result dict
         """
         client = self.client
+
+        self.client.select(self.client.selected_db)
 
         metrics = {}
 

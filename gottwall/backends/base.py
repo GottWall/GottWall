@@ -45,7 +45,7 @@ class BaseBackend(object):
             callback(res)
 
 
-    def setup_backend(self, io_loop, config, storage, tasks):
+    def setup_backend(self, application, io_loop, config, storage, tasks):
         """Setup backend for application
 
         :param io_loop: :class:`tornado.ioloop.IOLoop` instance
@@ -87,3 +87,9 @@ class BaseBackend(object):
             self.process_data(data['project'], data)
 
         return True
+
+    def shutdown(self):
+        """Shutdown backend
+
+        """
+        self.working = False
