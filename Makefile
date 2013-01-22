@@ -9,10 +9,6 @@ test:
 travis:
 	python setup.py nosetests --tests tests.py
 
-coverage:
-	python setup.py nosetests  --with-coverage --cover-package=gottwall --cover-html --cover-html-dir=coverage_out coverage
-
-
 shell:
 	../venv/bin/ipython
 
@@ -37,3 +33,6 @@ env:
 
 debug:
 	python gottwall/runner.py --config=examples/config.py server start --reload
+
+aggregator-debug:
+	python gottwall/runner.py --config=examples/config.py aggregator start --reload

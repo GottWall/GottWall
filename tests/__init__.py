@@ -6,16 +6,18 @@ gottwall.tests
 
 Unittests for gottwall
 
-:copyright: (c) 2011 - 2012 by GottWall team, see AUTHORS for more details.
+:copyright: (c) 2012 - 2013 by GottWall team, see AUTHORS for more details.
 :license: BSD, see LICENSE for more details.
 """
 
 import unittest
 
 from config import ConfigTestCase
-from backends import TCPBackendTestCase, HTTPBackendTestCase, RedisBackendTestCase
+from backends import TCPBackendTestCase, HTTPBackendTestCase,\
+     RedisBackendTestCase
 from api import APITestCase
-from storages import StorageTestCase, RedisStorageTestCase, MemoryStorageTestCase
+from storages import StorageTestCase, RedisStorageTestCase,\
+     MemoryStorageTestCase
 from utils import UtilsTestCase
 from app import ProcessorTestCase
 

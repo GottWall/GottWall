@@ -11,18 +11,15 @@ Redis pub/sub backend
 :license: BSD, see LICENSE for more details.
 :github: http://github.com/Lispython/gottwall
 """
-
-import json
 from logging import getLogger
-from tornado.web import HTTPError
+
 import tornado.ioloop
+import tornadoredis
 from tornado import gen
+from tornadoredis.exceptions import ConnectionError
 
 from gottwall.backends.base import BaseBackend
-from gottwall.handlers import BaseHandler
 
-import tornadoredis
-from tornadoredis.exceptions import ConnectionError
 
 logger = getLogger()
 
@@ -35,8 +32,8 @@ class Client(tornadoredis.Client):
     def on_disconnect(self):
         if self.subscribed:
             self.subscribed = False
-        self._reconnect_callback()
-        logger.warn("Reconnect client")
+        #self._reconnect_callback()
+        raise ConnectionError("Conneciton loast")
 
     def connect(self):
         if not self.connection.connected():
@@ -99,10 +96,10 @@ class RedisBackend(BaseBackend):
         """
         self.client.connect()
 
-        yield tornado.gen.Task(self.client.psubscribe,
-                               "{0}:*".format(self.backend_settings.get('CHANNEL', 'gottwall')))
+        yield tornado.gen.Task(
+            self.client.psubscribe,
+            "{0}:*".format(self.backend_settings.get('CHANNEL', 'gottwall')))
         self.client.listen(self.callback)
-
 
     def callback(self, message):
 
@@ -140,8 +137,9 @@ class RedisBackend(BaseBackend):
 
         :param project: project name
         """
-        return "{0}:{1}:{2}".format(self.backend_settings.get('CHANNEL', 'gottwall'),
-                                    project, self.config['PROJECTS'][project])
+        return "{0}:{1}:{2}".format(
+            self.backend_settings.get('CHANNEL', 'gottwall'),
+            project, self.config['PROJECTS'][project])
 
     @gen.engine
     def load_buckets(self, project):

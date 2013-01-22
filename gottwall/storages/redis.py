@@ -8,7 +8,7 @@ Redis storage for collect statistics
 
 :copyright: (c) 2012 by GottWall Team, see AUTHORS for more details.
 :license: BSD, see LICENSE for more details.
-:github: http://github.com/Lispython/gottwall
+:github: http://github.com/gottwall/gottwall
 """
 from itertools import ifilter
 from logging import getLogger
@@ -17,11 +17,13 @@ import tornado.gen
 import tornadoredis
 from tornado import gen
 from tornado.gen import Task
+from tornadoredis.exceptions import ConnectionError
 
 from gottwall.settings import STORAGE_SETTINGS_KEY
 from gottwall.storages.base import BaseStorage
-from gottwall.utils import get_by_period, get_datetime, date_range, OrderedDict
 
+from gottwall.utils import get_by_period, get_datetime, date_range
+from gottwall.compat import OrderedDict
 
 logger = getLogger()
 
@@ -34,9 +36,9 @@ class Client(tornadoredis.Client):
     def on_disconnect(self):
         if self.subscribed:
             self.subscribed = False
-        self._reconnect_callback()
 
-        logger.wart("Reconnect client")
+        # self._reconnect_callback()
+        raise ConnectionError("Connection lost")
 
 
 class RedisStorage(BaseStorage):
@@ -60,12 +62,15 @@ class RedisStorage(BaseStorage):
             password=config[STORAGE_SETTINGS_KEY].get('PASSWORD', None),
             selected_db=int(config[STORAGE_SETTINGS_KEY].get('DB', 0)))
 
+        logger.debug("Redis storage client {0}".format(repr(self.client)))
         self.client._reconnect_callback = self.client.connect
 
         self.client.connect()
+        self.client.select(self.client.selected_db)
 
     @gen.engine
-    def save_metric_meta(self, pipe, project, name, filters=None, callback=None):
+    def save_metric_meta(self, pipe, project, name,
+                         filters=None, callback=None):
         """Save metric filters
 
         :param project: project name
@@ -125,6 +130,7 @@ class RedisStorage(BaseStorage):
         """
 
         pipe = self.client.pipeline(transactional=True)
+        pipe.select(self.client.selected_db)
 
         for period in self._application.config['PERIODS']:
             if filters:
@@ -195,7 +201,7 @@ class RedisStorage(BaseStorage):
                    filter_name=None, filter_value=None, callback=None):
 
         key = self.make_key(project, name, period,
-                                         {filter_name: filter_value})
+                            {filter_name: filter_value})
 
         items = yield Task(self.client.hgetall, key)
 

@@ -53,8 +53,8 @@ class BaseHandler(RequestHandler):
 
     def initialize(self, config, db, env):
         self.config = config
-        self.db = db
         self.jinja_env = env
+        self.config = config
 
     def get_current_user(self):
         """ Return current logged user or None.

@@ -9,19 +9,15 @@ Unittests for gottwall api
 :copyright: (c) 2012 by GottWall team, see AUTHORS for more details.
 :license: BSD, see LICENSE for more details.
 """
-
 import datetime
 import json
 
-from tornado.web import Application, RequestHandler
-
-from gottwall.app import HTTPApplication
-from gottwall.config import Config, default_settings
 import gottwall.default_config
-from base import BaseTestCase, AsyncHTTPBaseTestCase
+from base import AsyncHTTPBaseTestCase
+from gottwall.app import HTTPApplication
+from gottwall.config import Config
 from gottwall.utils import MagicDict
 from gottwall.handlers import BaseHandler
-
 
 
 BaseHandler.get_current_user = lambda s: "Test user"

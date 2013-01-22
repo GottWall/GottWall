@@ -86,14 +86,12 @@ class MemoryStorageTestCase(AsyncBaseTestCase):
         self.assertEquals(storage._metrics["memory_storage"]["metric_name"]["filter2"],
                           ["value1", "value2"])
 
-
         metrics_res = yield Task(storage.metrics, "memory_storage")
 
         self.assertEquals(metrics_res,
                           {"metric_name": {"filter1": [filters['filter1']],
                                            "filter2": ["value1", "value2"]}})
         self.stop()
-
 
     @async_test
     @tornado.gen.engine
@@ -127,7 +125,6 @@ class MemoryStorageTestCase(AsyncBaseTestCase):
                                                        'iphone',
                                                        'android']}}})
 
-
         for period in ["month", "day", "week", "hour", "minute"]:
             for filter_name, filter_value in (("filter1", True),
                                               ("filter2", "web"),
@@ -139,8 +136,7 @@ class MemoryStorageTestCase(AsyncBaseTestCase):
                                           filter_value=filter_value))):
                     self.assertEquals(x[1], 10)
 
-
-        for period in ["year", ]:
+        for period in ["year"]:
             for filter_name, filter_value in (("filter1", True),
                                               ("filter2", "web"),
                                               ("filter2", "iphone"),
@@ -185,7 +181,6 @@ class RedisStorageTestCase(AsyncBaseTestCase, RedisTestCaseMixin):
     def get_new_ioloop(self):
         return tornado.ioloop.IOLoop.instance()
 
-
     @async_test
     @tornado.gen.engine
     def test_methods(self):
@@ -195,7 +190,6 @@ class RedisStorageTestCase(AsyncBaseTestCase, RedisTestCaseMixin):
                                            filters={"status": "new",
                                                     "type": "registered"}),
                           "redis_project_name;metric_name;week;status|new/type|registered")
-
 
         self.assertTrue(isinstance(storage, RedisStorage))
 
@@ -241,7 +235,6 @@ class RedisStorageTestCase(AsyncBaseTestCase, RedisTestCaseMixin):
                          "filter2": ["value1", "value2"]}})
         self.stop()
 
-
     @async_test
     @tornado.gen.engine
     def test_metric_meta(self):
@@ -259,7 +252,6 @@ class RedisStorageTestCase(AsyncBaseTestCase, RedisTestCaseMixin):
                             "test": ["value1", "value2"]}))
 
         self.stop()
-
 
     @async_test
     @tornado.gen.engine
@@ -292,7 +284,6 @@ class RedisStorageTestCase(AsyncBaseTestCase, RedisTestCaseMixin):
                                                             'iphone',
                                                             'web']}})
 
-
         for period in ["month", "day", "week", "hour", "minute"]:
             for filter_name, filter_value in (("filter1", True),
                                               ("filter2", "web"),
@@ -304,8 +295,7 @@ class RedisStorageTestCase(AsyncBaseTestCase, RedisTestCaseMixin):
                                           filter_value=filter_value))):
                     self.assertEquals(int(x[1]), 10)
 
-
-        for period in ["year", ]:
+        for period in ["year"]:
             for filter_name, filter_value in (("filter1", True),
                                               ("filter2", "web"),
                                               ("filter2", "iphone"),

@@ -11,30 +11,31 @@ GottWall runner for standalone applications
 :license: BSD, see LICENSE for more details.
 :github: http://github.com/Lispython/gottwall
 """
-
-import sys
 import os.path
+import sys
 import time
+
 import signal
 import logging as logging_module
 from logging import StreamHandler
 from optparse import OptionParser, Option
 
-from commandor import Command, Commandor
 import tornado.ioloop
-from tornado import httpserver
-from tornado import autoreload
+from commandor import Command, Commandor
+from tornado import httpserver, autoreload
 from tornado.options import _LogFormatter
 
 import gottwall.default_config
-from gottwall.config import Config
+from gottwall.aggregator import AggregatorApplication
 from gottwall.app import HTTPApplication
+from gottwall.config import Config
 from gottwall.log import logger
 
 
 def configure_logging(logging):
     """Configure logging handler"""
-    if logging.upper() not in ['DEBUG', 'INFO', 'CRITICAL', 'WARNING', 'ERROR']:
+    if logging.upper() not in ['DEBUG', 'INFO', 'CRITICAL',
+                               'WARNING', 'ERROR']:
         return
 
     logger.setLevel(getattr(logging_module, logging.upper()))
@@ -71,6 +72,64 @@ class Commandor(Commandor):
         config.from_file(options.config)
 
         return config
+
+
+class Aggregator(Command):
+    """Tools for aggregator
+    """
+    commandor = Commandor
+
+
+class Start(Command):
+    """Aggregator starter
+    """
+    parent = Aggregator
+
+    options = [
+        Option("-p", "--port",
+               metavar=int,
+               default=8890,
+               help="Port to run http server"),
+        Option("-r", "--reload",
+               action="store_true",
+               dest="reload",
+               default=False,
+               help="Auto realod source on changes"),
+        Option("-h", "--host",
+               metavar="str",
+               default="127.0.0.1",
+               help="Port for server"),
+        Option("-l", "--logging",
+               metavar="str",
+               default="none",
+               help="Log level")]
+
+    def run(self, port, reload, host, logging, **kwargs):
+        config = self._commandor_res
+
+        configure_logging(logging)
+
+        application = AggregatorApplication(config)
+        ioloop = tornado.ioloop.IOLoop.instance()
+
+        application.configure_app(ioloop)
+
+        self.http_server = httpserver.HTTPServer(application)
+        self.http_server.listen(port, host)
+
+        if reload:
+            self.display("Autoreload enabled")
+            autoreload.start(io_loop=ioloop, check_time=100)
+
+        self.display("Aggregator running on 127.0.0.1:{0}".format(port))
+
+        # Init signals handler
+        #signal.signal(signal.SIGTERM, self.sig_handler)
+
+        # This will also catch KeyboardInterrupt exception
+        #signal.signal(signal.SIGINT, self.sig_handler)
+
+        ioloop.start()
 
 
 class Server(Command):
@@ -171,11 +230,13 @@ class Alembic(Command):
 
         config = self._commandor_res
 
-        alembic_cfg = AlembicConfig(os.path.join(os.path.dirname(gottwall.default_config.__file__), 'alembic.ini'))
+        alembic_cfg = AlembicConfig(os.path.join(os.path.dirname(
+            gottwall.default_config.__file__), 'alembic.ini'))
         alembic_cfg.set_main_option("script_location",
                                    config['ALEMBIC_SCRIPT_LOCATION'])
 
-        alembic_cfg.set_main_option("sqlalchemy.url","{ENGINE}://{USER}:{PASSWORD}@{HOST}:{PORT}/{NAME}".\
+        alembic_cfg.set_main_option("sqlalchemy.url",
+                                    "{ENGINE}://{USER}:{PASSWORD}@{HOST}:{PORT}/{NAME}".\
                                     format(**config['DATABASE']))
 
         try:
@@ -192,8 +253,7 @@ def main():
         add_help_option=False)
 
     commandor_options = [Option('-c', '--config',
-                                metavar="FILE",
-                                help='Configuration file')]
+                                metavar="FILE", help='Configuration file')]
 
     manager = Commandor(parser, sys.argv[1:], commandor_options)
     manager.process()

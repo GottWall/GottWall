@@ -9,20 +9,20 @@ Unittests for gottwall
 :copyright: (c) 2011 - 2012 by GottWall team, see AUTHORS for more details.
 :license: BSD, see LICENSE for more details.
 """
-import os
 import datetime
+import json
+import os
+import random
 from base64 import b64encode
 
-import json
-import random
-from base import AsyncBaseTestCase, AsyncHTTPBaseTestCase, RedisTestCaseMixin
-from gottwall.app import HTTPApplication
-from gottwall.config import Config
-import gottwall.default_config
-import tornadoredis
-from utils import async_test
 import tornado.gen
 from tornado import ioloop
+
+import gottwall.default_config
+from base import AsyncBaseTestCase, AsyncHTTPBaseTestCase, RedisTestCaseMixin
+from gottwall.aggregator import AggregatorApplication
+from gottwall.config import Config
+from utils import async_test
 
 
 HOST = os.environ.get('GOTTWALL_REDIS_HOST', "10.8.9.8")
@@ -37,14 +37,10 @@ class TCPBackendTestCase(AsyncBaseTestCase):
                        "STORAGE": "gottwall.storages.MemoryStorage",
                                  "PROJECTS": {"test_project": "secretkey"},
                                  "PRIVATE_KEY": "myprivatekey"})
-        self.app = HTTPApplication(config)
+        self.app = AggregatorApplication(config)
         self.app.configure_app(self.io_loop)
 
         return self.app
-
-    def test(self):
-        print("Base test")
-
 
 
 class RedisBackendTestCase(AsyncHTTPBaseTestCase, RedisTestCaseMixin):
@@ -74,7 +70,7 @@ class RedisBackendTestCase(AsyncHTTPBaseTestCase, RedisTestCaseMixin):
                        "REDIS_HOST": HOST,
                        "PROJECTS": {"test_project": "secretkey2"},
                        "SECRET_KEY": "myprivatekey2"})
-        app = HTTPApplication(config)
+        app = AggregatorApplication(config)
         app.configure_app(self.io_loop)
         return app
 
@@ -87,7 +83,7 @@ class RedisBackendTestCase(AsyncHTTPBaseTestCase, RedisTestCaseMixin):
                        "filters": {"views": "anonymouse"},
                        "action": "incr",
                        "value": 2,
-                       "type": "        import ipdb; ipdb.set_trace()bucket"}
+                       "type": "bucket"}
 
         client = self.client
         key = "gottwall:{0}:{1}:{2}".format("test_project",
@@ -110,9 +106,9 @@ class HTTPBackendTestCase(AsyncHTTPBaseTestCase):
         config = Config()
         config.from_module(gottwall.default_config)
         config.update({"BACKENDS": [],
-                                 "PROJECTS": {"test_project": "secretkey"},
-                                 "SECRET_KEY": "myprivatekey"})
-        self.app = HTTPApplication(config)
+                       "PROJECTS": {"test_project": "secretkey"},
+                       "SECRET_KEY": "myprivatekey"})
+        self.app = AggregatorApplication(config)
         self.app.configure_app(self.io_loop)
         return self.app
 
@@ -138,7 +134,6 @@ class HTTPBackendTestCase(AsyncHTTPBaseTestCase):
                               headers={"content-type": "application/json",
                                        "Authorization": b64encode(authorization)})
 
-
         self.assertEquals(response.body, "OK")
         self.assertEquals(response.code, 200)
 
@@ -150,8 +145,6 @@ class HTTPBackendTestCase(AsyncHTTPBaseTestCase):
                               body=json.dumps(metric_data),
                               headers={"content-type": "application/json",
                                        "X-GottWall-Auth": auth_value})
-        from pprint import pprint
-        pprint(app.storage._store)
 
         self.assertEquals(response.body, "OK")
         self.assertEquals(response.code, 200)
@@ -163,4 +156,3 @@ class HTTPBackendTestCase(AsyncHTTPBaseTestCase):
                               headers={"content-type": "application/json"})
 
         self.assertEquals(response.code, 403)
-
