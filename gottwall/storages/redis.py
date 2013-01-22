@@ -62,9 +62,11 @@ class RedisStorage(BaseStorage):
             password=config[STORAGE_SETTINGS_KEY].get('PASSWORD', None),
             selected_db=int(config[STORAGE_SETTINGS_KEY].get('DB', 0)))
 
+        logger.debug("Redis storage client {0}".format(repr(self.client)))
         self.client._reconnect_callback = self.client.connect
 
         self.client.connect()
+        self.client.select(self.client.selected_db)
 
     @gen.engine
     def save_metric_meta(self, pipe, project, name,
@@ -128,6 +130,7 @@ class RedisStorage(BaseStorage):
         """
 
         pipe = self.client.pipeline()
+        pipe.select(self.client.selected_db)
 
         for period in self._application.config['PERIODS']:
             if filters:
@@ -198,7 +201,7 @@ class RedisStorage(BaseStorage):
                    filter_name=None, filter_value=None, callback=None):
 
         key = self.make_key(project, name, period,
-                                         {filter_name: filter_value})
+                            {filter_name: filter_value})
 
         items = yield Task(self.client.hgetall, key)
 
