@@ -332,7 +332,7 @@ var Chart = Class.extend({
 	  var responses = arguments;
 	}
 
-	var metrics_with_data = _.map(responses, function(r){
+	var metrics_with_data = _.map(_.compact(responses), function(r){
 	  return new Metric(self.gottwall,  r[0]["name"], r[0]["filter_name"], r[0]["filter_value"], r[0]);
 	});
 	return self.render_metrics(metrics_with_data);

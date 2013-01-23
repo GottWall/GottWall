@@ -96,8 +96,7 @@ class RedisBackendPeriodicProcessor(PeriodicProcessor):
 
         :param application: application instance
         """
-        logger.info("Redis processor periodic load buckets")
-
+        logger.debug("Redis backend has {0} tasks in progress".format(self.backend.current_in_progress))
         for project in self.config['PROJECTS'].keys():
             self.backend.load_buckets(project)
 

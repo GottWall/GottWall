@@ -27,6 +27,7 @@ class TCPIPBackend(TCPServer, BaseBackend):
         self.tasks = tasks
         self.application = application
         self.working = True
+        self.current_in_progress = 0
         super(TCPIPBackend, self).__init__(*args, **kwargs)
 
     @classmethod

@@ -141,9 +141,7 @@ class Start(Command):
         self.display("Shutting down service")
         self.application.shutdown()
         self.http_server.stop()
-
-        io_loop = tornado.ioloop.IOLoop.instance()
-        io_loop.add_timeout(time.time() + 2, io_loop.stop)
+        self.application.check_ready_to_stop(self.application)
 
 
 class Server(Command):

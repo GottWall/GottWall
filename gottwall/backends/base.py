@@ -93,3 +93,8 @@ class BaseBackend(object):
 
         """
         self.working = False
+
+    def ready_to_stop(self):
+        if not self.working and self.current_in_progress <= 0:
+            return True
+        return False

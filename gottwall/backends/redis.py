@@ -167,7 +167,7 @@ class RedisBackend(BaseBackend):
         # Max load elements at once
         i = min(self.backend_settings.get("MAX_LOADING", 100), length)
 
-        while i > 0 and self.current_in_progress < self.data_processing_threshold:
+        while i > 0 and (self.current_in_progress < self.data_processing_threshold) and self.working:
             raw_data = (yield gen.Task(client.spop, key))
 
             if not raw_data:
@@ -183,10 +183,16 @@ class RedisBackend(BaseBackend):
 
             i -= 1
 
-
     def process_data_callback(self, res):
         """Function that called then data processes
 
         :param res: process result
         """
         self.current_in_progress -= 1
+
+    def shutdown(self):
+        """Shutdown backend
+
+        """
+        self.working = False
+        logger.debug("Tasks in progress {0}".format(self.current_in_progress))

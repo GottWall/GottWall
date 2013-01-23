@@ -12,6 +12,8 @@ Gottwall main loop
 :github: http://github.com/gottwall/gottwall
 """
 import importlib
+import time
+from logging import getLogger
 
 import tornado.ioloop
 from tornado.web import Application, URLSpec
@@ -22,6 +24,8 @@ from processing import PeriodicProcessor, Tasks
 
 ## from sqlalchemy import create_engine
 ## from sqlalchemy.orm import scoped_session, sessionmaker
+
+logger = getLogger()
 
 
 class AggregatorApplication(Application):
@@ -82,13 +86,28 @@ class AggregatorApplication(Application):
                 backend = getattr(backend_module, name)
             except (ImportError, AttributeError), e:
                 raise Exception("Invalid backend: {0}".format(e))
-            backend.setup_backend(self, io_loop, config, storage, tasks)
+            self.backends.append(backend.setup_backend(self, io_loop, config, storage, tasks))
 
         return True
 
     def shutdown(self):
         """Shutdown application
         """
-
         for backend in self.backends:
             backend.shutdown()
+
+    def check_ready_to_stop(self, callback=None):
+        """Check that all backends flush data
+        """
+        io_loop = tornado.ioloop.IOLoop.instance()
+
+        if all([backend.ready_to_stop() for backend in self.backends]):
+            logger.debug("All backends ready to stop")
+            io_loop.add_timeout(time.time() + 2, io_loop.stop)
+            return True
+
+        logger.debug("Not all backend ready to stop")
+        for backend in self.backends:
+            logger.debug("Backend {0} has {1} tasks in progress".format(repr(backend), backend.current_in_progress))
+
+        io_loop.add_timeout(time.time() + 2, self.check_ready_to_stop)

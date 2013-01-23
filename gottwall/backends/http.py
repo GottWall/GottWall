@@ -27,6 +27,7 @@ class HTTPBackend(BaseBackend, BaseHandler):
     def initialize(self, config, app):
         self.config = config
         self.application = app
+        self.current_in_progress = 0
 
     ## def __init__(self, io_loop, config, storage, *args, **kwargs):
     ##     self.io_loop = io_loop
