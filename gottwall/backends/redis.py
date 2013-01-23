@@ -165,7 +165,7 @@ class RedisBackend(BaseBackend):
         length = (yield gen.Task(client.scard, key))
 
         # Max load elements at once
-        i = min(self.backend_settings.get("MAX_LOADING", 100), length)
+        i = min(int(self.backend_settings.get("MAX_LOADING", 100)), length)
 
         while i > 0 and (self.current_in_progress < self.data_processing_threshold) and self.working:
             raw_data = (yield gen.Task(client.spop, key))
