@@ -340,8 +340,8 @@ svg .title {
   */
 
 .nvd3.nv-line .nvd3.nv-scatter .nv-groups .nv-point {
-  fill-opacity: 0;
-  stroke-opacity: 0;
+  fill-opacity: 1;
+  stroke-opacity: 1;
 }
 
 .nvd3.nv-scatter.nv-single-point .nv-groups .nv-point {

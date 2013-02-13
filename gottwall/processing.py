@@ -85,8 +85,8 @@ class RedisBackendPeriodicProcessor(PeriodicProcessor):
                  tasks_chunk=None, config={}):
         self.backend = backend
         self.config = config
-        self.callback_time = int(callback_time or self.backend.backend_settings.get('PERIODIC_PROCESSOR_TIME', None) or \
-                                 config.get('PERIODIC_PROCESSOR_TIME', PERIODIC_PROCESSOR_TIME))
+        self.callback_time = int(float(callback_time or self.backend.backend_settings.get('PERIODIC_PROCESSOR_TIME', None) or \
+                                 config.get('PERIODIC_PROCESSOR_TIME', PERIODIC_PROCESSOR_TIME)))
         self.io_loop = io_loop or tornado.ioloop.IOLoop.instance()
         self._running = False
         self._timeout = None
