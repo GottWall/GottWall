@@ -129,7 +129,7 @@
     right: 14px;
 }
 .navbar_filters .delete-bar {
-    font-size: 28px
+    font-size: 23px
 }
 
 .chart-control .input_date {
@@ -143,4 +143,8 @@
 .charts-container {
                     margin-top: 120px;
 
+ }
+
+.selectors {
+            font-size: 14px;
  }

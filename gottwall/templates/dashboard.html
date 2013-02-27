@@ -6,8 +6,8 @@
 <div class="row chart-control">
   <div class="span8 periods">
     <button class="btn" id="chart-add"><i class="icon-plus"></i> Добавить виджет</button>
-    <span style="display:inline-block;width: 60px;text-align: right;">по</span>
-    <div class="btn-group selector">
+    <span style="display:inline-block; width: 60px; text-align: right;">по</span>
+    <div class="btn-group selector" id="period-selector">
       <button class="btn" data-type="year">годам</button>
       <button class="btn" data-type="month">месяцам</button>
       <!--<button class="btn" data-type="week">неделям</button>-->
@@ -28,7 +28,6 @@
     <button class="btn" id="redraw-button">Перерисовать</button>
   </div>
 </div>
-
 {% endblock %}
 
 {% block charts %}

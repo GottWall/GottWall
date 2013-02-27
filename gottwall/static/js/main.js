@@ -228,13 +228,15 @@ var Bar = Class.extend({
 
     this.bar.find('.filters-selector .dropdown-menu .dropdown-submenu li a.filter-value')
       .bind('click', function(){
+	console.log("Filter clicked");
 	var filter_value = $(this);
 	self.filter_value = filter_value.data('name');
 	self.filter_name = filter_value.data('filter-name');
 	filter_value.parent().parent().parent().parent().parent().find('.current')
 	  .text(self.filter_name+":"+self.filter_value);
 	filter_value.parent().parent().parent().parent().parent().removeClass('open');
-	//self.graph.render_chart_graph();
+
+	self.gottwall.redraw_charts();
 	self.gottwall.save_to_storage();
 	return false;
     });
@@ -261,12 +263,13 @@ var Bar = Class.extend({
       metric.parent().parent().parent().removeClass('open');
       metric.parent().parent().parent().find('.current').text(self.metric_name);
       self.setup_current_filter();
-      //self.graph.render_chart_graph();
+      self.gottwall.redraw_charts();
       self.gottwall.save_to_storage();
       return false;
     });
   },
 });
+
 
 var Chart = Class.extend({
 
@@ -768,7 +771,7 @@ var Metric = Class.extend({
 
     var from_date = this.gottwall.get_from_date();
     if(from_date){
-      url = url + "&from_date=" + from_date
+      url = url + "&from_date=" + from_date;
     }
     var to_date = this.gottwall.get_to_date();
     if(to_date){
