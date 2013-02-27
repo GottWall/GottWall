@@ -1,14 +1,11 @@
 {% extends "base.html" %}
 
-
 {% block title %}Dashboard{% endblock %}
 
-
-{% block content %}
-
+{% block control %}
 <div class="row chart-control">
   <div class="span8 periods">
-    <button class="btn" id="chart-add"><i class="icon-plus"></i> Добавить график</button>
+    <button class="btn" id="chart-add"><i class="icon-plus"></i> Добавить виджет</button>
     <span style="display:inline-block;width: 60px;text-align: right;">по</span>
     <div class="btn-group selector">
       <button class="btn" data-type="year">годам</button>
@@ -32,5 +29,8 @@
   </div>
 </div>
 
+{% endblock %}
+
+{% block charts %}
 <div class="charts" id="charts"></div>
 {% endblock %}

@@ -129,7 +129,7 @@ var metrics_selector_template = swig.compile(
 var chart_template = swig.compile('<div class="hero-unit chart-area container-fluid {{ project_name }}" id="chart-{{ id }}"><div class="row-fluid">'
     +'<div class="span8"><svg></svg></div>'
     +'<div class="span4">'
-        +'<div class="chart-controls"><button class="add-bar"><i class="icon-plus"></i>добавить фильтр</button><button class="close remove-chart">×</button></div>'
+        +'<div class="chart-controls"><button class="add-bar"><i class="icon-plus"></i>добавить показатель</button><button class="close remove-chart">×</button></div>'
         +'<div class="selectors"></div>'
     +'</div>'
     +'</div></div>');
@@ -721,7 +721,7 @@ var GottWall = Class.extend({
     var self = this;
     this.debug('Loading settings from storage ...');
 
-    this.current_project = this.current_project || localStorage.getItem(this.current_project_key);
+    this.current_project = this.current_project || localStorage.getItem(this.current_project_key) || $(this.project_selector.find('li a')[0]).attr('data-name');
     this.current_period = this.set_period(this.current_period || localStorage.getItem(this.current_period_key));
 
     $.when(this.metrics_resource_loader()).done(

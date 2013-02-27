@@ -72,15 +72,14 @@
       </div>
     </div>
     {% endblock %}
-    <div class="container">
-    {% block content %}
-    <h1>Not implemented error</h1>
-    {% endblock %}
-    {% block footer %}
-    <footer>
-      <p>© </p>
-    </footer>
-    {% endblock %}
+    <div id="controls" class="navbar container">
+      <div class="navbar-inner">
+	{% block control %}<h1>Not implemented error</h1>{% endblock %}
+      </div>
+    </div>
+    <div class="container charts-container">
+    {% block charts %}<h1>Not implemented error</h1>{% endblock %}
+    {% block footer %}<footer><p>©</p></footer>{% endblock %}
     </div>
 </body>
 </html>

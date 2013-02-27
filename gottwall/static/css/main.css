@@ -87,7 +87,8 @@
 
 .chart-control {
                  margin-top: 40px;
-                 padding-top: 30px;
+                 padding-top: 10px;
+                 margin-bottom: 10px;
  }
 
 
@@ -130,9 +131,16 @@
 .navbar_filters .delete-bar {
     font-size: 28px
 }
-.chart-control {
-    margin-bottom: 10px;
-}
+
 .chart-control .input_date {
     margin-bottom: 0;
 }
+
+#controls .navbar-inner {
+                          position: fixed;
+                          z-index: 200;
+ }
+.charts-container {
+                    margin-top: 120px;
+
+ }
