@@ -36,3 +36,9 @@ debug:
 
 aggregator-debug:
 	python gottwall/runner.py --config=examples/config.py aggregator start --reload
+
+vagrant-debug:
+	python gottwall/runner.py --config=examples/vagrant_config.py server start --reload
+
+aggregator-vagrant-debug:
+	python gottwall/runner.py --config=examples/vagrant_config.py aggregator start --reload

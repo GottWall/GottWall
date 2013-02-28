@@ -148,3 +148,14 @@
 .selectors {
             font-size: 14px;
  }
+
+
+#charts .nvd3.nv-line .nvd3.nv-scatter .nv-groups .nv-point {
+                                                              fill-opacity: 2;
+                                                              stroke-opacity: 0;
+ }
+
+.chart-area .loader {
+                      width: 100%;
+                      text-align: center;
+ }

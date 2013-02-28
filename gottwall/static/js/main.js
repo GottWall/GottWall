@@ -127,7 +127,10 @@ var metrics_selector_template = swig.compile(
     '{% for metric in metrics %}<li><a href="#" data-name="{{ metric }}">{{ metric }}</a>{% endfor %}');
 
 var chart_template = swig.compile('<div class="hero-unit chart-area container-fluid {{ project_name }}" id="chart-{{ id }}"><div class="row-fluid">'
-    +'<div class="span8"><svg></svg></div>'
+    +'<div class="span8"><svg></svg><div class="loader"><span>Идет загрузка данных</span>'
+    +'<div class="progress progress-striped active">'
+    +'<div class="bar" style="width: 100%;"></div>'
+    +'</div></div></div>'
     +'<div class="span4">'
         +'<div class="chart-controls"><button class="add-bar"><i class="icon-plus"></i>добавить показатель</button><button class="close remove-chart">×</button></div>'
         +'<div class="selectors"></div>'
@@ -318,10 +321,21 @@ var Chart = Class.extend({
   node_key: function(){
     return "chart-"+this.id;
   },
+  show_loader: function(){
+    console.log("Show loader");
+    this.node.find('svg').hide();
+    this.node.find('.loader').show();
+  },
+  hide_loader: function(){
+    console.log("Hide loader");
+    this.node.find('svg').show();
+    this.node.find('.loader').hide();
+  },
   render_chart_graph: function(){
     console.log("Load stats for chart ..."+this.id);
     var self = this;
     var metrics = this.get_metrics();
+    self.show_loader();
 
     $.when.apply($, _.map(metrics, function(metric){
 
@@ -338,6 +352,7 @@ var Chart = Class.extend({
 	var metrics_with_data = _.map(_.compact(responses), function(r){
 	  return new Metric(self.gottwall,  r[0]["name"], r[0]["filter_name"], r[0]["filter_value"], r[0]);
 	});
+	self.hide_loader();
 	return self.render_metrics(metrics_with_data);
       });
   },
@@ -502,15 +517,18 @@ var GottWall = Class.extend({
 
     this.period_selector.find('button[data-type='+this.current_period+']').addClass('active');
 
-    var d = new Date();
-    this.to_date = d3.time.format("%Y-%m-%d")(d);
-    this.from_date = d3.time.format("%Y-%m-%d")(new Date(d.getFullYear(), d.getMonth()-1, d.getDate()));
 
-    this.from_date_selector.val(this.from_date);
-    this.to_date_selector.val(this.to_date);
+    this.set_date_range();
 
   },
-  set_dates: function(){
+  set_dates: function(){},
+  set_to_date: function(d){
+    this.to_date = d3.time.format("%Y-%m-%d")(d);
+    this.to_date_selector.val(this.to_date);
+  },
+  set_from_date: function(d){
+    this.from_date = d3.time.format("%Y-%m-%d")(d);
+    this.from_date_selector.val(this.from_date);
   },
   set_period: function(period){
     // Setup period and datetime format
@@ -565,9 +583,28 @@ var GottWall = Class.extend({
 	button.addClass('active');
 	self.set_period(self.current_period);
       };
+      self.set_date_range();
       // Save data to storage
       self.save_to_storage();
+      self.redraw_charts();
     });
+  },
+  set_date_range: function(){
+    var self = this;
+    if(self.current_period == 'hour'){
+      console.log("Selected hour");
+      var to_d = new Date();
+      var from_d = new Date();
+      from_d.setDate(to_d.getDate()-3);
+
+      self.set_to_date(to_d);
+      self.set_from_date(from_d);
+    }
+    else{
+      var d = new Date();
+      this.set_to_date(d);
+      this.set_from_date(new Date(d.getFullYear(), d.getMonth()-1, d.getDate()));
+    }
   },
   change_project: function(){
     var self = this;
