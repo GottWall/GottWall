@@ -140,6 +140,7 @@
 #controls .navbar-inner {
     position: fixed;
     z-index: 200;
+    width: 1200px;
 }
 .charts-container {
     margin-top: 120px;
