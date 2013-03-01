@@ -384,6 +384,11 @@ var Chart = Widget.extend({
 	return self.format_tick(d);
 	//        return d3.time.format(self.current_date_format)(new Date(d))
       });
+      chart.tooltipContent(function(key, x,  y, e, graph) {
+        return '<h3>' + key + '</h3>' +
+               '<p>' +  y + ' at ' + x + '</p>'
+      });
+
       //chart.xAxis.rotateLabels(-45);
 
       d3.select('#chart-' + self.id + " svg").datum(
