@@ -125,3 +125,19 @@ def date_range(from_date, to_date, period="month"):
     elif period == "day":
         return [to_date - timedelta(days=x) for x in range(0, delta.days)]
     return []
+
+
+def date_min(from_date, period):
+    if period == "year":
+        return from_date.replace(month=1, hour=0, day=1, minute=0, second=0)
+    elif period == "month":
+        return from_date.replace(hour=0, day=1, minute=0, second=0)
+    return from_date
+
+def date_max(to_date, period):
+    if period == "year":
+        return to_date.replace(month=12, hour=23, day=31, minute=59, second=59)
+    elif period == "month":
+        to_date = to_date.replace(hour=23, minute=59, second=59, month=to_date.month + 1)
+        return to_date
+    return to_date

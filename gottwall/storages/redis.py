@@ -22,7 +22,7 @@ from tornadoredis.exceptions import ConnectionError
 from gottwall.settings import STORAGE_SETTINGS_KEY
 from gottwall.storages.base import BaseStorage
 
-from gottwall.utils import get_by_period, get_datetime, date_range
+from gottwall.utils import get_by_period, get_datetime, date_range, date_min, date_max
 from gottwall.compat import OrderedDict
 
 logger = getLogger()
@@ -185,6 +185,8 @@ class RedisStorage(BaseStorage):
         :return: ifilter generator
 
         """
+        from_date = date_min(from_date, period)
+        to_date = date_max(to_date, period)
 
         if from_date and to_date:
             new_data = OrderedDict(map(lambda x: (x, 0), date_range(from_date, to_date, period)))
