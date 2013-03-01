@@ -86,17 +86,17 @@
 }
 
 .chart-control {
-                 margin-top: 40px;
-                 padding-top: 10px;
-                 margin-bottom: 10px;
- }
+    margin-top: 40px;
+    padding-top: 10px;
+    margin-bottom: 10px;
+}
 
 
 #metrics-list .activated a,
 #filters-list .activated a,
 #values-list .activated a {
-                            background-color: #666;
-                            color: #fff;
+    background-color: #666;
+    color: #fff;
 }
 
 .hero-unit {
@@ -110,9 +110,9 @@
 }
 
 .chart-area svg {
-                  height: 500px;
-                  display: none;
- }
+    height: 500px;
+    display: none;
+}
 
 .navbar_filters {
 
@@ -122,7 +122,7 @@
     padding-right: 10px;
 }
 .navbar_filters .nav > li > a {
-    padding: 5px;
+    padding: 0 5px;
 }
 .remove-chart {
     position: absolute;
@@ -130,42 +130,55 @@
     right: 14px;
 }
 .navbar_filters .delete-bar {
-    font-size: 23px
+    font-size: 23px;
+    line-height: 26px;
 }
-
+.open > .dropdown-menu {
+    padding: 2px 2px 0;
+}
 .chart-control .input_date {
     margin-bottom: 0;
 }
-
+.navbar {
+    margin-bottom: 12px;
+}
+.navbar-inner {
+    min-height: 30px;
+}
 #controls .navbar-inner {
-                          position: fixed;
-                          z-index: 200;
- }
+    position: fixed;
+    z-index: 200;
+    width: 1200px;
+}
+.navbar .divider-vertical {
+    height: 30px;
+}
 .charts-container {
-                    margin-top: 120px;
-
- }
+    margin-top: 120px;
+}
+.navbar .btn,
+.navbar .btn-group {
+    margin-top: 0px;
+}
 
 .selectors {
-            font-size: 14px;
- }
-
+    font-size: 14px;
+}
 
 #charts .nvd3.nv-line .nvd3.nv-scatter .nv-groups .nv-point {
-                                                              fill-opacity: 2;
-                                                              stroke-opacity: 0;
- }
+    fill-opacity: 2;
+    stroke-opacity: 0;
+}
 
 .chart-area .loader {
-                      width: 100%;
-                      text-align: center;
- }
+    width: 100%;
+    text-align: center;
+}
 
 .select2-container {
-                     width: 100%;
- }
+    width: 100%;
+}
 
 .chart-type {
-              margin-left: 20px;
-
- }
+    margin-left: 20px;
+}
