@@ -130,9 +130,12 @@
     right: 14px;
 }
 .navbar_filters .delete-bar {
-    font-size: 23px
+    font-size: 23px;
+    line-height: 26px;
 }
-
+.open > .dropdown-menu {
+    padding: 2px 2px 0;
+}
 .chart-control .input_date {
     margin-bottom: 0;
 }
