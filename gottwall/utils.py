@@ -13,6 +13,8 @@ Core GottWall utilities
 import os.path
 from datetime import datetime, timedelta, date
 from urllib2 import parse_http_list
+from dateutil.relativedelta import relativedelta
+
 
 # Backport of OrderedDict() class that runs on Python 2.4, 2.5, 2.6, 2.7 and pypy.
 # Passes Python2.7's test suite and incorporates all the latest updates.
@@ -138,6 +140,6 @@ def date_max(to_date, period):
     if period == "year":
         return to_date.replace(month=12, hour=23, day=31, minute=59, second=59)
     elif period == "month":
-        to_date = to_date.replace(hour=23, minute=59, second=59, month=to_date.month + 1)
+        to_date = to_date.replace(hour=23, minute=59, second=59) + relativedelta(months=+1)
         return to_date
     return to_date
