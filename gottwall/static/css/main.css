@@ -86,17 +86,17 @@
 }
 
 .chart-control {
-                 margin-top: 40px;
-                 padding-top: 10px;
-                 margin-bottom: 10px;
- }
+    margin-top: 40px;
+    padding-top: 10px;
+    margin-bottom: 10px;
+}
 
 
 #metrics-list .activated a,
 #filters-list .activated a,
 #values-list .activated a {
-                            background-color: #666;
-                            color: #fff;
+    background-color: #666;
+    color: #fff;
 }
 
 .hero-unit {
@@ -110,8 +110,8 @@
 }
 
 .chart-area svg {
-         height: 450px;
- }
+    height: 450px;
+}
 
 .navbar_filters {
 
@@ -137,29 +137,32 @@
 }
 
 #controls .navbar-inner {
-                          position: fixed;
-                          z-index: 200;
+    position: fixed;
+    z-index: 200;
  }
 .charts-container {
-                    margin-top: 120px;
-
+    margin-top: 120px;
  }
+.navbar .btn,
+.navbar .btn-group {
+    margin-top: 0px;
+}
 
 .selectors {
-            font-size: 14px;
+    font-size: 14px;
  }
 
 
 #charts .nvd3.nv-line .nvd3.nv-scatter .nv-groups .nv-point {
-                                                              fill-opacity: 2;
-                                                              stroke-opacity: 0;
+    fill-opacity: 2;
+    stroke-opacity: 0;
  }
 
 .chart-area .loader {
-                      width: 100%;
-                      text-align: center;
+    width: 100%;
+    text-align: center;
  }
 
 .select2-container {
-                     width: 100%;
+    width: 100%;
  }
