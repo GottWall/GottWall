@@ -110,7 +110,8 @@
 }
 
 .chart-area svg {
-         height: 450px;
+                  height: 500px;
+                  display: none;
  }
 
 .navbar_filters {
@@ -162,4 +163,9 @@
 
 .select2-container {
                      width: 100%;
+ }
+
+.chart-type {
+              margin-left: 20px;
+
  }

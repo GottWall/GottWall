@@ -5,7 +5,15 @@
 {% block control %}
 <div class="row chart-control">
   <div class="span8 periods">
-    <button class="btn" id="chart-add"><i class="icon-plus"></i> Добавить виджет</button>
+    <div class="btn-group" id="chart-add">
+      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-plus"></i> Добавить виджет
+	<span class="caret"></span>
+      </a>
+      <ul class="dropdown-menu">
+        <li><a href="#" data-type="grapth"><i class="icon-signal"></i> С графиком</a></li>
+        <li><a href="#" data-type="table"><i class="icon-th"></i> С таблицей</a></li>
+      </ul>
+    </div>
     <span style="display:inline-block; width: 60px; text-align: right;">по</span>
     <div class="btn-group selector" id="period-selector">
       <button class="btn" data-type="year">годам</button>
