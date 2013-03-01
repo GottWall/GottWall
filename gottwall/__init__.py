@@ -14,10 +14,19 @@ Simple statistics aggregator
 __all__ = 'get_version',
 __author__ = "GottWal team"
 __license__ = "BSD, see LICENSE for more details"
-__version_info__ = (0, 2, 3)
-__build__ = 0x000033
-__version__ = ".".join(map(str, __version_info__))
 __maintainer__ = "Alexandr Lispython"
+
+try:
+    __version__ = __import__('pkg_resources') \
+        .get_distribution('human_curl').version
+except Exception, e:
+    __version__ = 'unknown'
+
+if __version__ == 'unknown':
+    __version_info__ = (0, 0, 0)
+else:
+    __version_info__ = __version__.split('.')
+__build__ = 0x000034
 
 
 def get_version():
