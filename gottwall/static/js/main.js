@@ -131,7 +131,14 @@ var chart_template = swig.compile('<div class="hero-unit chart-area container-fl
     +'<div class="bar" style="width: 100%;"></div>'
     +'</div></div></div>'
     +'<div class="span4">'
-        +'<div class="chart-controls"><button class="add-bar"><i class="icon-plus"></i>добавить показатель</button><button class="close remove-chart">×</button></div>'
+    +'<div class="chart-controls"><button class="add-bar btn"><i class="icon-plus"></i>добавить показатель</button>'
+    +'<div class="btn-group chart-type" id="chart-type-selector-{{ id }}">'
+    +'<a class="btn dropdown-toggle" data-toggle="dropdown" href="#">Тип графика<span class="caret"></span></a>'
+    +'<ul class="dropdown-menu">'
+    +'<li><a href="#" data-type="simple-line">Simple line</a></li>'
+    +'<li><a href="#" data-type="stacked">Stacked</a></li>'
+    +'</ul></div>'
+    + '<button class="close remove-chart">×</button></div>'
         +'<div class="selectors"></div>'
     +'</div>'
     +'</div></div>');
@@ -273,8 +280,23 @@ var Bar = Class.extend({
   },
 });
 
+var Widget = Class.extend({
+  show_loader: function(){
+    console.log("Show loader");
+    this.node.find('svg').hide();
+    this.node.find('.loader').show();
+  },
+  hide_loader: function(){
+    console.log("Hide loader");
+    this.node.find('svg').show();
+    this.node.find('.loader').hide();
+  },
+});
 
-var Chart = Class.extend({
+var TableWidget = Widget.extend({
+});
+
+var Chart = Widget.extend({
 
   chart_template: chart_template,
   filter_template: '',
@@ -321,16 +343,6 @@ var Chart = Class.extend({
   node_key: function(){
     return "chart-"+this.id;
   },
-  show_loader: function(){
-    console.log("Show loader");
-    this.node.find('svg').hide();
-    this.node.find('.loader').show();
-  },
-  hide_loader: function(){
-    console.log("Hide loader");
-    this.node.find('svg').show();
-    this.node.find('.loader').hide();
-  },
   render_chart_graph: function(){
     console.log("Load stats for chart ..."+this.id);
     var self = this;
@@ -356,6 +368,10 @@ var Chart = Class.extend({
 	return self.render_metrics(metrics_with_data);
       });
   },
+  format_tick: function(d){
+    var self = this;
+    return self.gottwall.current_date_formatter(new Date(d));
+  },
   render_metrics: function(metrics){
     // Rendering chart by metrics hash
     console.log("Chart rendering...");
@@ -365,14 +381,15 @@ var Chart = Class.extend({
       var chart = nv.models.lineChart();
 
       chart.xAxis.tickFormat(function(d) {
-	return self.gottwall.current_date_formatter(new Date(d));
+	return self.format_tick(d);
 	//        return d3.time.format(self.current_date_format)(new Date(d))
       });
+      //chart.xAxis.rotateLabels(-45);
 
       d3.select('#chart-' + self.id + " svg").datum(
 	_.map(metrics, function(metric){
-	  return metric.get_chart_data()})).transition().duration(500).call(chart);
-      nv.utils.windowResize(chart.update);
+	  return metric.get_chart_data()})).transition().duration(50).call(chart);
+      //nv.utils.windowResize(chart.update);
 
       return chart;
     });
@@ -453,6 +470,7 @@ var GottWall = Class.extend({
 
     this.setup_defaults();
     this.add_bindings();
+    moment.lang("ru");
   },
   get_from_date: function(){
     if(this.from_date_selector){
@@ -679,10 +697,10 @@ var GottWall = Class.extend({
     chart.node.remove();
     delete this.charts[this.current_project][chart.id];
   },
-  add_chart: function(){
+  add_widget: function(type){
     var id = this.get_unique_id();
-    this.log("Add new chart area " + id);
-    var chart = new Chart(this, id);
+    this.log("Add new " + type + " area " + id);
+    var chart = new Chart(this, id, null, type);
 
     if(!_.has(this.charts, this.current_project)){
       this.charts[this.current_project] = {};
@@ -691,8 +709,8 @@ var GottWall = Class.extend({
   },
   bind_add: function(){
     var self = this;
-    this.chart_add.bind('click', function(){
-      self.add_chart();
+    this.chart_add.find(".dropdown-menu a").bind('click', function(){
+      self.add_widget($(this).attr('data-type'));
     });
   },
   add_bindings: function(){
@@ -872,4 +890,4 @@ var Metric = Class.extend({
   });
 
 
-})(jQuery, nv, swig, _);
+})(jQuery, nv, swig, _, moment);
