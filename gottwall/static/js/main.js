@@ -118,11 +118,10 @@ var selectors_bar_template = swig.compile(
   '</div><!-- /navbar-inner -->'+'</div>');
 
 var filters_selector_template = swig.compile('{% for filter in filters %}'+
-  '<li class="dropdown-submenu"><a tabindex="-1" href="#" class="filter-name" data-name="{{ filter[0] }}">{{ filter[0] }}</a>'+
-  '<ul class="dropdown-menu">'+
-  '{% set values = filter[1] %}'+
-  '{% for value in values %}<li><a tabindex="-1" href="#" class="filter-value" data-name="{{ value }}" data-filter-name="{{ filter[0] }}">{{ value }}</a></li>{% endfor %}'+
-					     '</ul></li>{% endfor %}');
+  '<li>'+
+  '{% set values = filter[1] %}' +
+  '<select data-placeholder="{{ filter[0] }}" placeholder="{{ filter[0] }}" class="placeholder populate"><option></option>{% for value in values %}<option value="{{ value }}" data-filter-name="{{ filter[0] }}">{{ value }}</option>{% endfor %}</select>' +
+ '</li>{% endfor %}');
 var metrics_selector_template = swig.compile(
     '{% for metric in metrics %}<li><a href="#" data-name="{{ metric }}">{{ metric }}</a>{% endfor %}');
 
@@ -228,20 +227,21 @@ var Bar = Class.extend({
       })
     })));
 
+    $(this.bar.find('.filters-selector li select')).select2({
+      placeholder: "Select a State",
+      allowClear: true
+    });
 
-    this.bar.find('.filters-selector .dropdown-menu .dropdown-submenu li a.filter-value')
-      .bind('click', function(){
-	console.log("Filter clicked");
-	var filter_value = $(this);
-	self.filter_value = filter_value.data('name');
-	self.filter_name = filter_value.data('filter-name');
-	filter_value.parent().parent().parent().parent().parent().find('.current')
-	  .text(self.filter_name+":"+self.filter_value);
-	filter_value.parent().parent().parent().parent().parent().removeClass('open');
+    this.bar.find('.filters-selector li select').on("change", function(e){
+      var selected = $(this);
+      self.filter_value = selected.val();
+      self.filter_name = selected.attr("placeholder");
 
-	self.gottwall.redraw_charts();
-	self.gottwall.save_to_storage();
-	return false;
+      self.bar.find('.filters-selector .current').text(self.filter_name+":"+self.filter_value);
+      self.bar.find('.filters-selector').removeClass('open');
+      self.chart.render_chart_graph();
+      self.gottwall.save_to_storage();
+      return false;
     });
   },
   render_metrics: function(metrics){
@@ -266,7 +266,7 @@ var Bar = Class.extend({
       metric.parent().parent().parent().removeClass('open');
       metric.parent().parent().parent().find('.current').text(self.metric_name);
       self.setup_current_filter();
-      self.gottwall.redraw_charts();
+      self.chart.render_chart_graph();
       self.gottwall.save_to_storage();
       return false;
     });
