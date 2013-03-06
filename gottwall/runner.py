@@ -115,7 +115,7 @@ class Start(Command):
         self.application.configure_app(ioloop)
 
         self.http_server = httpserver.HTTPServer(self.application)
-        self.http_server.listen(port, host)
+        self.http_server.listen(str(port), host)
 
         if reload:
             self.display("Autoreload enabled")

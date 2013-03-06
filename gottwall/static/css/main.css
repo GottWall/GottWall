@@ -110,7 +110,7 @@
 }
 
 .chart-area svg {
-    height: 500px;
+    height: 450px;
     display: none;
 }
 
@@ -131,7 +131,7 @@
 }
 .navbar_filters .delete-bar {
     font-size: 23px;
-    line-height: 26px;
+    line-height: 30px;
 }
 .open > .dropdown-menu {
     padding: 2px 2px 0;

@@ -10,7 +10,7 @@
 	<span class="caret"></span>
       </a>
       <ul class="dropdown-menu">
-        <li><a href="#" data-type="grapth"><i class="icon-signal"></i> С графиком</a></li>
+        <li><a href="#" data-type="chart"><i class="icon-signal"></i> С графиком</a></li>
         <li><a href="#" data-type="table"><i class="icon-th"></i> С таблицей</a></li>
       </ul>
     </div>
@@ -40,4 +40,85 @@
 
 {% block charts %}
 <div class="charts" id="charts"></div>
+<script type="text/html" id="table-template">
+  {% raw %}
+  <div id="table-{{ id }}" class="hero-unit chart-area conrainer-fluid {{ project_name }}">
+    <div class="row-fluid">
+
+    </div>
+  </div>
+  {% endraw %}
+</script>
+
+<script type="text/html" id="chart-template">
+  {% raw %}
+  <div class="hero-unit chart-area container-fluid {{ project_name }}" id="chart-{{ id }}" data-type="{{ type }}">
+    <div class="row-fluid">
+      <div class="span8">
+	<svg></svg>
+	<div class="loader">
+	  <span>Идет загрузка данных</span>
+	  <div class="progress progress-striped active">
+	    <div class="bar" style="width: 100%;"></div>
+	  </div>
+	</div>
+      </div>
+      <div class="span4">
+	<div class="chart-controls"><button class="add-bar btn"><i class="icon-plus"></i>добавить показатель</button>
+	  <div class="btn-group chart-type" id="chart-type-selector-{{ id }}">
+	    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">Тип графика<span class="caret"></span></a>
+	    <ul class="dropdown-menu">
+	      <li><a href="#" data-type="simple-line">Simple line</a></li>
+	      <li><a href="#" data-type="stacked">Stacked</a></li>
+	  </ul></div>
+	  <button class="close remove-chart">×</button></div>
+        <div class="selectors"></div>
+      </div>
+    </div>
+  </div>
+  {% endraw %}
+</script>
+
+<script type="text/html" id="metrics-selector-template">
+  {% raw %}
+  {% for metric in metrics %}<li><a href="#" data-name="{{ metric }}">{{ metric }}</a>{% endfor %}
+  {% endraw %}
+</script>
+
+<script type="text/html" id="filters-selector-template">
+  {% raw %}
+  {% for filter in filters %}
+  <li>
+  {% set values = filter[1] %}
+  <select data-placeholder="{{ filter[0] }}" placeholder="{{ filter[0] }}" class="placeholder populate"><option></option>{% for value in values %}<option value="{{ value }}" data-filter-name="{{ filter[0] }}">{{ value }}</option>{% endfor %}</select>
+  </li>{% endfor %}
+  {% endraw %}
+</script>
+
+<script type="text/html" id="selectors-bar-template">
+  {% raw %}
+  <div class="navbar navbar_filters" id="bar-{{ id }}">
+    <div class="navbar-inner">
+      <div class="container">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse"></a>
+        <ul class="nav pull-right">
+          <li class="divider-vertical"></li>
+          <li><a href="#" class="delete-bar">×</a></li>
+        </ul>
+        <ul class="nav" style="float:none;margin-right:46px;">
+          <li class="dropdown metrics-selector">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="current">Параметр</span><!--<b class="caret"></b>--></a>
+            <ul class="dropdown-menu"></ul>
+          </li>
+          <li class="dropdown filters-selector">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="current">Фильтр</span></a>
+            <ul class="dropdown-menu"></ul>
+          </li>
+	</ul>
+      </div><!-- /.nav-collapse -->
+    </div>
+  </div><!-- /navbar-inner -->
+</div>
+{% endraw %}
+</script>
 {% endblock %}
