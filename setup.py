@@ -89,7 +89,7 @@ install_requires = [
     "tornado==2.4.1",
     "python-dateutil==2.1",
     "tornado-redis==1.0.1",
-    "commandor==0.1.1",
+    "commandor==0.1.5",
     "SQLAlchemy==0.7.9",
     "alembic==0.4.0",
     "Jinja2==2.6"]
