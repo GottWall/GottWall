@@ -182,3 +182,11 @@
 .chart-type {
     margin-left: 20px;
 }
+
+.full-mode .data-area {
+                                width: 100%;
+}
+
+.full-mode .widget-bar {
+                                 display: none;
+ }

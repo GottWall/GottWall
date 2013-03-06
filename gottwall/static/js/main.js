@@ -450,6 +450,7 @@ var GottWall = Class.extend({
   charts_key: "charts",
   from_date_key: "from-date",
   to_date_key: "to-date",
+  size_mode_key: "size_mode",
 
   date_formats: {
     "day": "%Y-%m-%d",
@@ -468,8 +469,6 @@ var GottWall = Class.extend({
     this.current_project = null;
     this.chart_container = $('#chart');
     this.charts_container = $('#charts');
-    console.log("charts container");
-    console.log(this.charts_container);
 
     this.filters_container = $('#filters-selector #filters-list');
     this.metrics_container = $('#metrics-selector #metrics-list');
@@ -487,6 +486,7 @@ var GottWall = Class.extend({
     this.from_date_selector = $("#"+this.from_date_key);
     this.to_date_selector = $("#"+this.to_date_key);
     this.chart_add = $("#chart-add");
+    this.full_size_area = false;
 
     this.setup_defaults();
     this.add_bindings();
@@ -558,6 +558,22 @@ var GottWall = Class.extend({
 
     this.set_date_range();
 
+  },
+
+  switch_full_size_mode: function(mode_on){
+    var self = this;
+    console.log("Switch full size mode");
+    var button = $('#resize-area-switcher');
+    if(mode_on){
+      button.addClass('active');
+      self.full_size_area = true;
+      self.charts_container.addClass('full-mode');
+    }
+    else {
+      button.removeClass('active');
+      self.full_size_area = false;
+      self.charts_container.removeClass('full-mode');
+    }
   },
   set_dates: function(){},
   set_to_date: function(d){
@@ -754,11 +770,20 @@ var GottWall = Class.extend({
       self.add_chart(chart);
     });
   },
+  bind_resize_button: function(){
+    var self = this;
+    $('#resize-area-switcher').on('click', function(){
+      self.switch_full_size_mode(!$(this).hasClass('active'));
+      self.save_to_storage();
+      self.redraw_charts();
+    });
+  },
   add_bindings: function(){
     this.bind_period_selectors();
     this.bind_project_selector();
     this.bind_redraw_button();
     this.bind_dates_selectors();
+    this.bind_resize_button();
     this.bind_add();
   },
   pack_charts: function(){
@@ -797,6 +822,9 @@ var GottWall = Class.extend({
     if(this.current_period){
       localStorage.setItem(this.current_period_key, this.current_period);
     }
+
+    localStorage.setItem(this.size_mode_key, this.full_size_area);
+
   },
   restore_charts: function(){
     console.log("Restore charts");
@@ -839,6 +867,8 @@ var GottWall = Class.extend({
 
     this.current_project = this.current_project || localStorage.getItem(this.current_project_key) || $(this.project_selector.find('li a')[0]).attr('data-name');
     this.current_period = this.set_period(this.current_period || localStorage.getItem(this.current_period_key));
+    this.full_size_area = (localStorage.getItem(this.size_mode_key) || false) == "true";
+    self.switch_full_size_mode(this.full_size_area);
 
     $.when(this.metrics_resource_loader()).done(
       function(r){
