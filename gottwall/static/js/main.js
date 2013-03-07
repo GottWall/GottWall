@@ -877,7 +877,7 @@ var GottWall = Class.extend({
     // Render chart and append to DOM
     chart.setup();
     this.charts_container.append($(chart.render_widget()));
-    this.node = $('#chart-'+this.id);
+    chart.node = $('#chart-'+chart.id);
     // Setup node
     chart.add_bindings();
     return false;
