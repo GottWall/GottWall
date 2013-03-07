@@ -37,7 +37,7 @@ def measure_time(title, logger=None, **debug_params):
 
 
 with measure_time("Test stats"):
-    for x in xrange(1000000):
+    for x in xrange(10000):
         stats_client.incr(choice([u"Test project metric", "Another metric", "Orders2"]),
                           timestamp=datetime.datetime(choice([2013]), randint(1, 12), randint(1, 27)) + datetime.timedelta(days=4),
                           value=1,

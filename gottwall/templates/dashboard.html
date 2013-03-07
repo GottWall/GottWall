@@ -45,11 +45,18 @@
   {% raw %}
   <div id="table-{{ id }}" class="hero-unit chart-area conrainer-fluid {{ project_name }}">
     <div class="row-fluid">
-      <div class="loader">
-	<span>Идет загрузка данных</span>
-	<div class="progress progress-striped active">
-	  <div class="bar" style="width: 100%;"></div>
+      <div class="span8 data-area">
+	<svg></svg>
+	<div class="loader">
+	  <span>Идет загрузка данных</span>
+	  <div class="progress progress-striped active">
+	    <div class="bar" style="width: 100%;"></div>
+	  </div>
 	</div>
+      </div>
+      <div class="span4 widget-bar">
+	<button class="close remove-chart">×</button>
+	<div class="selectors"></div>
       </div>
     </div>
   </div>
@@ -87,7 +94,14 @@
 
 <script type="text/html" id="metrics-selector-template">
   {% raw %}
-  {% for metric in metrics %}<li><a href="#" data-name="{{ metric }}">{{ metric }}</a>{% endfor %}
+  {% for metric in metrics %}<li><a href="#" data-name="{{ metric }}">{{ metric }}</a></li>{% endfor %}
+  {% endraw %}
+</script>
+<script type="text/html" id="table-filters-selector-template">
+  {% raw %}
+  {% for filter in filters %}
+  <li><a href="#" data-name="{{ filter }}">{{ filter }}</a></li>
+  {% endfor %}
   {% endraw %}
 </script>
 

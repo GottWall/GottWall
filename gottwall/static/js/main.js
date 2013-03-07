@@ -96,9 +96,7 @@ function GUID ()
 };
 
 
-
-var Bar = Class.extend({
-
+var BaseBar = Class.extend({
   init: function(gottwall, chart, id, metric_name, filter_name, filter_value){
     this.id = id || GUID();
     this.gottwall = gottwall;
@@ -107,18 +105,13 @@ var Bar = Class.extend({
     this.filter_name = filter_name;
     this.filter_value = filter_value;
 
-    //this.bar = this.chart.node.find("#bar-"+this.id);
-
     // DOM object node
     this.node = null;
-
-    this.metric = null;
-    this.render();
-    //this.render_selectors();
   },
-  setup: function(){
-    //this.node = this.chart.node.find("#bar-"+this.id);
-    this.add_bindings();
+  render: function(){
+    var template = swig.compile($("#selectors-bar-template").text());
+    this.node = $(template({"id": this.id}));
+    return this.node;
   },
   to_dict: function(){
     return {
@@ -126,6 +119,102 @@ var Bar = Class.extend({
       "filter_name": this.filter_name,
       "filter_value": this.filter_value,
       "id": this.id}
+  },
+  render_selectors: function(){
+    this.render_metrics(this.gottwall.metrics[this.gottwall.current_project]);
+  },
+  render_metrics: function(metrics){
+    $.log("Render metrics selectors");
+
+    var self = this;
+    var template = swig.compile($("#metrics-selector-template").text());
+
+    if(!this.node ){
+      this.render();
+    }
+    this.node.find('.metrics-selector .dropdown-menu').html(
+      $(template({
+	"metrics": _.map(metrics, function(value, key){
+	  return key;})
+      })));
+
+    self.setup_current_metric();
+
+    this.node.on('click', '.metrics-selector .dropdown-menu li a',  function(){
+      var metric = $(this);
+      self.metric_name = metric.data('name');
+
+      self.filter_name = null;
+      self.filter_value = null;
+      self.render_filters(this.metric_name, metrics[self.metric_name]);
+      metric.parent().parent().parent().removeClass('open');
+      metric.parent().parent().parent().find('.current').text(self.metric_name);
+      self.setup_current_filter();
+      self.chart.render_chart_graph();
+      self.gottwall.save_to_storage();
+      return false;
+    });
+  },
+});
+
+var TableBar = BaseBar.extend({
+  init: function(gottwall, chart, id, metric_name, filter_name){
+    this._super(gottwall, chart, id, metric_name, filter_name);
+
+    //this.bar = this.chart.node.find("#bar-"+this.id);
+
+    this.metric = null;    //this.render_selectors();
+  },
+  setup_current_metric: function(){
+    console.log("Setup current metric for table");
+    console.log("render filter on bar");
+    console.log("Setup current filter");
+  },
+  setup_current_filter: function(){
+    console.log("Setup current filter");
+  },
+  render_filters: function(metric_name, filters){
+    console.log("Render table filters");
+    var self = this;
+    var template = swig.compile($("#table-filters-selector-template").text());
+
+    if(!this.node){
+      this.render();
+    }
+
+    this.node.find('.filters-selector .dropdown-menu').html(
+      $(template({
+    	"filters": _.map(filters, function(value, key){
+    	  return key;
+    	})})));
+
+    this.node.on('click', '.filters-selector li a', function(){
+      console.log("Table selector clicked");
+      var button = $(this);
+      self.filter_name = button.attr('data-name');
+      self.node.find('.filters-selector .current').text(self.filter_name);
+      self.node.find('.filters-selector').removeClass('open');
+      console.log(self);
+      self.chart.render_chart_graph();
+      self.gottwall.save_to_storage();
+      return false;
+    });
+  }
+});
+
+var Bar = BaseBar.extend({
+
+  init: function(gottwall, chart, id, metric_name, filter_name, filter_value){
+    this._super(gottwall, chart, id, metric_name, filter_name, filter_value);
+
+    //this.bar = this.chart.node.find("#bar-"+this.id);
+
+    this.metric = null;
+    //this.render_selectors();
+  },
+  setup: function(){
+    //this.node = this.chart.node.find("#bar-"+this.id);
+    this.add_bindings();
   },
   get_metric: function(){
     if(this.metric_name){
@@ -139,19 +228,12 @@ var Bar = Class.extend({
     var self = this;
     this.node.on('click', '.delete-bar', function(){
       self.remove();
+      return false;
     });
   },
   remove: function(){
     this.chart.remove_bar(this);
     this.chart.render_chart_graph();
-  },
-  render: function(){
-    var template = swig.compile($("#selectors-bar-template").text());
-    this.node = $(template({"id": this.id}));
-    return this.node;
-  },
-  render_selectors: function(){
-    this.render_metrics(this.gottwall.metrics[this.gottwall.current_project]);
   },
   setup_current_filter: function(){
     var self = this;
@@ -209,41 +291,17 @@ var Bar = Class.extend({
       return false;
     });
   },
-  render_metrics: function(metrics){
-    $.log("Render metrics selectors");
-
-    var self = this;
-    var template = swig.compile($("#metrics-selector-template").text());
-
-    if(!this.node ){
-      this.render();
-    }
-    this.node.find('.metrics-selector .dropdown-menu').html(
-      $(template({
-	"metrics": _.map(metrics, function(value, key){
-	  return key;})
-      })));
-
-    self.setup_current_metric();
-
-    this.node.on('click', '.metrics-selector .dropdown-menu li a',  function(){
-      var metric = $(this);
-      self.metric_name = metric.data('name');
-
-      self.filter_name = null;
-      self.filter_value = null;
-      self.render_filters(this.metric_name, metrics[self.metric_name]);
-      metric.parent().parent().parent().removeClass('open');
-      metric.parent().parent().parent().find('.current').text(self.metric_name);
-      self.setup_current_filter();
-      self.chart.render_chart_graph();
-      self.gottwall.save_to_storage();
-      return false;
-    });
-  },
 });
 
 var Widget = Class.extend({
+  init: function(gottwall, id){
+    console.log("Initialize widget");
+    this.id = id;
+    this.type = "widget";
+    this.gottwall = gottwall;
+    this.selectors_node = null;
+
+  },
   show_loader: function(){
     console.log("Show loader");
     this.node.find('svg').hide();
@@ -262,97 +320,143 @@ var Widget = Class.extend({
     }
     return null;
   },
+  render_bar: function(bar){
+    // Render bar on Chart area
+    if(!this.renders_selector){
+      console.log("Render chart area before");
+    }
+    this.selectors_node.append(bar.render());
+    bar.render_selectors();
+    bar.add_bindings();
+  },
   setup: function(){
     this.node = $('#chart-'+this.id);
   },
-  add_bindings: function(){}
-});
-
-var Table = Widget.extend({
-  init: function(gottwall, id){
-    console.log("Initialize table widget");
-    this.id = id;
-    this.type = "table";
-    this.gottwall = gottwall;
-
-  },
-  render_widget: function(){
-    console.log("Render Table area");
-    var template = swig.compile($('#table-template').text());
-    return $(template({
-      "id": this.id,
-      "type": this.type,
-      "project_name": this.gottwall.current_project
-    }));
-  }
-});
-
-var Chart = Widget.extend({
-
-  init: function(gottwall, id, period){
-    console.log("Initialize chart widget: "+id);
-
-    this.id = id;
-    this.gottwall = gottwall;
-    this.period = period || 'month';
-    this.bars = [];
-    //this.gottwall.charts_container.append($(this.render()));
-    this.node = $('#chart-'+this.id);
-    this.type = "chart";
-    this.selectors_node = null;
-    //this.add_bindings();
-  },
-
-  to_dict: function(){
-    return {"id": this.id,
-	    "metrics": _.map(this.bars, function(bar){
-	      return bar.to_dict();
-	    }),
-	    "type": this.type}
-  },
-  add_bindings: function(){
-    var self = this;
-
-    this.node.on('click', '.chart-controls .add-bar', function(){
-      var button = $(this);
-      var bar = new Bar(self.gottwall, self, GUID())
-      self.add_bar(bar);
-      self.render_bar(bar);
-    });
-
-    this.node.find('.chart-controls .remove-chart').on(
-      'click', '.chart-controls .remove-chart', function(){
-	var button = $(this);
-	$.log("Remove chart");
-	self.remove();
-      });
-  },
+  add_bindings: function(){},
   remove: function(){
     this.gottwall.remove_chart(this);
   },
   node_key: function(){
     return "chart-"+this.id;
   },
-  render_chart_graph: function(){
-    console.log("Load stats for chart ..."+this.id);
+});
+
+
+var Table = Widget.extend({
+  init: function(gottwall, id){
+    console.log("Initialize table widget");
+    this._super(gottwall, id, null);
+    this.type = "table";
+    this.bar = null;
+    this.metric_name = null;
+    this.metric_value = null;
+  },
+  to_dict: function(){
+    return {"id": this.id,
+	    "metrics": this.bar.to_dict(),
+	    "type": this.type}
+   },
+  render_widget: function(){
+    console.log("Render Table widget");
+    var template = swig.compile($('#table-template').text());
+    var widget = $(template({
+      "id": this.id,
+      "type": this.type,
+      "project_name": this.gottwall.current_project
+    }));
+
+    var selectors_node = widget.find('.selectors');
+    this.selectors_node = selectors_node;
+    this.selectors_node.append(this.render_bar(this.bar));
+
+
+    return widget;
+  },
+  render_selectors: function(){
+    console.log("Table render selectors");
+  },
+  render_bar: function(bar){
+    // Render table bar on Chart area
+    console.log("render table bar");
+    var bar_widget = bar.render();
+    bar.render_selectors();
+    //bar.add_bindings();
+    return bar_widget;
+  },
+  setup_bar: function(bar){
+    this.bar = bar
+  },
+  setup: function(){
     var self = this;
-    var metrics = this.get_metrics();
-    self.show_loader();
+    console.log("Setup table chart");
+    console.log("Initialize table bar");
+    if(!this.bar){
+      this.bar = new TableBar(self.gottwall, self, null, null);
+    }
+  },
+  render_chart_graph: function(){
+    console.log("Render table");
+  }
+});
 
-    $.when.apply($, _.map(metrics, function(metric){
+ var Chart = Widget.extend({
 
-      return metric.get_resource_loader(self.gottwall.current_period);
-    })).done(
-      function(){
-	if(!_.isArray(arguments[1])){
-	  var responses = [arguments];
-	}
-	else{
-	  var responses = arguments;
-	}
+   init: function(gottwall, id, period){
+     console.log("Initialize chart widget: "+id);
+     this._super(gottwall, id);
 
-	var metrics_with_data = _.map(_.compact(responses), function(r){
-	  return new Metric(self.gottwall,  r[0]["name"], r[0]["filter_name"], r[0]["filter_value"], r[0]);
+     this.period = period || 'month';
+     this.bars = [];
+     this.node = $('#chart-'+this.id);
+     this.type = "chart";
+     this.selectors_node = null;
+   },
+
+   to_dict: function(){
+     return {"id": this.id,
+	     "metrics": _.map(this.bars, function(bar){
+	       return bar.to_dict();
+	     }),
+	     "type": this.type}
+   },
+   add_bindings: function(){
+     var self = this;
+
+     this.node.on('click', '.chart-controls .add-bar', function(){
+       var button = $(this);
+       var bar = new Bar(self.gottwall, self, GUID())
+       self.add_bar(bar);
+       self.render_bar(bar);
+     });
+
+     this.node.on(
+       'click', '.chart-controls .remove-chart', function(){
+	 var button = $(this);
+	 $.log("Remove chart");
+	 self.remove();
+       });
+   },
+   render_chart_graph: function(){
+     console.log("Load stats for chart ..."+this.id);
+     var self = this;
+     var metrics = this.get_metrics();
+     self.show_loader();
+
+     $.when.apply($, _.map(metrics, function(metric){
+
+       return metric.get_resource_loader(self.gottwall.current_period);
+     })).done(
+       function(){
+	 if(!_.isArray(arguments[1])){
+	   var responses = [arguments];
+	 }
+	 else{
+	   var responses = arguments;
+	 }
+
+	 var metrics_with_data = _.map(_.compact(responses), function(r){
+	   return new Metric(self.gottwall,  r[0]["name"],
+			     r[0]["filter_name"], r[0]["filter_value"], r[0]);
 	});
 	self.hide_loader();
 	return self.render_metrics(metrics_with_data);
@@ -400,15 +504,7 @@ var Chart = Widget.extend({
     console.log("Add new bar");
     this.bars.push(bar);
   },
-  render_bar: function(bar){
-    // Render bar on Chart area
-    if(!this.renders_selector){
-      console.log("Render chart area before");
-    }
-    this.selectors_node.append(bar.render());
-    bar.render_selectors();
-    bar.add_bindings();
-  },
+
   remove_bar: function(bar){
     console.log("Remove bar " + bar);
 
@@ -421,7 +517,7 @@ var Chart = Widget.extend({
     bar.node.remove();
   },
   render_widget: function(){
-    console.log("Render chart area");
+    console.log("Render chart widget");
 
     var template = swig.compile($("#chart-template").text());
 
@@ -434,10 +530,9 @@ var Chart = Widget.extend({
 
     for(var i in this.bars){
       this.render_bar(this.bars[i]);
-      // selectors_node.append(this.bars[i].render());
+      // selectors_node.append(this.());
       // this.bars[i].render_selectors();
     }
-    console.log(widget);
     return widget;
   }});
 
@@ -759,8 +854,8 @@ var GottWall = Class.extend({
     this.charts[this.current_project][chart.id] = chart;
 
     // Render chart and append to dom
-    this.charts_container.append($(chart.render_widget()));
     chart.setup();
+    this.charts_container.append($(chart.render_widget()));
     chart.add_bindings();
   },
   bind_add: function(){
@@ -843,19 +938,21 @@ var GottWall = Class.extend({
       console.log("Restore chart " + chart_id);
       var type = projects[project][chart_id]['type'];
       if (type == "chart" || type === undefined){
-	var chart = new Chart(self, chart_id, projects[project][chart_id]['metrics']);
+	var chart = new Chart(self, chart_id);
 
 	for(var bar_id in projects[project][chart_id]['metrics']){
-	  var bar_params = projects[project][chart_id]['metrics'][bar_id]
-	  chart.add_bar(new Bar(self, chart, projects[project][chart_id]['metrics'][bar_id]['id'],
+	  var bar_params = projects[project][chart_id]['metrics'][bar_id];
+	  chart.add_bar(new Bar(self, chart, bar_params['id'],
 	  			bar_params['metric_name'], bar_params['filter_name'], bar_params['filter_value']));
 	}
-	this.add_chart(chart);
       }
       else if (type == "table"){
-	this.charts[project][chart_id] = chart = new Table(self, chart_id, projects[project][chart_id]['metrics']);
+	this.charts[project][chart_id] = chart = new Table(self, chart_id);
+	var bar_params = projects[project][chart_id]['metrics'];
+	this.charts[project][chart_id].setup_bar(new TableBar(self, chart, bar_params,
+							      bar_params['metric_name'], bar_params['filter_name']));
       }
-
+      this.add_chart(chart);
     }
 
     self.redraw_charts();
@@ -877,7 +974,6 @@ var GottWall = Class.extend({
       });
 
   },
-
   debug: function(value){
     if(this.debug_flag){
       $.log(value);
