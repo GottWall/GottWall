@@ -108,6 +108,9 @@ var BaseBar = Class.extend({
     // DOM object node
     this.node = null;
   },
+  add_bindings: function(){
+    console.log("Add bindings to BaseBar");
+  },
   render: function(){
     var template = swig.compile($("#selectors-bar-template").text());
     this.node = $(template({"id": this.id}));
@@ -165,13 +168,36 @@ var TableBar = BaseBar.extend({
 
     this.metric = null;    //this.render_selectors();
   },
+  render: function(){
+    var template = swig.compile($("#selectors-table-bar-template").text());
+    this.node = $(template({"id": this.id}));
+    return this.node;
+  },
   setup_current_metric: function(){
     console.log("Setup current metric for table");
-    console.log("render filter on bar");
-    console.log("Setup current filter");
+    var self = this;
+    var metric_value = "Показатель";
+
+    if(self.metric_name) {
+      metric_current = self.metric_name;
+    }
+    self.render_filters(self.metric_name,
+			this.gottwall.metrics[this.gottwall.current_project][self.metric_name]);
+
+    this.node.find('.metrics-selector .current').text(metric_current);
+
+    self.setup_current_filter();
   },
   setup_current_filter: function(){
     console.log("Setup current filter");
+    var self = this;
+
+    var filter_current = "Фильтр";
+    if(self.filter_name){
+      filter_current = self.filter_name;
+    }
+
+    this.node.find('.filters-selector .current').text(filter_current);
   },
   render_filters: function(metric_name, filters){
     console.log("Render table filters");
@@ -197,6 +223,7 @@ var TableBar = BaseBar.extend({
       console.log(self);
       self.chart.render_chart_graph();
       self.gottwall.save_to_storage();
+      console.log(self);
       return false;
     });
   }
@@ -244,7 +271,6 @@ var Bar = BaseBar.extend({
     }
 
     this.node.find('.filters-selector .current').text(filter_current);
-
   },
   setup_current_metric: function(){
     console.log("Setup current metric");
@@ -322,6 +348,7 @@ var Widget = Class.extend({
   },
   render_bar: function(bar){
     // Render bar on Chart area
+    console.log("Render widget bar");
     if(!this.renders_selector){
       console.log("Render chart area before");
     }
@@ -329,10 +356,10 @@ var Widget = Class.extend({
     bar.render_selectors();
     bar.add_bindings();
   },
-  setup: function(){
-    this.node = $('#chart-'+this.id);
+  setup: function(){},
+  add_bindings: function(){
+    console.log("Add bar bindings");
   },
-  add_bindings: function(){},
   remove: function(){
     this.gottwall.remove_chart(this);
   },
@@ -357,7 +384,7 @@ var Table = Widget.extend({
 	    "type": this.type}
    },
   render_widget: function(){
-    console.log("Render Table widget");
+    console.log("Render Table Widget");
     var template = swig.compile($('#table-template').text());
     var widget = $(template({
       "id": this.id,
@@ -368,35 +395,28 @@ var Table = Widget.extend({
     var selectors_node = widget.find('.selectors');
     this.selectors_node = selectors_node;
     this.selectors_node.append(this.render_bar(this.bar));
-
-
     return widget;
-  },
-  render_selectors: function(){
-    console.log("Table render selectors");
   },
   render_bar: function(bar){
     // Render table bar on Chart area
-    console.log("render table bar");
     var bar_widget = bar.render();
     bar.render_selectors();
-    //bar.add_bindings();
+    bar.add_bindings();
     return bar_widget;
   },
   setup_bar: function(bar){
     this.bar = bar
   },
+  render_chart_graph: function(){
+    console.log("Render table");
+  },
   setup: function(){
     var self = this;
-    console.log("Setup table chart");
-    console.log("Initialize table bar");
     if(!this.bar){
       this.bar = new TableBar(self.gottwall, self, null, null);
     }
   },
-  render_chart_graph: function(){
-    console.log("Render table");
-  }
+
 });
 
  var Chart = Widget.extend({
@@ -421,7 +441,7 @@ var Table = Widget.extend({
    },
    add_bindings: function(){
      var self = this;
-
+     console.log(this.node);
      this.node.on('click', '.chart-controls .add-bar', function(){
        var button = $(this);
        var bar = new Bar(self.gottwall, self, GUID())
@@ -832,6 +852,7 @@ var GottWall = Class.extend({
     this.log("Remove chart " + chart.id);
     chart.node.remove();
     delete this.charts[this.current_project][chart.id];
+    this.save_to_storage();
   },
   get_widget_class_by_type: function(type){
     if(type=="table"){
@@ -853,16 +874,21 @@ var GottWall = Class.extend({
     }
     this.charts[this.current_project][chart.id] = chart;
 
-    // Render chart and append to dom
+    // Render chart and append to DOM
     chart.setup();
     this.charts_container.append($(chart.render_widget()));
+    this.node = $('#chart-'+this.id);
+    // Setup node
     chart.add_bindings();
+    return false;
   },
   bind_add: function(){
     var self = this;
-    this.chart_add.find(".dropdown-menu a").bind('click', function(){
+    this.chart_add.find(".dropdown-menu a").on('click', function(){
       var chart = self.get_new_chart($(this).attr('data-type'))
       self.add_chart(chart);
+      $(this).parent().parent().parent().removeClass('open');
+      return false;
     });
   },
   bind_resize_button: function(){
@@ -871,6 +897,7 @@ var GottWall = Class.extend({
       self.switch_full_size_mode(!$(this).hasClass('active'));
       self.save_to_storage();
       self.redraw_charts();
+      return false;
     });
   },
   add_bindings: function(){
@@ -880,18 +907,6 @@ var GottWall = Class.extend({
     this.bind_dates_selectors();
     this.bind_resize_button();
     this.bind_add();
-  },
-  pack_charts: function(){
-    // Pack chart to  object
-  },
-  unpack_charts: function(){
-    // Unpack chart to system object
-  },
-  pack_chart: function(){
-    // Make json object from single chart object
-  },
-  unpack_chart: function(){
-    // Make object from single chart json object
   },
   save_to_storage: function(){
     // Save controls states to localStorage
@@ -908,7 +923,6 @@ var GottWall = Class.extend({
 	  charts[project][self.charts[project][chart].id] = self.charts[project][chart].to_dict();
 	}
       }
-
       localStorage.setItem(this.charts_key, JSON.stringify(charts));
     }
     if(this.current_project){

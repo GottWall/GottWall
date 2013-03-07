@@ -115,6 +115,28 @@
   {% endraw %}
 </script>
 
+<script type="text/html" id="selectors-table-bar-template">
+  {% raw %}
+  <div class="navbar navbar_filters" id="bar-{{ id }}">
+    <div class="navbar-inner">
+      <div class="container">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse"></a>
+        <ul class="nav" style="float:none;margin-right:46px;">
+          <li class="dropdown metrics-selector">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="current">Параметр</span><!--<b class="caret"></b>--></a>
+            <ul class="dropdown-menu"></ul>
+          </li>
+          <li class="dropdown filters-selector">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="current">Фильтр</span></a>
+            <ul class="dropdown-menu"></ul>
+          </li>
+	</ul>
+      </div><!-- /.nav-collapse -->
+    </div>
+  </div>
+  {% endraw %}
+</script>
+
 <script type="text/html" id="selectors-bar-template">
   {% raw %}
   <div class="navbar navbar_filters" id="bar-{{ id }}">
@@ -137,8 +159,7 @@
 	</ul>
       </div><!-- /.nav-collapse -->
     </div>
-  </div><!-- /navbar-inner -->
-</div>
+  </div>
 {% endraw %}
 </script>
 {% endblock %}
