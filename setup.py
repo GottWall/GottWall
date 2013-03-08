@@ -28,7 +28,7 @@ except Exception, e:
     readme_content = __doc__
 
 
-VERSION = "0.2.6"
+VERSION = "0.2.7"
 
 
 class run_audit(Command):
@@ -132,7 +132,12 @@ setup(
         "Operating System :: MacOS :: MacOS X",
         "Operating System :: POSIX",
         "Topic :: Internet",
-        "Topic :: Software Development :: Libraries"
+        "Topic :: Software Development :: Libraries",
+        "Development Status :: 4 - Beta",
+        "Topic :: System :: Installation/Setup",
+        "Topic :: System :: Logging",
+        "Topic :: System :: Monitoring",
+        "Topic :: System :: Networking"
         ],
     cmdclass={'audit': run_audit},
     test_suite = '__main__.run_tests'
