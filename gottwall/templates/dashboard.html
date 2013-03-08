@@ -29,7 +29,7 @@
   <div class="span5 intervals">
     <span style="display:inline-block;width: 60px;text-align: right;">Интервал:</span>
     <span style="display:inline-block;width: 20px;text-align: right;">с</span>
-    <input data-datepicker="datepicker" data-date-format="yyyy-mm-dd" type="text" name="start-date" class="input_date start-date" id="from-date">
+    <input data-datepicker="datepicker" data-date-format="yyyy-mm" type="text" name="start-date" class="input_date start-date" id="from-date">
     <span style="display:inline-block;width: 20px;text-align: right;">по</span>
     <input data-datepicker="datepicker" data-date-format="yyyy-mm-dd" type="text" name="end-date" class="input_date end-date" id="to-date">
   </div>
@@ -41,12 +41,12 @@
 
 {% block charts %}
 <div class="charts" id="charts"></div>
-<script type="text/html" id="table-template">
+<script type="text/html" id="table-widget-template">
   {% raw %}
   <div id="table-{{ id }}" class="hero-unit chart-area conrainer-fluid {{ project_name }}">
     <div class="row-fluid">
       <div class="span8 data-area">
-	<svg></svg>
+	<div class="table-area"></div>
 	<div class="loader">
 	  <span>Идет загрузка данных</span>
 	  <div class="progress progress-striped active">
@@ -60,6 +60,33 @@
       </div>
     </div>
   </div>
+  {% endraw %}
+</script>
+
+<script type="text/javascript" id="table-template">
+  {% raw %}
+  <table width="" cellspacing="" cellpadding="" border="0" class="table table-striped table-condensed">
+    <caption>{{ caption }}</caption>
+    <thead>
+      <tr>
+	<th></th>
+	{% for n in column_names %}
+	<th>{{ n }}</th>
+	{% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+    {% for r in rows %}
+    <tr>
+      <td>{{ r[0] }}</td>
+      {% set dates = r[1] %}
+      {% for v in dates %}
+      <td data-tate="{{ v[0] }}">{{ v[1] }}</td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
   {% endraw %}
 </script>
 

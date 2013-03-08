@@ -8,12 +8,13 @@ Core GottWall utilities
 
 :copyright: (c) 2012 by GottWall team, see AUTHORS for more details.
 :license: , see LICENSE for more details.
-:github: http://github.com/Lispython/projectname
+:github: http://github.com/gottwall/gottwall
 """
 import os.path
 from datetime import datetime, timedelta, date
 from urllib2 import parse_http_list
 from dateutil.relativedelta import relativedelta
+from dateutil.rrule import rrule, MINUTELY, MONTHLY, DAILY, HOURLY
 
 
 # Backport of OrderedDict() class that runs on Python 2.4, 2.5, 2.6, 2.7 and pypy.
@@ -118,16 +119,21 @@ class MagicDict(dict):
 
 
 def date_range(from_date, to_date, period="month"):
-    delta =  to_date - from_date
 
-    if period == "hour":
-        return [to_date - timedelta(hours=x) for x in range(0, delta.days * 24)]
+    rrule_period = None
+
+    if period == "month":
+        rrule_period = MONTHLY
+    elif period == "hour":
+        rrule_period = HOURLY
     elif period == "minute":
-        return [to_date - timedelta(minutes=x) for x in range(0, delta.days * 24 * 60)]
+        rrule_period = MINUTELY
     elif period == "day":
-        return [to_date - timedelta(days=x) for x in range(0, delta.days)]
-    return []
+        rrule_period = DAILY
+    else:
+        return []
 
+    return list(rrule(rrule_period, dtstart=from_date, until=to_date))
 
 def date_min(from_date, period):
     if period == "year":
@@ -140,6 +146,5 @@ def date_max(to_date, period):
     if period == "year":
         return to_date.replace(month=12, hour=23, day=31, minute=59, second=59)
     elif period == "month":
-        to_date = to_date.replace(hour=23, minute=59, second=59) + relativedelta(months=+1)
-        return to_date
+        to_date = to_date.replace(day=1, hour=23, minute=59, second=59) + relativedelta(months=+1, days=-1)
     return to_date

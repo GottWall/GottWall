@@ -26,7 +26,7 @@ import tornado.gen
 from tornado import gen
 
 from gottwall import get_version
-from gottwall.utils import timestamp_to_datetime
+from gottwall.utils import timestamp_to_datetime, date_range, get_by_period, date_min, date_max
 from gottwall.settings import DATE_FILTER_FORMAT
 
 logger = logging.getLogger('gottwall')
@@ -146,9 +146,7 @@ class APIHandler(BaseHandler):
             return output_json
 
 
-class StatsHandler(APIHandler):
-    """Load periods statistics
-    """
+class StatsMixin(object):
 
     def convert_date_range(self, from_date, to_date):
         """Convert str from_date and to_data objects to
@@ -163,11 +161,7 @@ class StatsHandler(APIHandler):
         to_date = timestamp_to_datetime(to_date, DATE_FILTER_FORMAT) if to_date else to_date
         return from_date, to_date
 
-    @authenticated
-    @tornado.web.asynchronous
-    @gen.engine
-    def get(self, project, *args, **kwargs):
-
+    def get_params(self):
         name = self.get_argument('name', None)
         from_date = self.get_argument('from_date', None)
         to_date = self.get_argument('to_date', None)
@@ -187,6 +181,20 @@ class StatsHandler(APIHandler):
             self.json_response({"text": "You need specify name and period"})
             return
 
+        return name, from_date, to_date, period, filter_name, filter_value
+
+class StatsHandler(APIHandler, StatsMixin):
+    """Load periods statistics
+    """
+
+
+    @authenticated
+    @tornado.web.asynchronous
+    @gen.engine
+    def get(self, project, *args, **kwargs):
+
+        name, from_date, to_date, period, filter_name, filter_value = self.get_params()
+
         data = yield gen.Task(self.application.storage.slice_data,
                               project, name, period, from_date, to_date, filter_name, filter_value)
 
@@ -197,6 +205,29 @@ class StatsHandler(APIHandler):
                             "filter_name": filter_name,
                             "filter_value": filter_value,
                             "avg": 0})
+
+class StatsDataSetHandler(APIHandler, StatsMixin):
+    """Load data for filters without filter value
+    """
+    @authenticated
+    @tornado.web.asynchronous
+    @gen.engine
+    def get(self, project, *args, **kwargs):
+
+        name, from_date, to_date, period, filter_name, filter_value = self.get_params()
+
+        data = yield gen.Task(self.application.storage.slice_data_set,
+                                            project, name, period, from_date, to_date, filter_name)
+
+        self.json_response({"data": data,
+                            "project": project,
+                            "period": period,
+                            "name": name,
+                            "filter_name": filter_name,
+                            "date_range": [get_by_period(x, period)
+                                           for x in date_range(date_min(from_date, period),
+                                                               date_max(to_date, period), period)]})
+
 
 
 class MetricsHandler(APIHandler):

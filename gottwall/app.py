@@ -18,7 +18,7 @@ from jinja2 import Environment, FileSystemLoader
 from tornado.web import Application, URLSpec
 
 from handlers import DashboardHandler, LoginHandler, HomeHandler,\
-     StatsHandler, MetricsHandler, LogoutHandler
+     StatsHandler, MetricsHandler, LogoutHandler, StatsDataSetHandler
 from jinja_utils import load_filters, load_globals
 from processing import Tasks
 
@@ -46,8 +46,12 @@ class HTTPApplication(Application):
             (r"{0}/login".format(self.config['PREFIX']), LoginHandler, params, 'login'),
             (r"{0}/logout".format(self.config['PREFIX']), LogoutHandler, params, 'logout'),
             (r"{0}/dashboard".format(self.config['PREFIX']), DashboardHandler, params, 'dashboard'),
-            (r"{0}/(?P<project>.+)/api/stats".format(self.config['PREFIX']), StatsHandler, params, 'api-stats'),
-            (r"{0}/(?P<project>.+)/api/metrics".format(self.config['PREFIX']), MetricsHandler, params, 'api-metrics'),
+            (r"{0}/(?P<project>.+)/api/stats".format(self.config['PREFIX']),
+             StatsHandler, params, 'api-stats'),
+            (r"{0}/(?P<project>.+)/api/stats_dataset".format(self.config['PREFIX']),
+             StatsDataSetHandler, params, 'api-stats-dataset'),
+            (r"{0}/(?P<project>.+)/api/metrics".format(self.config['PREFIX']),
+             MetricsHandler, params, 'api-metrics'),
             (r"{0}/".format(self.config['PREFIX']), HomeHandler, params, 'home')]
 
         config['login_url'] = config['PREFIX'] + config['login_url']

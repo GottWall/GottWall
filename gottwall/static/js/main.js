@@ -176,7 +176,7 @@ var TableBar = BaseBar.extend({
   setup_current_metric: function(){
     console.log("Setup current metric for table");
     var self = this;
-    var metric_value = "Показатель";
+    var metric_current = "Показатель";
 
     if(self.metric_name) {
       metric_current = self.metric_name;
@@ -199,8 +199,15 @@ var TableBar = BaseBar.extend({
 
     this.node.find('.filters-selector .current').text(filter_current);
   },
+  get_metric: function(){
+    if(this.metric_name){
+      var metric = new MetricSet(this.gottwall, this.metric_name,
+				 this.filter_name, null);
+      return metric;
+    }
+    return null;
+  },
   render_filters: function(metric_name, filters){
-    console.log("Render table filters");
     var self = this;
     var template = swig.compile($("#table-filters-selector-template").text());
 
@@ -358,7 +365,20 @@ var Widget = Class.extend({
   },
   setup: function(){},
   add_bindings: function(){
-    console.log("Add bar bindings");
+    var self = this;
+    this.node.on('click', '.chart-controls .add-bar', function(){
+      var button = $(this);
+      var bar = new Bar(self.gottwall, self, GUID())
+      self.add_bar(bar);
+      self.render_bar(bar);
+    });
+
+    this.node.on(
+      'click', '.widget-bar .remove-chart', function(){
+	var button = $(this);
+	$.log("Remove chart");
+	self.remove();
+      });
   },
   remove: function(){
     this.gottwall.remove_chart(this);
@@ -383,9 +403,21 @@ var Table = Widget.extend({
 	    "metrics": this.bar.to_dict(),
 	    "type": this.type}
    },
+  show_loader: function(){
+    console.log("Show loader");
+    this.node.find('div.table-area').hide();
+    this.node.find('.loader').show();
+  },
+  hide_loader: function(){
+    console.log("Hide loader");
+    this.node.find('div.table-area').show();
+    this.node.find('.loader').hide();
+  },
+  setup_node: function(){
+    this.node = $('#table-'+this.id);
+  },
   render_widget: function(){
-    console.log("Render Table Widget");
-    var template = swig.compile($('#table-template').text());
+    var template = swig.compile($('#table-widget-template').text());
     var widget = $(template({
       "id": this.id,
       "type": this.type,
@@ -407,17 +439,41 @@ var Table = Widget.extend({
   setup_bar: function(bar){
     this.bar = bar
   },
+  get_metrics: function(){
+    var self = this;
+    return new MetricSet(self.gottwall, self.bar.metric_name, self.bar.filter_name);
+  },
   render_chart_graph: function(){
+    var self = this;
     console.log("Render table");
+    var metric = this.get_metrics();
+    self.show_loader();
+
+    $.when.apply($, [metric.get_resource_loader(self.gottwall.current_period)]).done(
+      function(){
+	console.log("Metrics loaded");
+	var response = arguments;
+	self.hide_loader();
+	return self.render_metrics_table(response[0]);
+      });
+  },
+  render_metrics_table: function(metrics){
+    console.log("Render metrics table");
+    var self = this;
+    var template = swig.compile($("#table-template").text());
+    var date_range = metrics.date_range;
+    var table = template({'rows': _.map(metrics['data'], function(value, key){
+      return [key, value['range']];
+    }),
+			  'caption': self.bar.metric_name,
+			  'column_names': date_range})
+    this.node.find('div.table-area').html($(table));
   },
   setup: function(){
     var self = this;
     if(!this.bar){
       this.bar = new TableBar(self.gottwall, self, null, null);
-    }
-  },
-
-});
+    }}});
 
  var Chart = Widget.extend({
 
@@ -431,7 +487,9 @@ var Table = Widget.extend({
      this.type = "chart";
      this.selectors_node = null;
    },
-
+   setup_node: function(){
+     this.node = $('#chart-'+this.id);
+   },
    to_dict: function(){
      return {"id": this.id,
 	     "metrics": _.map(this.bars, function(bar){
@@ -439,23 +497,7 @@ var Table = Widget.extend({
 	     }),
 	     "type": this.type}
    },
-   add_bindings: function(){
-     var self = this;
-     console.log(this.node);
-     this.node.on('click', '.chart-controls .add-bar', function(){
-       var button = $(this);
-       var bar = new Bar(self.gottwall, self, GUID())
-       self.add_bar(bar);
-       self.render_bar(bar);
-     });
 
-     this.node.on(
-       'click', '.chart-controls .remove-chart', function(){
-	 var button = $(this);
-	 $.log("Remove chart");
-	 self.remove();
-       });
-   },
    render_chart_graph: function(){
      console.log("Load stats for chart ..."+this.id);
      var self = this;
@@ -463,7 +505,6 @@ var Table = Widget.extend({
      self.show_loader();
 
      $.when.apply($, _.map(metrics, function(metric){
-
        return metric.get_resource_loader(self.gottwall.current_period);
      })).done(
        function(){
@@ -477,7 +518,7 @@ var Table = Widget.extend({
 	 var metrics_with_data = _.map(_.compact(responses), function(r){
 	   return new Metric(self.gottwall,  r[0]["name"],
 			     r[0]["filter_name"], r[0]["filter_value"], r[0]);
-	});
+	 });
 	self.hide_loader();
 	return self.render_metrics(metrics_with_data);
       });
@@ -877,8 +918,10 @@ var GottWall = Class.extend({
     // Render chart and append to DOM
     chart.setup();
     this.charts_container.append($(chart.render_widget()));
-    chart.node = $('#chart-'+chart.id);
+
+    chart.setup_node();
     // Setup node
+
     chart.add_bindings();
     return false;
   },
@@ -1010,8 +1053,7 @@ var Project = Class.extend({
     // Restore project from localStorage
   }});
 
-var Metric = Class.extend({
-
+var MetricBase = Class.extend({
   init: function(gottwall, name, filter, value, data){
     this.gottwall = gottwall;
     this.project = gottwall.current_project;
@@ -1025,6 +1067,34 @@ var Metric = Class.extend({
     this.filter_value = value;
     this.data = data; //loaded metric data
   },
+  get_resource_loader: function(){
+    return $.ajax({
+      type: "GET",
+      url: this.stats_url(),
+      dataType: 'json'});
+  },
+});
+
+var MetricSet = MetricBase.extend({
+  stats_url: function(){
+    var url = this.project + "/api/stats_dataset?period="+this.gottwall.current_period+"&name="+this.name;
+    if(this.filter_name){
+      url = url + "&filter_name="+this.filter_name;
+    }
+
+    var from_date = this.gottwall.get_from_date();
+    if(from_date){
+      url = url + "&from_date=" + from_date;
+    }
+    var to_date = this.gottwall.get_to_date();
+    if(to_date){
+      url = url + "&to_date=" + to_date;
+    }
+    return url;
+  }});
+
+var Metric = MetricBase.extend({
+
   load: function(){},
   show: function(){},
   stats_url: function(){
@@ -1042,12 +1112,6 @@ var Metric = Class.extend({
       url = url + "&to_date=" + to_date;
     }
     return url;
-  },
-  get_resource_loader: function(){
-    return $.ajax({
-      type: "GET",
-      url: this.stats_url(),
-      dataType: 'json'});
   },
   is_equal: function(){
     return {

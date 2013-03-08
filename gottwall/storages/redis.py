@@ -6,7 +6,7 @@ gottwall.storages.redis
 
 Redis storage for collect statistics
 
-:copyright: (c) 2012 by GottWall Team, see AUTHORS for more details.
+:copyright: (c) 2012 - 2013 by GottWall Team, see AUTHORS for more details.
 :license: BSD, see LICENSE for more details.
 :github: http://github.com/gottwall/gottwall
 """
@@ -194,6 +194,7 @@ class RedisStorage(BaseStorage):
         else:
             new_data = OrderedDict(data)
 
+
         return map(lambda x: (get_by_period(x[0], period), x[1]),
                    sorted(ifilter(lambda x: (True if from_date is None else x[0] >= from_date) and \
                                   (True if to_date is None else x[0] <= to_date), new_data.iteritems()),
@@ -203,6 +204,7 @@ class RedisStorage(BaseStorage):
     def slice_data(self, project, name, period, from_date=None, to_date=None,
                    filter_name=None, filter_value=None, callback=None):
 
+
         key = self.make_key(project, name, period,
                             {filter_name: filter_value})
 
@@ -210,8 +212,33 @@ class RedisStorage(BaseStorage):
 
         if callback:
             callback(self.filter_by_period(map(lambda x: (get_datetime(x[0], period), x[1]), items.iteritems()),
-                period,
-                from_date, to_date))
+                                           period, from_date, to_date))
+
+    @gen.engine
+    def slice_data_set(self, project, name, period, from_date=None, to_date=None,
+                       filter_name=None, callback=None):
+
+        client = self.client
+
+        filter_values = sorted((yield gen.Task(client.smembers,
+                                               self.get_filters_values_key(project, name, filter_name))))
+        items = {}
+
+        for value in filter_values:
+            items[value] = {}
+            tmp_range = yield Task(self.client.hgetall,
+                                   self.make_key(project, name, period, {filter_name: value}))
+
+            items[value]['range'] = self.filter_by_period(map(lambda x: (get_datetime(x[0], period), x[1]), tmp_range.items()),
+                                                          period, from_date, to_date)
+
+            filtered_range_values = map(lambda x: int(x[1]), items[value]['range'])
+            items[value]['avg'] = sum(filtered_range_values) / len(items[value]['range'])
+            items[value]['max'] = max(filtered_range_values)
+            items[value]['min'] = min(filtered_range_values)
+
+        if callback:
+            callback(items)
 
     @tornado.gen.engine
     def metrics(self, project, callback=None):
