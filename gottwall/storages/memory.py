@@ -150,16 +150,3 @@ class MemoryStorage(BaseStorage):
                 callback({})
             else:
                 callback(self._metrics[project])
-
-    def filter_by_period(self, data, period, from_date=None, to_date=None):
-        """Fulter statistics by `from_date` and `to_date`
-
-        :param from_data: datetime instance
-        :param to_date: datetime instance
-        :return: ifilter generator
-        """
-        if period == 'all':
-            return data
-        return ifilter(lambda x: (True if from_date is None else get_datetime(x[0], period) >= from_date) and \
-                       (True if to_date is None else get_datetime(x[0], period) <= to_date), data)
-

@@ -50,7 +50,7 @@ class APITestCase(AsyncHTTPBaseTestCase):
 
 
         # Get statistics by weeks
-        response = self.fetch("/gottwall/test_project/api/stats?from_date=2012-01-20&to_date=2012-12-31&period=week",
+        response = self.fetch("/gottwall/test_project/api/stats?from_date=2012-01-20&to_date=2012-12-31&period=month",
                               method="GET")
 
         self.assertEquals(response.code, 400)
@@ -62,14 +62,15 @@ class APITestCase(AsyncHTTPBaseTestCase):
         self.assertEquals(response.code, 400)
         self.assertTrue("Invalid date range params" in response.body)
 
-        for x in ['month', 'day', 'year', 'week', 'minute', 'all']:
-            response = self.fetch("/gottwall/test_project/api/stats?from_date=2011-01-20&to_date=2013-12-31&period={0}&name=metric_name".format(x),
+        for x in ['month', 'day', 'year']:
+            response = self.fetch("/gottwall/test_project/api/stats?from_date=2012-01-20&to_date=2013-12-31&period={0}&name=metric_name".format(x),
                               method="GET")
+
             self.assertEquals(response.code, 200)
 
             response_data = json.loads(response.body)
             self.assertTrue(isinstance(response_data['range'], (list, tuple)))
-            self.assertEquals(response_data['range'][0][1], 100)
+            self.assertTrue(100 in [x[1] for x in response_data['range']])
 
 
     def test_metrics(self):

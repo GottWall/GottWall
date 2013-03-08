@@ -8,17 +8,14 @@ GottWall storages backends
 
 :copyright: (c) 2012 by GottWall Team, see AUTHORS for more details.
 :license: BSD, see LICENSE for more details.
-:github: http://github.com/Lispython/gottwall
+:github: http://github.com/gottwall/gottwall
 """
-
-
+from itertools import ifilter
 from logging import getLogger
-import tornadoredis
-import tornado.gen
 
+from gottwall.compat import OrderedDict
+from gottwall.utils import get_by_period, date_range, date_min, date_max, get_datetime
 
-from gottwall.utils import get_by_period, MagicDict, get_datetime
-from gottwall.settings import STORAGE_SETTINGS_KEY
 
 logger = getLogger("gottwall.storages")
 
@@ -74,3 +71,35 @@ class BaseStorage(object):
         """Get metrics
         """
         raise NotImplementedError
+
+    def convert_range_to_datetime(self, data, period):
+        return map(lambda x: (get_datetime(x[0], period), x[1]), data)
+
+    def filter_by_period(self, data, period, from_date=None, to_date=None):
+        """Fulter statistics by `from_date` and `to_date`
+
+        :param from_data:
+        :param to_date:
+        :return: ifilter generator
+
+        """
+        from_date = date_min(from_date, period)
+        to_date = date_max(to_date, period)
+
+        data = self.convert_range_to_datetime(data, period)
+
+        if from_date and to_date:
+            new_data = OrderedDict(map(lambda x: (x, 0),
+                                       date_range(from_date, to_date, period)))
+            new_data.update(data)
+        else:
+            new_data = OrderedDict(data)
+
+        # Convert datestring to datetime object in list
+
+
+        new_data = sorted(ifilter(lambda x: (True if from_date is None else x[0] >= from_date) and \
+                                  (True if to_date is None else x[0] <= to_date), new_data.items()),
+                          key=lambda x: x[0])
+
+        return map(lambda x: (get_by_period(x[0], period), x[1]), new_data)

@@ -83,7 +83,6 @@ def get_datetime(timestamp, period):
         return ret
     if isinstance(timestamp, datetime):
         return timestamp
-
     elif period in PERIOD_PATTERNS:
         return datetime.strptime(timestamp, PERIOD_PATTERNS[period])
     return None

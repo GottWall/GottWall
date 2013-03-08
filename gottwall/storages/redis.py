@@ -10,7 +10,6 @@ Redis storage for collect statistics
 :license: BSD, see LICENSE for more details.
 :github: http://github.com/gottwall/gottwall
 """
-from itertools import ifilter
 from logging import getLogger
 
 import tornado.gen
@@ -21,9 +20,8 @@ from tornadoredis.exceptions import ConnectionError
 
 from gottwall.settings import STORAGE_SETTINGS_KEY
 from gottwall.storages.base import BaseStorage
+from gottwall.utils import get_datetime, get_by_period
 
-from gottwall.utils import get_by_period, get_datetime, date_range, date_min, date_max
-from gottwall.compat import OrderedDict
 
 logger = getLogger()
 
@@ -177,28 +175,6 @@ class RedisStorage(BaseStorage):
 
         return u';'.join(parts)
 
-    def filter_by_period(self, data, period, from_date=None, to_date=None):
-        """Fulter statistics by `from_date` and `to_date`
-
-        :param from_data:
-        :param to_date:
-        :return: ifilter generator
-
-        """
-        from_date = date_min(from_date, period)
-        to_date = date_max(to_date, period)
-
-        if from_date and to_date:
-            new_data = OrderedDict(map(lambda x: (x, 0), date_range(from_date, to_date, period)))
-            new_data.update(data)
-        else:
-            new_data = OrderedDict(data)
-
-
-        return map(lambda x: (get_by_period(x[0], period), x[1]),
-                   sorted(ifilter(lambda x: (True if from_date is None else x[0] >= from_date) and \
-                                  (True if to_date is None else x[0] <= to_date), new_data.iteritems()),
-                          key=lambda x: x[0]))
 
     @gen.engine
     def slice_data(self, project, name, period, from_date=None, to_date=None,
@@ -211,7 +187,7 @@ class RedisStorage(BaseStorage):
         items = yield Task(self.client.hgetall, key)
 
         if callback:
-            callback(self.filter_by_period(map(lambda x: (get_datetime(x[0], period), x[1]), items.iteritems()),
+            callback(self.filter_by_period(map(lambda x: (get_datetime(x[0], period), int(x[1])), items.iteritems()),
                                            period, from_date, to_date))
 
     @gen.engine
@@ -229,7 +205,7 @@ class RedisStorage(BaseStorage):
             tmp_range = yield Task(self.client.hgetall,
                                    self.make_key(project, name, period, {filter_name: value}))
 
-            items[value]['range'] = self.filter_by_period(map(lambda x: (get_datetime(x[0], period), x[1]), tmp_range.items()),
+            items[value]['range'] = self.filter_by_period(map(lambda x: (get_datetime(x[0], period), int(x[1])), tmp_range.items()),
                                                           period, from_date, to_date)
 
             filtered_range_values = map(lambda x: int(x[1]), items[value]['range'])

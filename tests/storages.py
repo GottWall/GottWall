@@ -124,17 +124,23 @@ class MemoryStorageTestCase(AsyncBaseTestCase):
                                            'filter2': ['web',
                                                        'iphone',
                                                        'android']}}})
+        from_date = datetime.datetime(2011, 1, 1)
+        to_date = datetime.datetime(2013, 1, 2)
 
-        for period in ["month", "day", "week", "hour", "minute"]:
+        # Disabled minute range
+        for period in ["month", "day", "hour"]:
             for filter_name, filter_value in (("filter1", True),
                                               ("filter2", "web"),
                                               ("filter2", "iphone"),
                                               (None, None)):
-                for x in list((yield Task(storage.slice_data, "test_memory_project",
+                d = list((yield Task(storage.slice_data, "test_memory_project",
                                           "metric_name", period,
+                                          from_date=from_date,
+                                          to_date=to_date,
                                           filter_name=filter_name,
-                                          filter_value=filter_value))):
-                    self.assertEquals(x[1], 10)
+                                          filter_value=filter_value)))
+                self.assertTrue(10 in [x[1] for x in d])
+
 
         for period in ["year"]:
             for filter_name, filter_value in (("filter1", True),
@@ -143,6 +149,8 @@ class MemoryStorageTestCase(AsyncBaseTestCase):
                                               (None, None)):
                 for x in list((yield Task(storage.slice_data, "test_memory_project",
                                           "metric_name", period,
+                                          from_date=from_date,
+                                          to_date=to_date,
                                           filter_name=filter_name,
                                           filter_value=filter_value))):
                     self.assertEquals(x[1], 20)
@@ -284,16 +292,22 @@ class RedisStorageTestCase(AsyncBaseTestCase, RedisTestCaseMixin):
                                                             'iphone',
                                                             'web']}})
 
-        for period in ["month", "day", "week", "hour", "minute"]:
+        from_date = datetime.datetime(2011, 1, 1)
+        to_date = datetime.datetime(2013, 1, 2)
+
+        for period in ["month", "day", "hour"]:
             for filter_name, filter_value in (("filter1", True),
                                               ("filter2", "web"),
                                               ("filter2", "iphone"),
                                               (None, None)):
-                for x in list((yield Task(storage.slice_data, "test_redis_project",
-                                          "redis_metric_name", period,
-                                          filter_name=filter_name,
-                                          filter_value=filter_value))):
-                    self.assertEquals(int(x[1]), 10)
+                d = list((yield Task(storage.slice_data, "test_redis_project",
+                                     "redis_metric_name", period,
+                                     from_date=from_date,
+                                     to_date=to_date,
+                                     filter_name=filter_name,
+                                     filter_value=filter_value)))
+                self.assertTrue(10 in [x[1] for x in d])
+
 
         for period in ["year"]:
             for filter_name, filter_value in (("filter1", True),
@@ -302,6 +316,8 @@ class RedisStorageTestCase(AsyncBaseTestCase, RedisTestCaseMixin):
                                               (None, None)):
                 for x in list((yield Task(storage.slice_data, "test_redis_project",
                                           "redis_metric_name", period,
+                                          from_date=from_date,
+                                          to_date=to_date,
                                           filter_name=filter_name,
                                           filter_value=filter_value))):
                     self.assertEquals(int(x[1]), 20)

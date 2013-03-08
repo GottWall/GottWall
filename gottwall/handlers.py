@@ -26,7 +26,8 @@ import tornado.gen
 from tornado import gen
 
 from gottwall import get_version
-from gottwall.utils import timestamp_to_datetime, date_range, get_by_period, date_min, date_max
+from gottwall.utils import (timestamp_to_datetime, date_range, get_by_period,
+                            date_min, date_max)
 from gottwall.settings import DATE_FILTER_FORMAT
 
 logger = logging.getLogger('gottwall')
@@ -169,42 +170,57 @@ class StatsMixin(object):
         filter_name = self.get_argument('filter_name', None)
         filter_value = self.get_argument('filter_value', None)
 
+        return name, from_date, to_date, period, filter_name, filter_value
+
+    def clean_period(self, from_date, to_date):
         try:
             from_date, to_date = self.convert_date_range(from_date, to_date)
         except ValueError:
             self.set_status(400)
             self.json_response({"text": "Invalid date range params"})
-            return
+            return None, None
+        return from_date, to_date
 
+
+    def validate_name(self, name, period):
         if not all([name, period]):
             self.set_status(400)
             self.json_response({"text": "You need specify name and period"})
             return
+        return True
 
-        return name, from_date, to_date, period, filter_name, filter_value
 
 class StatsHandler(APIHandler, StatsMixin):
     """Load periods statistics
     """
-
 
     @authenticated
     @tornado.web.asynchronous
     @gen.engine
     def get(self, project, *args, **kwargs):
 
-        name, from_date, to_date, period, filter_name, filter_value = self.get_params()
+        try:
+            name, from_date, to_date, period, filter_name, filter_value = self.get_params()
+        except Exception:
+            self.set_status(400)
+            self.json_response({"text": "Bad request"})
+            return
 
-        data = yield gen.Task(self.application.storage.slice_data,
-                              project, name, period, from_date, to_date, filter_name, filter_value)
+        from_date, to_date = self.clean_period(from_date, to_date)
 
-        self.json_response({"range": list(data),
-                            "project": project,
-                            "period": period,
-                            "name": name,
-                            "filter_name": filter_name,
-                            "filter_value": filter_value,
-                            "avg": 0})
+        if self.validate_name(name, period) and from_date and to_date:
+
+            data = yield gen.Task(self.application.storage.slice_data,
+                                  project, name, period, from_date, to_date, filter_name, filter_value)
+
+            self.json_response({"range": list(data),
+                                "project": project,
+                                "period": period,
+                                "name": name,
+                                "filter_name": filter_name,
+                                "filter_value": filter_value,
+                                "avg": 0})
+
 
 class StatsDataSetHandler(APIHandler, StatsMixin):
     """Load data for filters without filter value
@@ -214,20 +230,30 @@ class StatsDataSetHandler(APIHandler, StatsMixin):
     @gen.engine
     def get(self, project, *args, **kwargs):
 
-        name, from_date, to_date, period, filter_name, filter_value = self.get_params()
+        try:
+            name, from_date, to_date, period, filter_name, filter_value = self.get_params()
+            from_date, to_date = self.convert_date_range(from_date, to_date)
 
-        data = yield gen.Task(self.application.storage.slice_data_set,
-                                            project, name, period, from_date, to_date, filter_name)
+        except Exception:
+            self.set_status(400)
+            self.json_response({"text": "Bad request"})
+            return
 
-        self.json_response({"data": data,
-                            "project": project,
-                            "period": period,
-                            "name": name,
-                            "filter_name": filter_name,
-                            "date_range": [get_by_period(x, period)
-                                           for x in date_range(date_min(from_date, period),
-                                                               date_max(to_date, period), period)]})
+        from_date, to_date = self.clean_period(from_date, to_date)
 
+        if self.validate_name(name, period) and from_date and to_date:
+
+            data = yield gen.Task(self.application.storage.slice_data_set,
+                                  project, name, period, from_date, to_date, filter_name)
+
+            self.json_response({"data": data,
+                                "project": project,
+                                "period": period,
+                                "name": name,
+                                "filter_name": filter_name,
+                                "date_range": [get_by_period(x, period)
+                                               for x in date_range(date_min(from_date, period),
+                                                                   date_max(to_date, period), period)]})
 
 
 class MetricsHandler(APIHandler):
@@ -239,6 +265,7 @@ class MetricsHandler(APIHandler):
     def get(self, project, *args, **kwargs):
         metrics = yield gen.Task(self.application.storage.metrics, project)
         self.json_response(metrics)
+
 
 class LogoutHandler(BaseHandler):
 
