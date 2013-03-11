@@ -206,7 +206,7 @@ class RedisStorage(BaseStorage):
                                                           period, from_date, to_date)
 
             filtered_range_values = map(lambda x: int(x[1]), items[value]['range'])
-            items[value]['avg'] = sum(filtered_range_values) / len(items[value]['range'])
+            items[value]['avg'] = (sum(filtered_range_values) / len(items[value]['range'])) if (len(items[value]['range']) > 0) else 0
             items[value]['max'] = max(filtered_range_values)
             items[value]['min'] = min(filtered_range_values)
 
