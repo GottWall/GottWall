@@ -121,7 +121,7 @@ var BaseBar = Class.extend({
       "metric_name": this.metric_name,
       "filter_name": this.filter_name,
       "filter_value": this.filter_value,
-      "id": this.id}
+      "id": this.id};
   },
   render_selectors: function(){
     this.render_metrics(this.gottwall.metrics[this.gottwall.current_project]);
@@ -222,15 +222,12 @@ var TableBar = BaseBar.extend({
     	})})));
 
     this.node.on('click', '.filters-selector li a', function(){
-      console.log("Table selector clicked");
       var button = $(this);
       self.filter_name = button.attr('data-name');
       self.node.find('.filters-selector .current').text(self.filter_name);
       self.node.find('.filters-selector').removeClass('open');
-      console.log(self);
       self.chart.render_chart_graph();
       self.gottwall.save_to_storage();
-      console.log(self);
       return false;
     });
   }
@@ -355,7 +352,6 @@ var Widget = Class.extend({
   },
   render_bar: function(bar){
     // Render bar on Chart area
-    console.log("Render widget bar");
     if(!this.renders_selector){
       console.log("Render chart area before");
     }
@@ -462,12 +458,18 @@ var Table = Widget.extend({
     var self = this;
     var template = swig.compile($("#table-template").text());
     var date_range = metrics.date_range;
-    var table = template({'rows': _.map(metrics['data'], function(value, key){
+    var table = $(template({'rows': _.map(metrics['data'], function(value, key){
       return [key, value['range']];
     }),
-			  'caption': self.bar.metric_name,
-			  'column_names': date_range})
-    this.node.find('div.table-area').html($(table));
+			    'caption': self.bar.metric_name,
+			    'column_names': date_range,
+			    'group_column_name': self.bar.filter_name}));
+
+    table.tablesorter({
+      theme : "bootstrap", // this will
+      headerTemplate : '{content} {icon}',
+    });
+    this.node.find('div.table-area').html(table);
   },
   setup: function(){
     var self = this;
@@ -537,10 +539,15 @@ var Table = Widget.extend({
       //chart.margin({top: 10, bottom: 40, left: 60, right: 30});
 
       chart.xAxis.tickFormat(function(d) {
-	return self.format_tick(d);
+	return d3.time.format(self.gottwall.date_display_formats[self.gottwall.current_period])(new Date(d));
+	//return self.format_tick(d);
 	//        return d3.time.format(self.current_date_format)(new Date(d))
+      }).showMaxMin(false);
+      chart.yAxis.tickFormat(function(d){
+	return d3.format(',')(d);
       });
       chart.tooltipContent(function(key, x,  y, e, graph) {
+	console.log(x);
         return '<h3>' + key + '</h3>' +
                '<p>' +  x + ' → ' + y + '</p>'
       });
@@ -549,7 +556,7 @@ var Table = Widget.extend({
 
       d3.select('#chart-' + self.id + " svg").datum(
 	_.map(metrics, function(metric){
-	  return metric.get_chart_data()})).transition().duration(50).call(chart);
+	  return metric.get_chart_data()})).transition(1).duration(50).call(chart);
       nv.utils.windowResize(chart.update);
 
       return chart;
@@ -616,7 +623,14 @@ var GottWall = Class.extend({
     "minute": "%Y-%m-%dT%H:%M",
     "week": "%Y-%W"
   },
-
+  date_display_formats: {
+    "day": "%Y-%m-%d",
+    "year": "%Y",
+    "month": "%Y-%m",
+    "hour": "%Y-%m-%dT%H",
+    "minute": "%Y-%m-%dT%H:%M",
+    "week": "%Y-%W"
+  },
   init: function(debug){
     this.debug_flag = debug || false;
     this.metrics = {};
@@ -1149,6 +1163,24 @@ var Metric = MetricBase.extend({
 
 
 (function($, nv, swig, _){
+
+  $.extend($.tablesorter.themes.bootstrap, {
+    // these classes are added to the table. To see other table classes available,
+		// look here: http://twitter.github.com/bootstrap/base-css.html#tables
+		table      : 'table table-bordered',
+		header     : 'bootstrap-header', // give the header a gradient background
+		footerRow  : '',
+		footerCells: '',
+		icons      : '', // add "icon-white" to make them white; this icon class is added to the <i> in the header
+		sortNone   : 'bootstrap-icon-unsorted',
+		sortAsc    : 'icon-chevron-up',
+		sortDesc   : 'icon-chevron-down',
+		active     : '', // applied when column is sorted
+		hover      : '', // use custom css here - bootstrap class may not override it
+		filterRow  : '', // filter row class
+		even       : '', // odd row zebra striping
+		odd        : ''  // even row zebra striping
+	});
 
   var self = this;
   $(function() {

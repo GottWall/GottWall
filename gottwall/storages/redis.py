@@ -16,6 +16,7 @@ import tornado.gen
 import tornadoredis
 from tornado import gen
 from tornado.gen import Task
+from tornado.escape import to_unicode
 from tornadoredis.exceptions import ConnectionError
 
 from gottwall.settings import STORAGE_SETTINGS_KEY
@@ -106,10 +107,9 @@ class RedisStorage(BaseStorage):
         :param metric_name:
         :param f: filter name
         """
-        try:
-            return u"{0}-metrics-filter-values:{1}:{2}".format(project, metric_name, f)
-        except UnicodeDecodeError:
-            return u"{0}-metrics-filter-values:{1}:{2}".format(project, metric_name.decode("utf-8"), f)
+        return u"{0}-metrics-filter-values:{1}:{2}".format(project,
+                                                           to_unicode(metric_name),
+                                                           to_unicode(f))
 
     def get_filters_names_key(self, project, metric_name):
         """Get key for metrics filters names
@@ -117,10 +117,7 @@ class RedisStorage(BaseStorage):
         :param project: project name
         :param metric_name: metric name
         """
-        try:
-            return u"{0}-metrics-filters:{1}".format(project, metric_name)
-        except UnicodeDecodeError:
-            return u"{0}-metrics-filters:{1}".format(project, metric_name.decode("utf-8"))
+        return u"{0}-metrics-filters:{1}".format(project, to_unicode(metric_name))
 
     @tornado.gen.engine
     def incr(self, project, name, timestamp, value=1, filters=None, callback=None, **kwargs):
@@ -167,7 +164,7 @@ class RedisStorage(BaseStorage):
 
         if isinstance(filters, dict):
             filters_part = u"/".join(
-                [u"{0}|{1}".format(f, filters[f])
+                [u"{0}|{1}".format(f, to_unicode(filters[f]))
                  for f in sorted(filters.keys(), key=lambda x: x) if f])
 
             if filters_part:

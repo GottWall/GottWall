@@ -18,7 +18,7 @@ try:
 except:
     has_subprocess = False
 
-from setuptools import Command, setup, find_packages
+from setuptools import setup, find_packages
 
 try:
     readme_content = open(os.path.join(os.path.abspath(
@@ -28,44 +28,7 @@ except Exception, e:
     readme_content = __doc__
 
 
-VERSION = "0.2.7"
-
-
-class run_audit(Command):
-    """Audits source code using PyFlakes for following issues:
-        - Names which are used but not defined or used before they are defined.
-        - Names which are redefined without having been used.
-    """
-    description = "Audit source code with PyFlakes"
-    user_options = []
-
-    def initialize_options(self):
-        all = None
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        try:
-            import pyflakes.scripts.pyflakes as flakes
-        except ImportError:
-            print "Audit requires PyFlakes installed in your system."""
-            sys.exit(-1)
-
-        dirs = ['gottwall']
-        # Add example directories
-        for dir in []:
-            dirs.append(os.path.join('examples', dir))
-        # TODO: Add test subdirectories
-        warns = 0
-        for dir in dirs:
-            for filename in os.listdir(dir):
-                if filename.endswith('.py') and filename != '__init__.py':
-                    warns += flakes.checkPath(os.path.join(dir, filename))
-        if warns > 0:
-            print ("Audit finished with total %d warnings." % warns)
-        else:
-            print ("No problems found in sourcecode.")
+VERSION = "0.2.8"
 
 
 def run_tests():
@@ -139,6 +102,5 @@ setup(
         "Topic :: System :: Monitoring",
         "Topic :: System :: Networking"
         ],
-    cmdclass={'audit': run_audit},
     test_suite = '__main__.run_tests'
     )

@@ -90,7 +90,6 @@ def get_datetime(timestamp, period):
 
 def parse_dict_header(value):
     """Parse key=value pairs from value list
-
     :param value: header string
     :return: params dict
     """

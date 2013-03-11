@@ -190,3 +190,8 @@
 .full-mode .widget-bar {
                                  display: none;
  }
+
+
+.table-area table {
+                    font-size: 12pt;
+ }
