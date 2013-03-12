@@ -28,7 +28,7 @@ except Exception, e:
     readme_content = __doc__
 
 
-VERSION = "0.2.8"
+VERSION = "0.2.9"
 
 
 def run_tests():
@@ -51,7 +51,7 @@ install_requires = [
     "redis==2.7.2",
     "tornado==2.4.1",
     "python-dateutil==2.1",
-    "tornado-redis==2.4",
+    "tornado-redis==2.4.1",
     "commandor==0.1.5",
     "SQLAlchemy==0.7.9",
     "alembic==0.4.0",
