@@ -30,22 +30,6 @@ class Client(tornadoredis.Client):
         self._reconnect_callback = reconnect_callback
         super(Client, self).__init__(**kwargs)
 
-    def on_disconnect(self):
-        if self.subscribed:
-            self.subscribed = False
-        #self._reconnect_callback()
-        raise ConnectionError("Conneciton loast")
-
-    def connect(self):
-        if not self.connection.connected():
-            pool = self._connection_pool
-            if pool:
-                old_conn = self.connection
-                self.connection = pool.get_connection(event_handler_proxy=self)
-                self.connection.ready_callbacks = old_conn.ready_callbacks
-            else:
-                self.connection.connect()
-
 
 class RedisBackend(BaseBackend):
 

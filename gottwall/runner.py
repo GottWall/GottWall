@@ -9,7 +9,7 @@ GottWall runner for standalone applications
 
 :copyright: (c) 2012 by GottWall team, see AUTHORS for more details..
 :license: BSD, see LICENSE for more details.
-:github: http://github.com/Lispython/gottwall
+:github: http://github.com/gottwall/gottwall
 """
 import os.path
 import sys

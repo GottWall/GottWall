@@ -32,12 +32,12 @@ class Client(tornadoredis.Client):
         self._reconnect_callback = reconnect_callback
         super(Client, self).__init__(**kwargs)
 
-    def on_disconnect(self):
-        if self.subscribed:
-            self.subscribed = False
+    ## def on_disconnect(self):
+    ##     if self.subscribed:
+    ##         self.subscribed = False
 
-        # self._reconnect_callback()
-        raise ConnectionError("Connection lost")
+    ##     # self._reconnect_callback()
+    ##     raise ConnectionError("Connection lost")
 
 
 class RedisStorage(BaseStorage):
@@ -61,7 +61,7 @@ class RedisStorage(BaseStorage):
             password=config[STORAGE_SETTINGS_KEY].get('PASSWORD', None),
             selected_db=int(config[STORAGE_SETTINGS_KEY].get('DB', 0)))
 
-        logger.debug("Redis storage client {0}".format(repr(self.client)))
+        logger.info("Redis storage client {0}".format(repr(self.client)))
         self.client._reconnect_callback = self.client.connect
 
         self.client.connect()
@@ -202,11 +202,13 @@ class RedisStorage(BaseStorage):
             tmp_range = yield Task(self.client.hgetall,
                                    self.make_key(project, name, period, {filter_name: value}))
 
-            items[value]['range'] = self.filter_by_period(map(lambda x: (get_datetime(x[0], period), int(x[1])), tmp_range.items()),
+            items[value]['range'] = self.filter_by_period(map(lambda x: (get_datetime(x[0], period),
+                                                                         int(x[1])), tmp_range.items()),
                                                           period, from_date, to_date)
 
             filtered_range_values = map(lambda x: int(x[1]), items[value]['range'])
-            items[value]['avg'] = (sum(filtered_range_values) / len(items[value]['range'])) if (len(items[value]['range']) > 0) else 0
+            items[value]['avg'] = (sum(filtered_range_values) / len(items[value]['range'])) \
+                                  if (len(items[value]['range']) > 0) else 0
             items[value]['max'] = max(filtered_range_values)
             items[value]['min'] = min(filtered_range_values)
 

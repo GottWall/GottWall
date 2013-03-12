@@ -102,12 +102,12 @@ class AggregatorApplication(Application):
         io_loop = tornado.ioloop.IOLoop.instance()
 
         if all([backend.ready_to_stop() for backend in self.backends]):
-            logger.debug("All backends ready to stop")
+            logger.info("All backends ready to stop")
             io_loop.add_timeout(time.time() + 2, io_loop.stop)
             return True
 
-        logger.debug("Not all backend ready to stop")
+        logger.info("Not all backend ready to stop")
         for backend in self.backends:
-            logger.debug("Backend {0} has {1} tasks in progress".format(repr(backend), backend.current_in_progress))
+            logger.info("Backend {0} has {1} tasks in progress".format(repr(backend), backend.current_in_progress))
 
         io_loop.add_timeout(time.time() + 2, self.check_ready_to_stop)
