@@ -2,7 +2,6 @@ Welcome to gottwall's documentation!
 ======================================
 
 GottWall is a scalable realtime metrics aggragation platform.
-It also comes with beautiful customizable dashboard for visualizing metrics with charts.
 This package, at its core, is just a simple aggregation server and
 beautiful customizable web dashboard for visualizing metrics with charts.
 
@@ -49,9 +48,16 @@ See gottwall/examples/config.py
 Usage
 -----
 
-GottWall have 2 parts. Web interface application and aggregator application (application that process data).
+GottWall have 2 independent parts. Web interface application and aggregator application (application that process data).
+
+Starting web dashboard
+^^^^^^^^^^^^^^^^^^^^^^
 
 To run web application execute command: ``gottwall --config="examples/config.py" server start``
+
+
+Starting aggregator
+^^^^^^^^^^^^^^^^^^^
 
 To run aggregator application execute command: ``gottwall --config="examples/config.py" aggregator start``
 
@@ -76,6 +82,8 @@ The following transport available:
 - TCP/IP transport backend
 - HTTP transport backend
 
+
+.. _available-clients:
 
 Available clients
 -----------------

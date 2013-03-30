@@ -12,6 +12,8 @@ Users Guide:
    :maxdepth: 2
 
    quickstart
+   storages
+   backends
    clients
 
 Developers:

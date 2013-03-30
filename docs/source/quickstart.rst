@@ -48,4 +48,64 @@ documentation.
 Configuration
 -------------
 
-Now you need to configure backands and storages.
+Now you’ll need to create the default configuration.
+
+Copy ``examples/config.py`` to your location (as example ~/.gottwall/gottwall.conf.py.)
+
+.. code-block:: python
+
+   STORAGE = 'gottwall.storages.RedisStorage'
+
+   BACKENDS = {
+      'gottwall.backends.redis.RedisBackend': {
+      'HOST': "127.0.0.1",
+      'PORT': 6379,
+      'PASSWORD': None,
+      'DB': 2,
+      'CHANNEL': 'gottwall'},
+    }
+
+   TEMPLATE_DEBUG = True
+
+   STORAGE_SETTINGS = dict(
+      HOST = 'localhost',
+      PORT = 6379,
+      PASSWORD = None,
+      DB = 2
+   )
+
+   REDIS = {"CHANNEL": "gottwall"}
+
+
+   USERS = ["you@email.com"]
+
+   SECRET_KEY = "very secret key"
+
+
+
+   PROJECTS = {"test_project": "my_public_key",
+               "another_project": "public_key2"}
+
+   cookie_secret="fkerwerwerwerw"
+
+   TEMPLATE_DEBUG = True
+
+   PREFIX = ""
+
+
+Startings services
+------------------
+
+GottWall have 2 independent parts. Web interface application and aggregator application (application that process data).
+
+Starting web dashboard
+^^^^^^^^^^^^^^^^^^^^^^
+
+To run web application execute command: ``gottwall --config="examples/config.py" server start``
+
+
+Starting aggregator
+^^^^^^^^^^^^^^^^^^^
+
+To run aggregator application execute command: ``gottwall --config="examples/config.py" aggregator start``
+

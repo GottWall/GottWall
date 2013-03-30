@@ -3,6 +3,9 @@ all: clean-pyc test
 vm-start:
 	cd tests && vagrant up
 
+docs:
+	cd docs && make html
+
 test:
 	python setup.py nosetests --stop --tests tests.py
 

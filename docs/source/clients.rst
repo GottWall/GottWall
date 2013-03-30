@@ -4,7 +4,8 @@ Available Clients
 The following clients are officially recognized as production-ready, and support the current Sentry
 protocol:
 
-- Python (`stati-python <http://github.com/intaxi/stati-python>`_)
+- stati-redis (`stati-redis-python <http://github.com/GottWall/stati-redis-python>`_) with redis transport.
+
 
 
 Client Criteria
