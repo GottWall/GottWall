@@ -3,6 +3,12 @@ Welcome to gottwall's documentation!
 
 GottWall is a scalable realtime metrics aggragation platform.
 It also comes with beautiful customizable dashboard for visualizing metrics with charts.
+This package, at its core, is just a simple aggregation server and
+beautiful customizable web dashboard for visualizing metrics with charts.
+
+It will handle authenticating `clients <Available clients>`_ (such as stati)
+and all of the logic behind storage and aggregation.
+
 
 .. image:: https://secure.travis-ci.org/GottWall/GottWall.png
 	   :target: https://secure.travis-ci.org/GottWall/GottWall
