@@ -16,10 +16,11 @@ Users Guide:
 
 Developers:
 
-.. toctres::
+.. toctree::
    :maxdepth: 2
 
-    developers/clients
+   developers/environment
+   developers/clients
 
 
 Indices and tables

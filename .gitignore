@@ -27,3 +27,4 @@ pip-log.txt
 dist/*
 _build/*
 build/*
+docs/build/*
