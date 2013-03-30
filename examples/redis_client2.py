@@ -38,7 +38,7 @@ def measure_time(title, logger=None, **debug_params):
 
 with measure_time("Test stats"):
     for x in xrange(10000):
-        stats_client.incr(choice([u"Test project metric", "Another metric", "Orders2"]),
+        stats_client.incr(choice([u"Test project metric", "Another metric", "Orders2",  "wfdewfwef"]),
                           timestamp=datetime.datetime(choice([2013]), randint(1, 12), randint(1, 27)) + datetime.timedelta(days=4),
                           value=1,
                           filters={choice(["views", "orders", "filter1", "filter2"]): choice(["hello", "world", "registered"]),

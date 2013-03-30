@@ -4,8 +4,7 @@
 gottwall
 ~~~~~~~~
 
-Simple statistics aggregator
-
+GottWall is a scalable realtime metrics aggragation platform.
 
 :copyright: (c) 2012 - 2013 by GottWall team, see AUTHORS for more details.
 :license: BSD, see LICENSE for more details.
@@ -18,7 +17,7 @@ __maintainer__ = "Alexandr Lispython"
 
 try:
     __version__ = __import__('pkg_resources') \
-        .get_distribution('human_curl').version
+        .get_distribution('gottwall').version
 except Exception, e:
     __version__ = 'unknown'
 

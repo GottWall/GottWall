@@ -22,6 +22,6 @@ Vagrant::Config.run do |config|
     machine_config.vm.provision :shell, :inline => "sed -i \"s/# bind 127.0.0.1/bind 0.0.0.0/\" /tmp/redis-2.6.7/redis.conf"
     machine_config.vm.provision :shell, :inline => "/tmp/redis-2.6.7/src/redis-server  /tmp/redis-2.6.7/redis.conf"
     ##machine_config.vm.provision :shell, :inline => "sudo /etc/init.d/redis-server stop"
-    machine_config.vm.provision :shell, :inline => "/tmp/redis-2.6.7/src/redis-cli flushdb"
+    ##machine_config.vm.provision :shell, :inline => "/tmp/redis-2.6.7/src/redis-cli flushdb"
   end
 end
