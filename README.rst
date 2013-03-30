@@ -13,23 +13,10 @@ Features
 - Beautiful customizable dashboard for visualizing metrics with charts.
 - Data aggregation
 
+Screenshots
+-----------
 
-Backend
--------
 
-- TCP/IP backend
-- Redis Pub/Sub backend
-- HTTP Backend
-
-Storages
---------
-
-Storages used to store statistics
-
-- Memory storage (not optimal for hightload projects)
-- Redis storage (fast for counters increment, but time complexity O(N) for data range select)
-- TODO: mongodb
-- TODO: SQL
 
 
 INSTALLATION
@@ -55,9 +42,30 @@ USAGE
 
 GottWall have 2 parts. Web interface application and aggregator application (application that process data).
 
-To run web application execute command: `gottwall --config="examples/config.py" server start`
+To run web application execute command: ``gottwall --config="examples/config.py" server start``
 
-To run aggregator application execute command: `gottwall --config="examples/config" aggregator start`
+To run aggregator application execute command: ``gottwall --config="examples/config" aggregator start``
+
+
+AVAILABLE STORAGES
+------------------
+
+Storages that store metrics:
+
+- Memory storage (not optimal for hightload projects)
+- Redis storage (fast for counters increment, but time complexity O(N) for data range select)
+- TODO: mongodb
+- TODO: SQL
+
+
+AVAILABLE BACKENDS
+------------------
+
+The following transport available:
+
+- Redis transport backend
+- TCP/IP transport backend
+- HTTP transport backend
 
 
 AVAILABLE CLIENTS
