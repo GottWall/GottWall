@@ -17,7 +17,7 @@ We created environment vagrant kit for contributors.
 It's named `gottwall vagrant dev kit <https://github.com/GottWall/gottwall-vagrant-test-kit>`_.
 You need to clone this repository to local system, initialize submodules and execute ``vagrant up``
 in repository directory. This cookbooks configure virtual box node,
- installed needed services: postgresql, redis, rabbitmq.
+installed needed services: postgresql, redis, rabbitmq.
 
 
 .. _`the repository`: https://github.com/GottWall/GottWall/
