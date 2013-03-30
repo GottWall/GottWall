@@ -19,7 +19,7 @@ version := $(shell sh -c "grep -oP 'VERSION = \"\K[0-9\.]*?(?=\")' ./setup.py")
 
 
 release:
-	git tag $(version) && git push --tags
+	git tag -f v$(version) && git push --tags
 	python setup.py sdist upload
 	python setup.py bdist_wininst upload
 
