@@ -47,7 +47,7 @@ GottWall have 2 parts. Web interface application and aggregator application (app
 
 To run web application execute command: ``gottwall --config="examples/config.py" server start``
 
-To run aggregator application execute command: ``gottwall --config="examples/config" aggregator start``
+To run aggregator application execute command: ``gottwall --config="examples/config.py" aggregator start``
 
 
 Available storages
