@@ -121,7 +121,7 @@ class Start(Command):
             self.display("Autoreload enabled")
             autoreload.start(io_loop=ioloop, check_time=100)
 
-        self.display("Aggregator running on 127.0.0.1:{0}".format(port))
+        self.display("Aggregator running on {0}:{1}".format(host, port))
 
         # Init signals handler
         signal.signal(signal.SIGTERM, self.sig_handler)
@@ -191,7 +191,7 @@ class Start(Command):
             self.display("Autoreload enabled")
             autoreload.start(io_loop=ioloop, check_time=100)
 
-        self.display("Server running on 127.0.0.1:{0}".format(port))
+        self.display("Server running on http://{0}:{1}".format(host, port))
 
         # Init signals handler
         signal.signal(signal.SIGTERM, self.sig_handler)

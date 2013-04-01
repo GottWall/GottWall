@@ -31,6 +31,9 @@ clean-pyc:
 	find . -name '*.pyo' -exec rm -f {} +
 	find . -name '*~' -exec rm -f {} +
 
+clean: clean-pyc
+	find . -name '*.egg' -exec rm -rf {} +
+
 find-print:
 	grep -r --include=*.py --exclude-dir=venv --exclude=fabfile* --exclude=tests.py --exclude-dir=tests --exclude-dir=commands 'print' ./
 
