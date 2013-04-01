@@ -8,23 +8,14 @@
     <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/tablesorter.bootstrap.css"/>
     <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/metric.css"/>
     <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/main.css"/>
-    <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/nv.d3.css"/>
+    <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/rickshaw.min.css"/>
     <link rel="stylesheet" type="text/css" media="all" href="{{ static }}vendor/select2/select2.css" />
 
-    <script type="text/javascript" src="{{ static }}js/underscore-min.js"></script>
-    <script type="text/javascript" src="{{ static }}js/jquery.js"></script>
-    <script type="text/javascript" src="{{ static }}vendor/bootstrap/js/bootstrap.js"></script>
-    <script type="text/javascript" src="{{ static }}js/d3.v2.js"></script>
-    <script type="text/javascript" src="{{ static }}js/nv.d3.js"></script>
-    <script type="text/javascript" src="{{ static }}js/swig.pack.min.js"></script>
-    <script type="text/javascript" src="{{ static }}js/bootstrap-datepicker.js"></script>
-    <script type="text/javascript" src="{{ static }}js/locales/bootstrap-datepicker.ru.js"></script>
-    <script type="text/javascript" src="{{ static }}vendor/select2/select2.min.js"></script>
-    <script type="text/javascript" src="{{ static }}js/jquery.tablesorter.js"></script>
-    <script type="text/javascript" src="{{ static }}js/jquery.tablesorter.widgets.js"></script>
-    <script type="text/javascript" src="{{ static }}vendor/moment.min.js"></script>
-    <script type="text/javascript" src="{{ static }}vendor/moment-range.js"></script>
-    <script type="text/javascript" src="{{ static }}js/main.js"></script>
+    <script data-main="{{ static }}js/app" src="{{ static }}vendor/require.js">
+    </script>
+
+    {#<script type="text/javascript" src="{{ static }}vendor/moment.min.js"></script>#}
+    {#<script type="text/javascript" src="{{ static }}vendor/moment-range.js"></script>#}
     <script></script>
     {% block head %}{% endblock %}
   </head>
