@@ -44,7 +44,7 @@ require.config({
      },
     "rickshaw": {
       "deps": ["d3"],
-      "exports": "rickshaw"
+      "exports": "Rickshaw"
     },
     "bootstrap-datepicker": {
       "deps": ["jquery", "bootstrap"],

@@ -1,4 +1,4 @@
-define("widgets/table", ["jquery", "underscore", "swig", "widgets/base"], function($, _, swig, Widget){
+define(["jquery", "underscore", "swig", "js/widgets/base", "js/bars/table", "js/metrics/set"], function($, _, swig, Widget, TableBar, MetricSet){
 
 var Table = Widget.extend({
   init: function(gottwall, id){
