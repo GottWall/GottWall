@@ -29,3 +29,5 @@ _build/*
 build/*
 docs/build/*
 nodeenv.py
+.vagrant
+distribute*
