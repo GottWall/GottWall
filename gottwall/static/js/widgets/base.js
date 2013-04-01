@@ -1,4 +1,4 @@
-define( ["jquery", "js/class"], function($, Class){
+define( ["jquery", "js/class", "js/bars/bar", "js/utils/guid"], function($, Class, Bar, GUID){
 
   var Widget = Class.extend({
     init: function(gottwall, id){
@@ -40,7 +40,7 @@ define( ["jquery", "js/class"], function($, Class){
       var self = this;
       this.node.on('click', '.chart-controls .add-bar', function(){
 	var button = $(this);
-	var bar = new Bar(self.gottwall, self, GUID())
+	var bar = new Bar(self.gottwall, self, GUID());
 	self.add_bar(bar);
 	self.render_bar(bar);
       });

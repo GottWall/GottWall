@@ -1,4 +1,4 @@
-define(["jquery", "underscore", "js/class"], function($, _, Class){
+define(["jquery", "underscore", "swig", "js/class", "js/utils/guid"], function($, _, swig, Class, GUID){
 
   var BaseBar = Class.extend({
     init: function(gottwall, chart, id, metric_name, filter_name, filter_value){

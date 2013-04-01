@@ -1,4 +1,4 @@
-define(["jquery", "underscore", "js/bars/base"], function($, _, BaseBar){
+define(["jquery", "underscore", "js/bars/base", "js/metrics/metric","select2"], function($, _, BaseBar, Metric){
   var Bar = BaseBar.extend({
 
     init: function(gottwall, chart, id, metric_name, filter_name, filter_value){
