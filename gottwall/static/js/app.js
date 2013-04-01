@@ -12,7 +12,7 @@ require.config({
     "swig": 'js/swig.pack.min',
     "bootstrap": "vendor/bootstrap/js/bootstrap",
     "d3": "js/d3.v2",
-    "rickshaw": "js/rickshaw",
+    "rickshaw": "vendor/rickshaw",
     "bootstrap-datepicker": "js/bootstrap-datepicker",
     "bootstrap-datepicker.ru": "js/locales/bootstrap-datepicker.ru",
     "jquery.tablesorter": "js/jquery.tablesorter",

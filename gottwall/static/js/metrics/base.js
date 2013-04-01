@@ -1,4 +1,4 @@
-define("metrics/base", ["jquery", "class"], function($, Class){
+define(["jquery", "js/class"], function($, Class){
 
   var MetricBase = Class.extend({
     init: function(gottwall, name, filter, value, data){

@@ -1,5 +1,5 @@
 
-define( ["jquery", "underscore", "swig", "js/widgets/base", "js/metrics/metrics"], function($, _, swig, Widget, Metrics,Rickshaw){
+define( ["jquery", "underscore", "swig", "js/widgets/base", "js/metrics/metric", "rickshaw"], function($, _, swig, Widget, Metric, Rickshaw){
 
  var Chart = Widget.extend({
 
@@ -23,7 +23,6 @@ define( ["jquery", "underscore", "swig", "js/widgets/base", "js/metrics/metrics"
 	     }),
 	     "type": this.type}
    },
-
    render_chart_graph: function(){
      console.log("Load stats for chart ..."+this.id);
      var self = this;

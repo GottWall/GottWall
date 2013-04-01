@@ -1,6 +1,6 @@
 
 
-define(["js/class", "js/widgets/chart", "js/bars/bar", "jquery", "underscore", "d3", "domReady!"], function(Class, Chart, Bar, $, underscore, d3) {
+define(["js/class", "js/widgets/chart", "js/bars/bar", "jquery", "underscore", "d3", "js/utils/guid", "domReady!"], function(Class, Chart, Bar, $, underscore, d3, GUID) {
 
   var GottWall = Class.extend({
 

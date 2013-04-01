@@ -1,4 +1,4 @@
-define("metrics/metric", ["jquery", "underscore", "metrics/base"], function($, _, MetricBase){
+define(["jquery", "underscore", "js/metrics/base"], function($, _, MetricBase){
 
   var Metric = MetricBase.extend({
 

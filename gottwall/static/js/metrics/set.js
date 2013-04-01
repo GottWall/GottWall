@@ -1,4 +1,4 @@
-define("metrics/set", ["jquery", "metrics/base"], function($, MetricBase){
+define(["jquery", "js/metrics/base"], function($, MetricBase){
 
   var MetricSet = MetricBase.extend({
     stats_url: function(){
