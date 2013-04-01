@@ -19,5 +19,5 @@ define(['jquery', 'jquery.tablesorter.widgets'], function($){
     odd        : ''  // even row zebra striping
   });
 
-
+  return {};
 });

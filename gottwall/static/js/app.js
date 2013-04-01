@@ -26,10 +26,7 @@ require.config({
     "underscore":{
       "exports": '_'
     },
-    'bootstrap': {
-      "deps": 'jquery',
-      "exports": "jquery"
-    },
+    'bootstrap': ['jquery'],
     "d3": {
       "exports": 'd3'
     },
@@ -69,7 +66,7 @@ require.config({
 
 });
 
-require(["jquery", "js/gottwall", "js/inits/tablesorter", "domReady"], function($, GottWall) {
+require(["jquery", "js/gottwall",  "bootstrap", "js/inits/tablesorter", "domReady"], function($, GottWall) {
   (function($) {
     $.log = function (obj, params) {
       if ((typeof(console) != 'undefined') && (typeof(console.log) == 'function'))
