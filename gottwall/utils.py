@@ -31,7 +31,7 @@ except ImportError:
     pass
 
 
-from settings import PROJECT_ROOT, TIMESTAMP_FORMAT, PERIOD_PATTERNS
+from settings import PROJECT_ROOT, TIMESTAMP_FORMAT, PERIOD_PATTERNS, CHART_PERIOD_PATTERNS
 
 
 __all__ = 'rel',
@@ -51,8 +51,8 @@ def timestamp_to_datetime(timestamp, format=TIMESTAMP_FORMAT):
     return timestamp
 
 
-def get_by_period(dt, period):
-    """Ge"%Y-%m-%dT%H:%M"t period value by timestamp
+def format_date_by_period(dt, period):
+    """Get "%Y-%m-%dT%H:%M"t period value by timestamp
 
     :param dt: `datetime.datetime` instance
     :param period: period name
@@ -63,7 +63,22 @@ def get_by_period(dt, period):
     if period == "week":
         return "{0}-{1}".format(ts.year, ts.isocalendar()[1])
     elif period in PERIOD_PATTERNS:
-        return ts.strftime(PERIOD_PATTERNS[period])
+        return ts.strftime(CHART_PERIOD_PATTERNS[period])
+    return None
+
+def get_by_period(dt, period):
+    """Get "%Y-%m-%dT%H:%M"t period value by timestamp
+
+    :param dt: `datetime.datetime` instance
+    :param period: period name
+    :returns: str repr of timestamp
+    """
+    ts = timestamp_to_datetime(dt)
+
+    if period == "week":
+        return "{0}-{1}".format(ts.year, ts.isocalendar()[1])
+    elif period in PERIOD_PATTERNS:
+        return ts.strftime(CHART_PERIOD_PATTERNS[period])
     return None
 
 

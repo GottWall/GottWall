@@ -26,7 +26,7 @@ import tornado.gen
 from tornado import gen
 
 from gottwall import get_version
-from gottwall.utils import (timestamp_to_datetime, date_range, get_by_period,
+from gottwall.utils import (timestamp_to_datetime, date_range, format_date_by_period,
                             date_min, date_max)
 from gottwall.settings import DATE_FILTER_FORMAT
 
@@ -251,7 +251,7 @@ class StatsDataSetHandler(APIHandler, StatsMixin):
                                 "period": period,
                                 "name": name,
                                 "filter_name": filter_name,
-                                "date_range": [get_by_period(x, period)
+                                "date_range": [format_date_by_period(x, period)
                                                for x in date_range(date_min(from_date, period),
                                                                    date_max(to_date, period), period)]})
 

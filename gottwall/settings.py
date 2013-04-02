@@ -43,6 +43,17 @@ PERIOD_PATTERNS = {
     "all": "all"}
 
 
+CHART_PERIOD_PATTERNS = {
+    "day": "%Y%m%d",
+    "year": "%Y",
+    "month": "%Y%m",
+    "hour": "%Y%m%dT%H",
+    "minute": "%Y%m%dT%H:%M",
+    "all": "all"}
+
+
+
+
 STORAGE_SETTINGS_KEY = "STORAGE_SETTINGS"
 
 

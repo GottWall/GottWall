@@ -1,7 +1,7 @@
 
 
-define(["js/class", "js/widgets/chart", "js/widgets/table", "js/bars/bar", "jquery", "underscore", "d3", "js/utils/guid", "domReady!"],
-       function(Class, Chart, Table, Bar, $, underscore, d3, GUID) {
+define(["js/class", "js/widgets/chart", "js/widgets/table", "js/bars/bar", "js/bars/table", "jquery", "underscore", "d3", "js/utils/guid", "domReady!"],
+       function(Class, Chart, Table, Bar, TableBar, $, underscore, d3, GUID) {
 
   var GottWall = Class.extend({
 
@@ -178,6 +178,9 @@ define(["js/class", "js/widgets/chart", "js/widgets/table", "js/bars/bar", "jque
     if(date_format){
       return this.current_date_formatter.parse(d);
     }
+  },
+  date_to_integer: function(d){
+    return parseInt(d);
   },
   get_current_period: function(){
     // Get current period state

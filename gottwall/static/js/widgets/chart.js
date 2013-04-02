@@ -57,26 +57,52 @@ define( ["jquery", "underscore", "swig", "js/widgets/base", "js/metrics/metric",
     console.log("Chart rendering...");
     var self = this;
 
+    var palette = new Rickshaw.Color.Palette();
 
-      var data = [ { x: 1910, y: 92228531 }, { x: 1920, y: 106021568 }, { x: 1930, y: 123202660 }, { x: 1940, y: 132165129 }, { x: 1950, y: 151325798 }, { x: 1960, y: 179323175 }, { x: 1970, y: 203211926 }, { x: 1980, y: 226545805 }, { x: 1990, y: 248709873 }, { x: 2000, y: 281421906 }, { x: 2010, y: 308745538 } ];
 
-      var graph = new Rickshaw.Graph( {
-	element: document.querySelector('#chart-' + self.id + " .svg-wrapper"),
-        series: _.map(metrics, function(metric){
-     	  return metric.get_chart_data()})
+    var data = [ { x: 1910, y: 92228531 }, { x: 1920, y: 106021568 }, { x: 1930, y: 123202660 }, { x: 1940, y: 132165129 }, { x: 1950, y: 151325798 }, { x: 1960, y: 179323175 }, { x: 1970, y: 203211926 }, { x: 1980, y: 226545805 }, { x: 1990, y: 248709873 }, { x: 2000, y: 281421906 }, { x: 2010, y: 308745538 } ];
+
+    var graph = new Rickshaw.Graph( {
+      renderer: 'line',
+
+      element: document.querySelector('#chart-' + self.id + " .svg-wrapper"),
+      series: _.map(metrics, function(metric){
+	var m = metric.get_chart_data();
+	m['color'] = palette.color();
+     	return m;})
+    });
+
+
+var x_axis = new Rickshaw.Graph.Axis.X({
+  graph: graph,
+  orientation: 'bottom',
+  pixelsPerTick: 100,
+  format: Rickshaw.Fixtures.Number.formatKMBT
+  // format: function(y){
+  //   return y;
+  // }
+});
+
+var y_axis = new Rickshaw.Graph.Axis.Y( {
+        graph: graph,
+        orientation: 'left',
+        tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
 } );
 
+var hoverDetail = new Rickshaw.Graph.HoverDetail( {
+	graph: graph,
+} );
 
-// var x_axis = new Rickshaw.Graph.Axis.Time( { graph: graph } );
+var legend = new Rickshaw.Graph.Legend( {
+	graph: graph,
+	element: document.getElementById('legend')
 
-// var y_axis = new Rickshaw.Graph.Axis.Y( {
-//         graph: graph,
-//         orientation: 'left',
-//         tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
-//         element: document.getElementById('y_axis'),
-// } );
+} );
 
-
+var shelving = new Rickshaw.Graph.Behavior.Series.Toggle( {
+	graph: graph,
+	legend: legend
+} );
 
 graph.render();
 

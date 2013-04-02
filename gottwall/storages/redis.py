@@ -184,7 +184,7 @@ class RedisStorage(BaseStorage):
         items = yield Task(self.client.hgetall, key)
 
         if callback:
-            callback(self.filter_by_period(map(lambda x: (get_datetime(x[0], period), int(x[1])), items.iteritems()),
+            callback(self.filter_by_period(map(lambda x: (x[0], int(x[1])), items.iteritems()),
                                            period, from_date, to_date))
 
     @gen.engine

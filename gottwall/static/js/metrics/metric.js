@@ -34,13 +34,12 @@ define(["jquery", "underscore", "js/metrics/base"], function($, _, MetricBase){
       if(this.data){
 	return _.sortBy(_.map(this.data['range'],
 			      function(item){
-				return {"x": self.gottwall.date_to_timestamp(item[0]), "y": parseInt(item[1])};
+				return {"x": self.gottwall.date_to_integer(item[0]), "y": parseInt(item[1])};
 			      }), function(sub_item){return sub_item['x']});
       }
       return [];
     },
     get_chart_data: function(){
-      console.log("get chart data");
       key = this.name
       if(this.filter_name){
 	key = key + ":"+this.filter_name
@@ -50,6 +49,7 @@ define(["jquery", "underscore", "js/metrics/base"], function($, _, MetricBase){
       }
       var data = {"data": this.get_range(),
 		  "name": key}
+
       console.log(data);
       return data
     }
