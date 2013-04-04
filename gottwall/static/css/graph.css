@@ -1,0 +1,11 @@
+.svg-wrapper .y_ticks {
+
+}
+
+.rickshaw_graph .y_ticks {
+  left: 0;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 40px;
+}

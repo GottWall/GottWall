@@ -110,7 +110,7 @@
 }
 
 .chart-area svg {
-    height: 450px;
+    /*height: 450px;*/
     display: none;
 }
 
@@ -194,4 +194,8 @@
 
 .table-area table {
                     font-size: 12pt;
+ }
+
+.date {
+        width: 85px;
  }

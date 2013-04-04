@@ -26,12 +26,12 @@
     </div>
   </div>
 
-  <div class="span5 intervals">
+  <div class="span5 intervals datepicker" data-date-format="yyyy-mm-dd">
     <span style="display:inline-block;width: 60px;text-align: right;">Интервал:</span>
     <span style="display:inline-block;width: 20px;text-align: right;">с</span>
-    <input data-datepicker="datepicker" data-date-format="yyyy-mm" type="text" name="start-date" class="input_date start-date" id="from-date">
+    <input data-datepicker="datepicker" data-date-format="yyyy-mm-dd" type="text" name="start-date" class="input_date start-date datepicker date" id="from-date">
     <span style="display:inline-block;width: 20px;text-align: right;">по</span>
-    <input data-datepicker="datepicker" data-date-format="yyyy-mm-dd" type="text" name="end-date" class="input_date end-date" id="to-date">
+    <input data-datepicker="datepicker" data-date-format="yyyy-mm-dd" type="text" name="end-date" class="input_date end-date datepicker date" id="to-date">
   </div>
   <div class="redraw pull-right">
     <button class="btn" id="redraw-button">Перерисовать</button>
@@ -95,7 +95,11 @@
   <div class="hero-unit chart-area container-fluid {{ project_name }}" id="chart-{{ id }}" data-type="{{ type }}">
     <div class="row-fluid">
       <div class="span8 data-area">
-	<div class="svg-wrapper"></div>
+	<div class="svg-wrapper">
+	  <!--<div class="y_axis" id="y_axis-{{ id }}"></div>-->
+	  <div class="linen" id="linen-{{ id }}"></div>
+	  <!--<div class="x_axis" id="x_axis-{{ id }}"></div>-->
+	</div>
 	<div class="loader">
 	  <span>Идет загрузка данных</span>
 	  <div class="progress progress-striped active">

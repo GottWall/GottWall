@@ -52,89 +52,71 @@ define( ["jquery", "underscore", "swig", "js/widgets/base", "js/metrics/metric",
     var self = this;
     return self.gottwall.current_date_formatter(new Date(d));
   },
+  cleanup_chart_area: function(){
+    // Remove previous linen and controls
+    var self = this;
+
+    $("#y_axis-"+self.id).html("");
+    $("#x_axis-"+self.id).html("");
+    $("#linen-"+self.id).html("");
+  },
   render_metrics: function(metrics){
     // Rendering chart by metrics hash
     console.log("Chart rendering...");
     var self = this;
+    var selector = '#chart-' + self.id + " ";
+    var selector_prefix = "#chart-" + self.id;
+
+    self.cleanup_chart_area();
 
     var palette = new Rickshaw.Color.Palette();
 
-
-    var data = [ { x: 1910, y: 92228531 }, { x: 1920, y: 106021568 }, { x: 1930, y: 123202660 }, { x: 1940, y: 132165129 }, { x: 1950, y: 151325798 }, { x: 1960, y: 179323175 }, { x: 1970, y: 203211926 }, { x: 1980, y: 226545805 }, { x: 1990, y: 248709873 }, { x: 2000, y: 281421906 }, { x: 2010, y: 308745538 } ];
-
     var graph = new Rickshaw.Graph( {
       renderer: 'line',
-
-      element: document.querySelector('#chart-' + self.id + " .svg-wrapper"),
+      interpolation: "linear", // monotone,linear
+      // offset: "wiggle", // положение базовой линии
+      element: document.querySelector('#linen-'+self.id),
       series: _.map(metrics, function(metric){
-	var m = metric.get_chart_data();
-	m['color'] = palette.color();
+    	var m = metric.get_chart_data();
+    	m['color'] = palette.color();
      	return m;})
     });
 
 
-var x_axis = new Rickshaw.Graph.Axis.X({
-  graph: graph,
-  orientation: 'bottom',
-  pixelsPerTick: 100,
-  format: Rickshaw.Fixtures.Number.formatKMBT
-  // format: function(y){
-  //   return y;
-  // }
-});
+    var x_axis = new Rickshaw.Graph.Axis.X({
+      graph: graph,
+      orientation: 'bottom',
+      pixelsPerTick: 100,
+      format: Rickshaw.Fixtures.Number.formatKMBT
+      // format: function(y){
+      //   return y;
+      // }
+    });
 
-var y_axis = new Rickshaw.Graph.Axis.Y( {
-        graph: graph,
-        orientation: 'left',
-        tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
-} );
+    var y_axis = new Rickshaw.Graph.Axis.Y( {
+      graph: graph,
+      tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
+    });
 
-var hoverDetail = new Rickshaw.Graph.HoverDetail( {
-	graph: graph,
-} );
+    var hoverDetail = new Rickshaw.Graph.HoverDetail( {
+    	graph: graph,
+    } );
 
-var legend = new Rickshaw.Graph.Legend( {
-	graph: graph,
-	element: document.getElementById('legend')
+    // var legend = new Rickshaw.Graph.Legend( {
+    // 	graph: graph,
+    // 	//element: document.getElementById('legend')
 
-} );
+    // } );
 
-var shelving = new Rickshaw.Graph.Behavior.Series.Toggle( {
-	graph: graph,
-	legend: legend
-} );
-
-graph.render();
-
-
-
-    // nv.addGraph(function(){
-    //   var chart = nv.models.lineChart();
-    //   //chart.margin({top: 10, bottom: 40, left: 60, right: 30});
-
-    //   chart.xAxis.tickFormat(function(d) {
-    // 	return d3.time.format(self.gottwall.date_display_formats[self.gottwall.current_period])(new Date(d));
-    // 	//return self.format_tick(d);
-    // 	//        return d3.time.format(self.current_date_format)(new Date(d))
-    //   }).showMaxMin(false);
-    //   chart.yAxis.tickFormat(function(d){
-    // 	return d3.format(',')(d);
-    //   });
-    //   chart.tooltipContent(function(key, x,  y, e, graph) {
-    // 	console.log(x);
-    //     return '<h3>' + key + '</h3>' +
-    //            '<p>' +  x + ' → ' + y + '</p>'
-    //   });
-
-    //   //chart.xAxis.rotateLabels(-45);
-
-    //   d3.select('#chart-' + self.id + " svg").datum(
-    // 	_.map(metrics, function(metric){
-    // 	  return metric.get_chart_data()})).transition(1).duration(50).call(chart);
-    //   nv.utils.windowResize(chart.update);
-
-    //   return chart;
+    // var shelving = new Rickshaw.Graph.Behavior.Series.Toggle({
+    //   graph: graph,
+    //   legend: legend
     // });
+
+    graph.render();
+
+    console.log(graph);
+
   },
   get_metrics: function(){
     // Get activated metrics

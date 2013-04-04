@@ -14,7 +14,7 @@ require.config({
     "d3": "js/d3.v2",
     "rickshaw": "vendor/rickshaw",
     "bootstrap-datepicker": "js/bootstrap-datepicker",
-    "bootstrap-datepicker.ru": "js/locales/bootstrap-datepicker.ru",
+    //"bootstrap-datepicker.ru": "js/locales/bootstrap-datepicker.ru",
     "jquery.tablesorter": "js/jquery.tablesorter",
     "jquery.tablesorter.widgets": "js/jquery.tablesorter.widgets",
     "select2": "vendor/select2/select2.min"
@@ -47,13 +47,13 @@ require.config({
       "exports": "Rickshaw"
     },
     "bootstrap-datepicker": {
-      "deps": ["jquery", "bootstrap"],
+      "deps": ["jquery"],
       "exports": "jQuery.fn.datepicker"
     },
-    "bootstrap-datepicker.ru": {
-      "deps": ["jquery", "bootstrap-datepicker", "bootstrap"],
-      "exports": "jQuery.fn.datepicker"
-    },
+    // "bootstrap-datepicker.ru": {
+    //   "deps": ["jquery", "bootstrap-datepicker", "bootstrap"],
+    //   "exports": "jQuery.fn.datepicker.defaults"
+    // },
     "jquery.tablesorter": {
       "deps": ["jquery"],
       "exports": "jQuery.tablesorter"
@@ -66,11 +66,10 @@ require.config({
 
 });
 
-require(["jquery", "js/gottwall",  "bootstrap", "js/inits/tablesorter", "domReady"], function($, GottWall) {
+require(["jquery", "js/gottwall",  "bootstrap", "js/inits/tablesorter", "js/inits/datepicker", "domReady"], function($, GottWall) {
   (function($) {
     $.log = function (obj, params) {
-      if ((typeof(console) != 'undefined') && (typeof(console.log) == 'function'))
-      {
+      if ((typeof(console) != 'undefined') && (typeof(console.log) == 'function')) {
 	console.log(obj, (params)?params:'');
       };
       return this;
