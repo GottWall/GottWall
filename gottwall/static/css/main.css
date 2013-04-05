@@ -298,8 +298,14 @@
 
 
 .navbar_filters .color {
-                         width: 15px;
-                         height: 15px;
+                         width: 14px;
+                         height: 14px;
                          background-color: #000;
-                         float: left;
+                         display: inline-block;
+ }
+
+.color-wrapper {
+                 vertical-align: middle;
+                 float: none;
+
  }

@@ -13,13 +13,21 @@ define(["js/class", "js/widgets/chart", "js/widgets/table", "js/bars/bar", "js/b
   to_date_key: "to-date",
   size_mode_key: "size_mode",
 
+  date_formatters: {
+    "day": d3.time.format("%Y%m%d"),
+    "year": d3.time.format("%Y"),
+    "month": d3.time.format("%Y%m"),
+    "hour": d3.time.format("%Y%m%dT%H"),
+    "minute": d3.time.format("%Y%m%dT%H%M"),
+    "week": d3.time.format("%Y%W")
+    },
   date_formats: {
     "day": "%Y-%m-%d",
     "year": "%Y",
     "month": "%Y-%m",
     "hour": "%Y-%m-%dT%H",
     "minute": "%Y-%m-%dT%H:%M",
-    "week": "%Y-%W"
+    "week": "%Y%W"
   },
   date_display_formats: {
     "day": "%Y-%m-%d",
@@ -29,6 +37,14 @@ define(["js/class", "js/widgets/chart", "js/widgets/table", "js/bars/bar", "js/b
     "minute": "%Y-%m-%dT%H:%M",
     "week": "%Y-%W"
   },
+    date_display_formatters: {
+      "day": d3.time.format("%Y-%m-%d, %A"),
+      "year": d3.time.format("%Y"),
+      "month": d3.time.format("%Y-%m, %B"),
+      "hour": d3.time.format("%Y-%m-%dT%H"),
+      "minute": d3.time.format("%Y-%m-%dT%H:%M"),
+      "week": d3.time.format("%Y-%W")
+    },
   init: function(debug){
     this.debug_flag = debug || false;
     this.metrics = {};
@@ -152,6 +168,23 @@ define(["js/class", "js/widgets/chart", "js/widgets/table", "js/bars/bar", "js/b
     this.from_date = d3.time.format("%Y-%m-%d")(d);
     this.from_date_selector.val(this.from_date);
   },
+    parse_serialized_date: function(d){
+      // Parse serialized date and return Date object
+      return this.date_formatters[this.get_current_period()].parse(String(d));
+    },
+    timestamp_to_date: function(timestamp){
+      return new Date(timestamp);
+    },
+    pretty_date_format: function(d){
+      // Convert Date object to pretty string with period context
+      try {
+	return this.date_display_formatters[this.get_current_period()](this.timestamp_to_date(d));
+      }
+      catch (e){
+	return "";
+      }
+
+    },
   set_period: function(period){
     // Setup period and datetime format
     this.current_period = period;
@@ -171,25 +204,12 @@ define(["js/class", "js/widgets/chart", "js/widgets/table", "js/bars/bar", "js/b
     }
     return this.current_date_format;
   },
-  date_to_timestamp: function(d){
-    // Convert date string to date object
-    var date_format = this.get_date_format();
-
-    if(date_format){
-      return this.current_date_formatter.parse(d);
-    }
-  },
   date_to_integer: function(d){
-    return parseInt(d);
+    return this.parse_serialized_date(d).getTime();
   },
   get_current_period: function(){
     // Get current period state
-    if(!null){
-      return null;
-    }
-    else{
-      return this.current_period;
-    }
+    return this.current_period;
   },
   bind_period_selectors: function(){
     var self = this;
@@ -414,7 +434,7 @@ define(["js/class", "js/widgets/chart", "js/widgets/table", "js/bars/bar", "js/b
 
 	for(var bar_id in projects[project][chart_id]['metrics']){
 	  var bar_params = projects[project][chart_id]['metrics'][bar_id];
-	  chart.add_bar(new Bar(self, chart, bar_params['id'], chart.palette.color(), 
+	  chart.add_bar(new Bar(self, chart, bar_params['id'], chart.palette.color(),
 	  			bar_params['metric_name'], bar_params['filter_name'], bar_params['filter_value']));
 	}
       }

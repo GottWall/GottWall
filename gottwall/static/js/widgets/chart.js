@@ -12,6 +12,7 @@ define( ["jquery", "underscore", "swig", "js/widgets/base", "js/metrics/metric",
      this.node = $('#chart-'+this.id);
      this.type = "chart";
      this.selectors_node = null;
+     this.graph = null;
    },
    setup_node: function(){
      this.node = $('#chart-'+this.id);
@@ -60,6 +61,21 @@ define( ["jquery", "underscore", "swig", "js/widgets/base", "js/metrics/metric",
     $("#x_axis-"+self.id).html("");
     $("#linen-"+self.id).html("");
   },
+   tick_formatter: function(x){
+     // Convert tick data from 201201 format to pretty string
+     // var d = self.gottwall.parse_serialized_date(x);
+     // if(!d){
+     //   return null;
+     // }
+     return self.gottwall.pretty_date_format(x);
+   },
+   get_ticks: function(graph){
+     // Calculate number of ticks
+     return 3;
+   },
+   get_tick_offset: function(){
+
+   },
   render_metrics: function(metrics){
     // Rendering chart by metrics hash
     console.log("Chart rendering...");
@@ -69,8 +85,6 @@ define( ["jquery", "underscore", "swig", "js/widgets/base", "js/metrics/metric",
 
     self.cleanup_chart_area();
 
-    //var palette = new Rickshaw.Color.Palette();
-
     var graph = new Rickshaw.Graph( {
       padding: {
 	top: 0.25,
@@ -79,12 +93,9 @@ define( ["jquery", "underscore", "swig", "js/widgets/base", "js/metrics/metric",
       height: 300,
       renderer: 'line',
       interpolation: "linear", // monotone,linear
-      //offset: "expand", // положение базовой линии
       element: document.querySelector('#linen-'+self.id),
       series: _.map(metrics, function(metric){
-    	var m = metric.get_chart_data();
-    	//m['color'] = palette.color();
-     	return m;})
+     	return metric.get_chart_data();})
     });
 
 
@@ -92,8 +103,10 @@ define( ["jquery", "underscore", "swig", "js/widgets/base", "js/metrics/metric",
       height: 70,
       graph: graph,
       orientation: 'top',
+      ticks: self.get_ticks(graph),
       //pixelsPerTick: 100,
-      format: Rickshaw.Fixtures.Number.formatKMBT
+      tickFormat: self.tick_formatter,
+      //format: Rickshaw.Fixtures.Number.formatKMBT
       // format: function(y){
       //   return y;
       // }
@@ -101,7 +114,7 @@ define( ["jquery", "underscore", "swig", "js/widgets/base", "js/metrics/metric",
 
     var y_axis = new Rickshaw.Graph.Axis.Y({
       graph: graph,
-      orientation: 'right',
+      //orientation: 'left',
       //element: document.querySelector('#' + section.identifier + ' .y-axis'),
       //element: document.getElementById("y_axis-"+self.id),
       tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
@@ -110,7 +123,7 @@ define( ["jquery", "underscore", "swig", "js/widgets/base", "js/metrics/metric",
     var hoverDetail = new Rickshaw.Graph.HoverDetail({
     	graph: graph,
 	formatter: function(series, x, y) {
-		var date = '<span class="date">' + new Date(x * 1000).toUTCString() + '</span>';
+	  var date = '<span class="date">' + self.tick_formatter(x) + '</span>';
 		var swatch = '<span class="detail_swatch" style="background-color: ' + series.color + '"></span>';
 		var content = swatch + series.name + " → " + parseInt(y) + '<br>' + date;
 		return content;
@@ -118,6 +131,8 @@ define( ["jquery", "underscore", "swig", "js/widgets/base", "js/metrics/metric",
     });
 
     graph.render();
+    self.graph = graph;
+    console.log(self.graph);
   },
   get_metrics: function(){
     // Get activated metrics
