@@ -96,12 +96,13 @@
     <div class="row-fluid">
       <div class="span8 data-area">
 	<div class="svg-wrapper">
-	  <!--<div class="y_axis" id="y_axis-{{ id }}"></div>-->
+	  <div class="y_axis" id="y_axis-{{ id }}"></div>
 	  <div class="linen" id="linen-{{ id }}"></div>
+	  <div class="legend" id="legend-{{ id }}"></div>
 	  <!--<div class="x_axis" id="x_axis-{{ id }}"></div>-->
 	</div>
 	<div class="loader">
-	  <span>Идет загрузка данных</span>
+	  <span>Loading...</span>
 	  <div class="progress progress-striped active">
 	    <div class="bar" style="width: 100%;"></div>
 	  </div>
@@ -129,6 +130,7 @@
   {% for metric in metrics %}<li><a href="#" data-name="{{ metric }}">{{ metric }}</a></li>{% endfor %}
   {% endraw %}
 </script>
+
 <script type="text/html" id="table-filters-selector-template">
   {% raw %}
   {% for filter in filters %}
@@ -180,6 +182,7 @@
           <li><a href="#" class="delete-bar">×</a></li>
         </ul>
         <ul class="nav" style="float:none;margin-right:46px;">
+	  <li><span style="background-color: {{ color }}" class="color"></span></li>
           <li class="dropdown metrics-selector">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="current">Параметр</span><!--<b class="caret"></b>--></a>
             <ul class="dropdown-menu"></ul>

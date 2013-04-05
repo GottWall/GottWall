@@ -1,4 +1,4 @@
-define( ["jquery", "js/class", "js/bars/bar", "js/utils/guid"], function($, Class, Bar, GUID){
+define( ["jquery", "js/class", "js/bars/bar", "js/utils/guid", "rickshaw"], function($, Class, Bar, GUID, Rickshaw){
 
   var Widget = Class.extend({
     init: function(gottwall, id){
@@ -7,6 +7,7 @@ define( ["jquery", "js/class", "js/bars/bar", "js/utils/guid"], function($, Clas
       this.type = "widget";
       this.gottwall = gottwall;
       this.selectors_node = null;
+      this.palette = new Rickshaw.Color.Palette();
     },
     show_loader: function(){
       console.log("Show loader");
@@ -40,7 +41,7 @@ define( ["jquery", "js/class", "js/bars/bar", "js/utils/guid"], function($, Clas
       var self = this;
       this.node.on('click', '.chart-controls .add-bar', function(){
 	var button = $(this);
-	var bar = new Bar(self.gottwall, self, GUID());
+	var bar = new Bar(self.gottwall, self, GUID(), self.palette.color());
 	self.add_bar(bar);
 	self.render_bar(bar);
       });

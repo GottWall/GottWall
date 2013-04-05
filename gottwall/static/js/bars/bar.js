@@ -1,13 +1,22 @@
 define(["jquery", "underscore", "js/bars/base", "js/metrics/metric","select2"], function($, _, BaseBar, Metric){
   var Bar = BaseBar.extend({
 
-    init: function(gottwall, chart, id, metric_name, filter_name, filter_value){
+    init: function(gottwall, chart, id, color, metric_name, filter_name, filter_value){
+
       this._super(gottwall, chart, id, metric_name, filter_name, filter_value);
 
-      //this.bar = this.chart.node.find("#bar-"+this.id);
+      // this.bar = this.chart.node.find("#bar-"+this.id);
 
       this.metric = null;
-      //this.render_selectors();
+      this.color = color;
+      // this.render_selectors();
+    },
+    render: function(){
+      var template = swig.compile($("#selectors-bar-template").text());
+      this.node = $(template({
+	"id": this.id,
+	"color": this.color}));
+      return this.node;
     },
     setup: function(){
       //this.node = this.chart.node.find("#bar-"+this.id);
@@ -15,7 +24,7 @@ define(["jquery", "underscore", "js/bars/base", "js/metrics/metric","select2"], 
     },
     get_metric: function(){
       if(this.metric_name){
-	var metric = new Metric(this.gottwall, this.metric_name,
+	var metric = new Metric(this.gottwall,this.metric_name, this.color,
 				this.filter_name, this.filter_value);
 	return metric;
       }

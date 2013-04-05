@@ -1,10 +1,11 @@
 define(["jquery", "js/class"], function($, Class){
 
   var MetricBase = Class.extend({
-    init: function(gottwall, name, filter, value, data){
+    init: function(gottwall, name, color, filter, value, data){
       this.gottwall = gottwall;
       this.project = gottwall.current_project;
       this.name = name;
+      this.color = color;
       if(filter == 'null'){
 	this.filter_name = null;
       }

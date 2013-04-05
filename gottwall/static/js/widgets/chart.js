@@ -40,12 +40,12 @@ define( ["jquery", "underscore", "swig", "js/widgets/base", "js/metrics/metric",
 	   var responses = arguments;
 	 }
 
-	 var metrics_with_data = _.map(_.compact(responses), function(r){
-	   return new Metric(self.gottwall,  r[0]["name"],
-			     r[0]["filter_name"], r[0]["filter_value"], r[0]);
-	 });
+	 var responses = _.compact(responses);
+	 for(var i in metrics){
+	   metrics[i].data = responses[i][0];
+	 }
 	self.hide_loader();
-	return self.render_metrics(metrics_with_data);
+	 return self.render_metrics(metrics);;
       });
   },
   format_tick: function(d){
@@ -69,54 +69,55 @@ define( ["jquery", "underscore", "swig", "js/widgets/base", "js/metrics/metric",
 
     self.cleanup_chart_area();
 
-    var palette = new Rickshaw.Color.Palette();
+    //var palette = new Rickshaw.Color.Palette();
 
     var graph = new Rickshaw.Graph( {
+      padding: {
+	top: 0.25,
+	bottom: 0.5
+      },
+      height: 300,
       renderer: 'line',
       interpolation: "linear", // monotone,linear
-      // offset: "wiggle", // положение базовой линии
+      //offset: "expand", // положение базовой линии
       element: document.querySelector('#linen-'+self.id),
       series: _.map(metrics, function(metric){
     	var m = metric.get_chart_data();
-    	m['color'] = palette.color();
+    	//m['color'] = palette.color();
      	return m;})
     });
 
 
     var x_axis = new Rickshaw.Graph.Axis.X({
+      height: 70,
       graph: graph,
-      orientation: 'bottom',
-      pixelsPerTick: 100,
+      orientation: 'top',
+      //pixelsPerTick: 100,
       format: Rickshaw.Fixtures.Number.formatKMBT
       // format: function(y){
       //   return y;
       // }
     });
 
-    var y_axis = new Rickshaw.Graph.Axis.Y( {
+    var y_axis = new Rickshaw.Graph.Axis.Y({
       graph: graph,
+      orientation: 'right',
+      //element: document.querySelector('#' + section.identifier + ' .y-axis'),
+      //element: document.getElementById("y_axis-"+self.id),
       tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
     });
 
-    var hoverDetail = new Rickshaw.Graph.HoverDetail( {
+    var hoverDetail = new Rickshaw.Graph.HoverDetail({
     	graph: graph,
-    } );
-
-    // var legend = new Rickshaw.Graph.Legend( {
-    // 	graph: graph,
-    // 	//element: document.getElementById('legend')
-
-    // } );
-
-    // var shelving = new Rickshaw.Graph.Behavior.Series.Toggle({
-    //   graph: graph,
-    //   legend: legend
-    // });
+	formatter: function(series, x, y) {
+		var date = '<span class="date">' + new Date(x * 1000).toUTCString() + '</span>';
+		var swatch = '<span class="detail_swatch" style="background-color: ' + series.color + '"></span>';
+		var content = swatch + series.name + " → " + parseInt(y) + '<br>' + date;
+		return content;
+	}
+    });
 
     graph.render();
-
-    console.log(graph);
-
   },
   get_metrics: function(){
     // Get activated metrics

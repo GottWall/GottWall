@@ -414,7 +414,7 @@ define(["js/class", "js/widgets/chart", "js/widgets/table", "js/bars/bar", "js/b
 
 	for(var bar_id in projects[project][chart_id]['metrics']){
 	  var bar_params = projects[project][chart_id]['metrics'][bar_id];
-	  chart.add_bar(new Bar(self, chart, bar_params['id'],
+	  chart.add_bar(new Bar(self, chart, bar_params['id'], chart.palette.color(), 
 	  			bar_params['metric_name'], bar_params['filter_name'], bar_params['filter_value']));
 	}
       }
