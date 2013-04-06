@@ -9,7 +9,7 @@ module description
 
 :copyright: (c) 2012 by GottWall team, see AUTHORS for more details.
 :license: BSD, see LICENSE for more details.
-:github: http://github.com/Lispython/gottwall
+:github: http://github.com/GottWall/GottWall
 """
 import logging
 import tornado.escape

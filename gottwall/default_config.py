@@ -51,3 +51,9 @@ PERIODIC_PROCESSOR_TIME = 1000*60*1
 cookie_secret = 'cookie_secret'
 
 MAX_LOADING = 150
+
+
+JINJA2_EXTENSIONS = (
+    'jinja2.ext.do',
+    'jinja2.ext.i18n'
+)

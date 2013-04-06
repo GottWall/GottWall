@@ -3,6 +3,7 @@ define(["jquery", "underscore", "swig", "js/class", "js/utils/guid"], function($
   var BaseBar = Class.extend({
     init: function(gottwall, chart, id, metric_name, filter_name, filter_value){
       this.id = id || GUID();
+
       this.gottwall = gottwall;
       this.chart = chart;
       this.metric_name = metric_name;

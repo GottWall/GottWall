@@ -74,6 +74,11 @@ class HTTPApplication(Application):
         env.filters.update(load_filters(filters))
         env.globals.update(load_globals(globals))
 
+        try:
+            env.install_gettext_translations()
+        except Exception:
+            env.install_null_translations()
+
         return env
 
     def configure_db(self):

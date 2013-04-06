@@ -6,35 +6,33 @@
 <div class="row chart-control">
   <div class="span8 periods">
     <div class="btn-group" id="chart-add">
-      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-plus"></i> Добавить виджет
+      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-plus"></i> {{ _("Add widget") }}
 	<span class="caret"></span>
       </a>
       <ul class="dropdown-menu">
-        <li><a href="#" data-type="chart"><i class="icon-signal"></i> С графиком</a></li>
-        <li><a href="#" data-type="table"><i class="icon-th"></i> С таблицей</a></li>
+        <li><a href="#" data-type="chart"><i class="icon-signal"></i> {{ _("Graph") }}</a></li>
+        <li><a href="#" data-type="table"><i class="icon-th"></i> {{ _("Table") }}</a></li>
       </ul>
     </div>
     <button class="btn" id="resize-area-switcher"><i class="icon-resize-full"></i></button>
-    <span style="display:inline-block; width: 60px; text-align: right;">по</span>
+    <span style="display:inline-block; width: 60px; text-align: right;">{{ _("group by") }}</span>
     <div class="btn-group selector" id="period-selector">
-      <button class="btn" data-type="year">годам</button>
-      <button class="btn" data-type="month">месяцам</button>
-      <!--<button class="btn" data-type="week">неделям</button>-->
-      <button class="btn" data-type="day">дням</button>
-      <button class="btn" data-type="hour">часам</button>
-      <!--<button class="btn" data-type="minute">минутам</button>-->
+      <button class="btn" data-type="year">{{ _("years") }}</button>
+      <button class="btn" data-type="month">{{ _("months") }}</button>
+      <!--<button class="btn" data-type="week">{{ _("weeks") }}</button>-->
+      <button class="btn" data-type="day">{{ _("days") }}</button>
+      <button class="btn" data-type="hour">{{ _("hours") }}</button>      <!--<button class="btn" data-type="minute">{{ _("minutes") }}</button>-->
     </div>
   </div>
 
   <div class="span5 intervals datepicker" data-date-format="yyyy-mm-dd">
-    <span style="display:inline-block;width: 60px;text-align: right;">Интервал:</span>
-    <span style="display:inline-block;width: 20px;text-align: right;">с</span>
+    <span style="display:inline-block;width: 80px;text-align: right;">{{ _("Period from") }}</span>
     <input data-datepicker="datepicker" data-date-format="yyyy-mm-dd" type="text" name="start-date" class="input_date start-date datepicker date" id="from-date">
-    <span style="display:inline-block;width: 20px;text-align: right;">по</span>
+    <span style="display:inline-block;width: 20px;text-align: right;">{{ _("to") }}</span>
     <input data-datepicker="datepicker" data-date-format="yyyy-mm-dd" type="text" name="end-date" class="input_date end-date datepicker date" id="to-date">
   </div>
   <div class="redraw pull-right">
-    <button class="btn" id="redraw-button">Перерисовать</button>
+    <button class="btn" id="redraw-button">{{ _("Redraw") }}</button>
   </div>
 </div>
 {% endblock %}
@@ -48,7 +46,7 @@
       <div class="span8 data-area">
 	<div class="table-area"></div>
 	<div class="loader">
-	  <span>Идет загрузка данных</span>
+	  <span>{% endraw %}{{ _("Loading ...") }}{% raw %}</span>
 	  <div class="progress progress-striped active">
 	    <div class="bar" style="width: 100%;"></div>
 	  </div>
@@ -102,21 +100,14 @@
 	  <!--<div class="x_axis" id="x_axis-{{ id }}"></div>-->
 	</div>
 	<div class="loader">
-	  <span>Loading...</span>
+	  <span>{% endraw %}{{ _("Loading...") }}{% raw %}</span>
 	  <div class="progress progress-striped active">
 	    <div class="bar" style="width: 100%;"></div>
 	  </div>
 	</div>
       </div>
       <div class="span4 widget-bar">
-	<div class="chart-controls"><button class="add-bar btn"><i class="icon-plus"></i>добавить показатель</button>
-	  <!--<div class="btn-group chart-type" id="chart-type-selector-{{ id }}">
-	    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">Тип графика<span class="caret"></span></a>
-	    <ul class="dropdown-menu">
-	      <li><a href="#" data-type="simple-line">Simple line</a></li>
-	      <li><a href="#" data-type="stacked">Stacked</a></li>
-	    </ul>
-	  </div>-->
+	<div class="chart-controls"><button class="add-bar btn"><i class="icon-plus"></i>{% endraw %}{{ _("Add metric") }}{% raw %}</button>
 	  <button class="close remove-chart">×</button></div>
         <div class="selectors"></div>
       </div>
@@ -157,11 +148,11 @@
         <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse"></a>
         <ul class="nav" style="float:none;margin-right:46px;">
           <li class="dropdown metrics-selector">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="current">Параметр</span><!--<b class="caret"></b>--></a>
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="current">{% endraw %}{{ _("Param") }}{% raw %}</span><!--<b class="caret"></b>--></a>
             <ul class="dropdown-menu"></ul>
           </li>
           <li class="dropdown filters-selector">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="current">Фильтр</span></a>
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="current">{% endraw %}{{ _("Filter") }}{% raw %}</span></a>
             <ul class="dropdown-menu"></ul>
           </li>
 	</ul>
@@ -184,11 +175,11 @@
         <ul class="nav" style="float:none;margin-right:46px;">
 	  <li class="color-wrapper"><span style="background-color: {{ color }}" class="color"></span></li>
           <li class="dropdown metrics-selector">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="current">Параметр</span><!--<b class="caret"></b>--></a>
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="current">{% endraw %}{{ _("Param") }}{% raw %}</span><!--<b class="caret"></b>--></a>
             <ul class="dropdown-menu"></ul>
           </li>
           <li class="dropdown filters-selector">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="current">Фильтр</span></a>
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="current">{% endraw %}{{ _("Filter") }}{% raw %}</span></a>
             <ul class="dropdown-menu"></ul>
           </li>
 	</ul>

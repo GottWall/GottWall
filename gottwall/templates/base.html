@@ -11,8 +11,7 @@
     <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/rickshaw.min.css"/>
     <link rel="stylesheet" type="text/css" media="all" href="{{ static }}vendor/select2/select2.css" />
 
-    <script data-main="{{ static }}js/app" src="{{ static }}vendor/require.js">
-    </script>
+    <script data-main="{{ static }}js/app" src="{{ static }}vendor/require.js"></script>
 
     {#<script type="text/javascript" src="{{ static }}vendor/moment.min.js"></script>#}
     {#<script type="text/javascript" src="{{ static }}vendor/moment-range.js"></script>#}
@@ -34,7 +33,7 @@
             <ul class="nav secondary-nav project-dropdown">
               <li class="dropdown js-project-dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="">
-                  <span class="js-current-project">Projects</span>
+                  <span class="js-current-project">{{ _("Projects") }}</span>
                   <b class="caret"></b>
                 </a>
                 <ul class="dropdown-menu pull-right" id="project-selector">
@@ -54,12 +53,12 @@
                   <b class="caret"></b>
                 </a>
                 <ul class="dropdown-menu pull-right">
-		  <li><a href="{{ reverse('logout') }}">Logout</a></li>
+		  <li><a href="{{ reverse('logout') }}">{{ _("Logout") }}</a></li>
                 </ul>
               </li>
             </ul>
 	    {% else %}
-	    <li><a href="{{ reverse('login') }}">Login</a></li>
+	    <li><a href="{{ reverse('login') }}">{{ _("Login") }}</a></li>
 	    {% endif %}
           </ul>
         </div>
@@ -73,7 +72,7 @@
     </div>
     <div class="container charts-container">
     {% block charts %}<h1>Not implemented error</h1>{% endblock %}
-    {% block footer %}<footer><p>©</p></footer>{% endblock %}
+    {% block footer %}<footer></footer>{% endblock %}
     </div>
 </body>
 </html>

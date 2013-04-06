@@ -44,7 +44,7 @@ define(["jquery", "underscore", "js/bars/base", "js/metrics/metric","select2"], 
     setup_current_filter: function(){
       var self = this;
 
-      var filter_current = "Фильтр";
+      var filter_current = "Filter";
       if(self.filter_name && self.filter_value){
 	filter_current = self.filter_name+":"+self.filter_value;
       }
@@ -54,7 +54,7 @@ define(["jquery", "underscore", "js/bars/base", "js/metrics/metric","select2"], 
     setup_current_metric: function(){
       console.log("Setup current metric");
       var self = this;
-      var metric_current = "Показатель";
+      var metric_current = "Param";
 
       if(self.metric_name) {
 	metric_current = self.metric_name;

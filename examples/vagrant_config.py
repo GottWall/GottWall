@@ -52,7 +52,7 @@ DATABASE = {
 
 PREFIX = ''
 
-site_title = "Stats"
+site_title = "GottWall"
 
 
 PERIODIC_PROCESSOR_TIME = 1000*60*0.5
