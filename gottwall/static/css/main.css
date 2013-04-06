@@ -320,3 +320,29 @@ footer .version, footer .credits  {
                   float: left;
                                     margin-right: 20px;
  }
+
+.error-container, .home-container {
+                   margin-top: 70px;
+ }
+
+.error-container {
+                   text-align: center;
+ }
+
+
+.home-container h1{
+                    font-size: 100px;
+                    margin-top: 100px;
+                    line-height: 1;
+ }
+
+.marketing h1, .marketing h2, .marketing h3{
+               text-align: center;
+ }
+
+.marketing h3 {
+             font-weight: 100;
+ }
+.marketing {
+             margin-bottom: 90px;
+ }

@@ -122,7 +122,17 @@ class DashboardHandler(BaseHandler):
 class HomeHandler(BaseHandler):
 
     def get(self, *args, **kwargs):
-        self.redirect(self.reverse_url('dashboard'))
+        if self.application.config.get("HOME_AUTOREDIRECT", False) or self.current_user:
+            self.redirect(self.reverse_url('dashboard'))
+        else:
+            self.render("home.html", config=self.application.config,
+                        projects=self.config['PROJECTS'] if self.current_user else [])
+
+class NotFoundHandler(BaseHandler):
+
+    def get(self, *args, **kwargs):
+        self.set_status(404)
+        self.render("404.html", config=self.application.config)
 
 
 class APIHandler(BaseHandler):
@@ -286,11 +296,18 @@ class LoginHandler(BaseHandler, GoogleMixin):
     def _on_auth(self, user):
 
         if not user:
-            raise HTTPError(500, "Google auth failed")
+            self.set_status(403)
 
-        if self.application.config.get('USERS') and \
-               user.get('email').lower() not in [x.lower() for x in self.application.config['USERS']]:
-            raise HTTPError(403, "%s access forbiden." % user.get('name'))
+            self.render("403.html", config=self.application.config,
+                        projects=self.config['PROJECTS'], user=user)
+
+        if not self.application.config.get('ANONYMOUS_LOGIN', False) and \
+               (user.get('email').lower() not in [x.lower() for x in self.application.config.get('USERS', [])]):
+
+            self.set_status(403)
+
+            self.render("403.html", config=self.application.config,
+                        projects=self.config['PROJECTS'], user=user)
 
         self.set_secure_cookie("user", json_encode(user))
         self.redirect("/")

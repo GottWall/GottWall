@@ -2,6 +2,16 @@
 
 {% block title %}Dashboard{% endblock %}
 
+{% block head %}
+
+
+<script data-main="{{ static }}js/app" src="{{ static }}vendor/require.js"></script>
+
+{#<script type="text/javascript" src="{{ static }}vendor/moment.min.js"></script>#}
+{#<script type="text/javascript" src="{{ static }}vendor/moment-range.js"></script>#}
+{% endblock %}
+
+
 {% block control %}
 <div class="row chart-control">
   <div class="span8 periods">
@@ -114,6 +124,7 @@
       </div>
       <div class="span4 widget-bar">
 	<div class="chart-controls"><button class="add-bar btn"><i class="icon-plus"></i>{% endraw %}{{ _("Add metric") }}{% raw %}</button>
+	  <button class="share-chart btn"><i class="icon-share"></i>{% endraw %}{{ _("Share") }}{% raw %}</button>
 	  <button class="close remove-chart">×</button></div>
         <div class="selectors"></div>
       </div>
@@ -194,4 +205,18 @@
   </div>
 {% endraw %}
 </script>
+
+<div id="share-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="share-modal-header">Modal header</h3>
+  </div>
+  <div class="modal-body">
+    <p>One fine body…</p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+    <button class="btn btn-primary">Save changes</button>
+  </div>
+</div>
 {% endblock %}

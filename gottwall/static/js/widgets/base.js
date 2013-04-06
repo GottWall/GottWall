@@ -52,6 +52,12 @@ define( ["jquery", "js/class", "js/bars/bar", "js/utils/guid", "rickshaw"], func
 	  $.log("Remove chart");
 	  self.remove();
 	});
+      this.node.on(
+	'click', '.chart-controls .share-chart', function(){
+	  console.log("Share chart");
+	  $('#share-modal').modal();
+	  console.log(self);
+	});
     },
     remove: function(){
       this.gottwall.remove_chart(this);

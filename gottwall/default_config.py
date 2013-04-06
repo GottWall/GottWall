@@ -11,6 +11,8 @@ PROJECTS = {}
 
 USERS = []
 
+ANONYMOUS_LOGIN = False
+
 PERIODS = [
     "week",
     "day",

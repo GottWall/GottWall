@@ -18,7 +18,8 @@ from jinja2 import Environment, FileSystemLoader
 from tornado.web import Application, URLSpec
 
 from handlers import DashboardHandler, LoginHandler, HomeHandler,\
-     StatsHandler, MetricsHandler, LogoutHandler, StatsDataSetHandler
+     StatsHandler, MetricsHandler, LogoutHandler, StatsDataSetHandler, \
+     NotFoundHandler
 from jinja_utils import load_filters, load_globals
 from processing import Tasks
 
@@ -52,7 +53,9 @@ class HTTPApplication(Application):
              StatsDataSetHandler, params, 'api-stats-dataset'),
             (r"{0}/(?P<project>.+)/api/metrics".format(self.config['PREFIX']),
              MetricsHandler, params, 'api-metrics'),
-            (r"{0}/".format(self.config['PREFIX']), HomeHandler, params, 'home')]
+            (r"{0}/".format(self.config['PREFIX']), HomeHandler, params, 'home'),
+            (r"{0}.*".format(self.config['PREFIX']), NotFoundHandler, params, 'not_found'),
+            ]
 
         config['login_url'] = config['PREFIX'] + config['login_url']
 

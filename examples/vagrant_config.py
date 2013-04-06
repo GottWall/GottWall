@@ -25,6 +25,7 @@ STORAGE_SETTINGS = dict(
 
 REDIS = {"CHANNEL": "gottwall"}
 
+ANONYMOUS_LOGIN = True
 
 USERS = []
 

@@ -6,16 +6,11 @@
     <meta name="version" content="{{ version }}"/>
     <link rel="stylesheet" type="text/css" media="all" href="{{ static }}vendor/bootstrap/css/bootstrap.css"/>
     <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/tablesorter.bootstrap.css"/>
-    <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/graph.css"/>
     <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/main.css"/>
     <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/rickshaw.min.css"/>
+    <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/graph.css"/>
     <link rel="stylesheet" type="text/css" media="all" href="{{ static }}vendor/select2/select2.css" />
 
-    <script data-main="{{ static }}js/app" src="{{ static }}vendor/require.js"></script>
-
-    {#<script type="text/javascript" src="{{ static }}vendor/moment.min.js"></script>#}
-    {#<script type="text/javascript" src="{{ static }}vendor/moment-range.js"></script>#}
-    <script></script>
     {% block head %}{% endblock %}
   </head>
   <body>
@@ -29,6 +24,7 @@
             <span class="icon-bar"></span>
           </button>
           <a class="brand" href="{{ reverse('home') }}">{{ handler.settings['site_title'] }}</a>
+	  {% if user %}
           <div class="pull-left">
             <ul class="nav secondary-nav project-dropdown">
               <li class="dropdown js-project-dropdown">
@@ -44,6 +40,7 @@
               </li>
             </ul>
           </div>
+	  {% endif %}
 	  <ul class="nav pull-right">
 	    {% if user %}
 	    <ul class="nav secondary-nav">
@@ -65,6 +62,7 @@
       </div>
     </div>
     {% endblock %}
+    {% block content %}
     <div id="controls" class="navbar container">
       <div class="navbar-inner">
 	{% block control %}<h1>Not implemented error</h1>{% endblock %}
@@ -72,6 +70,8 @@
     </div>
     <div class="container charts-container">
     {% block charts %}<h1>Not implemented error</h1>{% endblock %}
+
+    {% endblock %}
     {% block footer %}
     <footer>
       <div class="container">

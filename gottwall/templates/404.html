@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _("Page not found") }}{% endblock %}
+
+{% block content %}
+<div class="container error-container">
+  <div class="alert alert-error">
+    <h3>{{ _("Page not found") }}</h3>
+  </div>
+</div>
+{% endblock %}
