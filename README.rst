@@ -18,7 +18,7 @@ Features
 - Beautiful customizable dashboard for visualizing metrics with charts.
 - Data aggregation
 - Data collection
-- Embedded charts (`HTML <http://demo.gottwall.com/api/embedded/hash.html>`_, iframe, `javascript <http://demo.gottwall.com/api/mbedded/hash.js>`, `JSON <http://demo.gottwall.com/api/embedded/hash.json>`_)
+- Embedded charts (`HTML <http://demo.gottwall.com/api/embedded/hash.html>`_, iframe, `javascript <http://demo.gottwall.com/api/mbedded/hash.js>`_, `JSON <http://demo.gottwall.com/api/embedded/hash.json>`_)
 
 Screenshots
 -----------
