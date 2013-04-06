@@ -309,3 +309,14 @@
                  float: none;
 
  }
+
+footer {
+         margin-bottom: 30px;
+ }
+footer .contribute {
+                     float: right;
+ }
+footer .version, footer .credits  {
+                  float: left;
+                                    margin-right: 20px;
+ }

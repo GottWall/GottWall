@@ -57,7 +57,13 @@ var Table = Widget.extend({
   render_chart_graph: function(){
     var self = this;
     console.log("Render table");
+
     var metric = this.get_metrics();
+
+    if(!metric.filter_name){
+      self.hide_loader();
+      return false;
+    }
     self.show_loader();
 
     $.when.apply($, [metric.get_resource_loader(self.gottwall.current_period)]).done(

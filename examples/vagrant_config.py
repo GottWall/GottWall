@@ -26,7 +26,7 @@ STORAGE_SETTINGS = dict(
 REDIS = {"CHANNEL": "gottwall"}
 
 
-USERS = ['alexandr.s.rus@gmail.com']
+USERS = []
 
 SECRET_KEY = "dwefwefwefwecwef"
 

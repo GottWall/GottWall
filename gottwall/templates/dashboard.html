@@ -32,7 +32,7 @@
     <input data-datepicker="datepicker" data-date-format="yyyy-mm-dd" type="text" name="end-date" class="input_date end-date datepicker date" id="to-date">
   </div>
   <div class="redraw pull-right">
-    <button class="btn" id="redraw-button">{{ _("Redraw") }}</button>
+    <button class="btn" id="redraw-button"><i class=" icon-refresh"></i> {{ _("Redraw") }}</button>
   </div>
 </div>
 {% endblock %}
@@ -44,7 +44,13 @@
   <div id="table-{{ id }}" class="hero-unit chart-area conrainer-fluid {{ project_name }}">
     <div class="row-fluid">
       <div class="span8 data-area">
-	<div class="table-area"></div>
+	<div class="table-area">
+	  <div class="alert">
+	    {% endraw %}
+	    {{ _("<strong>Notice!</strong> You need select a filter") }}
+	    {% raw %}
+	  </div>
+	</div>
 	<div class="loader">
 	  <span>{% endraw %}{{ _("Loading ...") }}{% raw %}</span>
 	  <div class="progress progress-striped active">

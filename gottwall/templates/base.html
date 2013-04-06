@@ -72,7 +72,17 @@
     </div>
     <div class="container charts-container">
     {% block charts %}<h1>Not implemented error</h1>{% endblock %}
-    {% block footer %}<footer></footer>{% endblock %}
+    {% block footer %}
+    <footer>
+      <div class="container">
+
+        <div class="contribute">GottWall is open source software <a href="https://github.com/GottWall/GottWall" class="btn btn-small">Contribute</a></div>
+        <div class="version">GottWall {{ version }}</div>
+        <div class="credits">Created by the <a href="https://github.com/GottWall?tab=members">GottWall</a> team with <a href="https://github.com/GottWall/GottWall/contributors">lots of help</a></div>
+
+      </div>
+    </footer>
+    {% endblock %}
     </div>
 </body>
 </html>
