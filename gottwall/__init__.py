@@ -4,7 +4,7 @@
 gottwall
 ~~~~~~~~
 
-GottWall is a scalable realtime metrics aggragation platform.
+GottWall is a scalable realtime metrics collecting and aggregation platform and service.
 
 :copyright: (c) 2012 - 2013 by GottWall team, see AUTHORS for more details.
 :license: BSD, see LICENSE for more details.
@@ -27,6 +27,8 @@ else:
     __version_info__ = __version__.split('.')
 __build__ = 0x000034
 
+GOTTWALL_HOME = "http://demo.gottwall.com"
+GOTTWALL_DESCRIPTION = "GottWall is a scalable realtime metrics aggrigation platform."
 
 def get_version():
     return __version__

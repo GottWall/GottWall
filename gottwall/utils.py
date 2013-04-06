@@ -11,6 +11,7 @@ Core GottWall utilities
 :github: http://github.com/gottwall/gottwall
 """
 import os.path
+from time import mktime
 from datetime import datetime, timedelta, date
 from urllib2 import parse_http_list
 from dateutil.relativedelta import relativedelta
@@ -31,7 +32,7 @@ except ImportError:
     pass
 
 
-from settings import PROJECT_ROOT, TIMESTAMP_FORMAT, PERIOD_PATTERNS, CHART_PERIOD_PATTERNS
+from settings import PROJECT_ROOT, TIMESTAMP_FORMAT, PERIOD_PATTERNS
 
 
 __all__ = 'rel',
@@ -63,7 +64,7 @@ def format_date_by_period(dt, period):
     if period == "week":
         return "{0}-{1}".format(ts.year, ts.isocalendar()[1])
     elif period in PERIOD_PATTERNS:
-        return ts.strftime(CHART_PERIOD_PATTERNS[period])
+        return ts.strftime(PERIOD_PATTERNS[period])
     return None
 
 def get_by_period(dt, period):
@@ -78,7 +79,7 @@ def get_by_period(dt, period):
     if period == "week":
         return "{0}-{1}".format(ts.year, ts.isocalendar()[1])
     elif period in PERIOD_PATTERNS:
-        return ts.strftime(CHART_PERIOD_PATTERNS[period])
+        return ts.strftime(PERIOD_PATTERNS[period])
     return None
 
 
@@ -101,6 +102,11 @@ def get_datetime(timestamp, period):
     elif period in PERIOD_PATTERNS:
         return datetime.strptime(timestamp, PERIOD_PATTERNS[period])
     return None
+
+def datetime_to_utimestamp(dt):
+    """Convert datetime object to unix timestamp
+    """
+    return int(mktime(dt.timetuple()))
 
 
 def parse_dict_header(value):

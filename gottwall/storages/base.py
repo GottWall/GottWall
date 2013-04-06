@@ -35,6 +35,10 @@ class BaseStorage(object):
         application.storage = storage
         return storage
 
+    def make_embedded(self, project, metrics):
+        """Make embedded hash for metrics
+        """
+        raise NotImplementedError
 
     def incr(self, project, name, timestamp, value=1, filters=None, **kwargs):
         """Add count for metric `name` and `filters`

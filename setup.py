@@ -8,15 +8,12 @@ Realtime statistics aggregation platform
 
 :copyright: (c) 2012 - 2013 by GottWall team, see AUTHORS for more details.
 :license: BSD, see LICENSE for more details.
+:github: http://github.com/GottWall/GottWall
 """
 
 import sys
 import os
-try:
-    import subprocess
-    has_subprocess = True
-except:
-    has_subprocess = False
+
 
 from setuptools import setup, find_packages
 
@@ -76,7 +73,7 @@ setup(
     author_email="alex@obout.ru",
     maintainer="Alexandr Lispython",
     maintainer_email="alex@obout.ru",
-    url="https://github.com/gottwall/gottwall",
+    url="https://github.com/GottWall/GottWall",
     packages=find_packages(),
     package_data={'': PACKAGE_DATA},
     entry_points={

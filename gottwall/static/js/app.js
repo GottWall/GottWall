@@ -3,7 +3,7 @@
 
 require.config({
   waitSeconds: 15,
-  "baseUrl": "/static/",
+  "baseUrl": static_path,
   "paths": {
     "app": "./app",
     "jquery": 'js/jquery',
@@ -93,6 +93,6 @@ require(["jquery", "js/gottwall",  "bootstrap", "js/inits/tablesorter", "js/init
 
     console.log();
 
-    self.gottwall = new GottWall(true);
+    self.gottwall = new GottWall(true, prefix);
   });
 });

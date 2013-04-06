@@ -309,3 +309,54 @@
                  float: none;
 
  }
+
+footer {
+         margin-bottom: 30px;
+ }
+footer .contribute {
+                     float: right;
+ }
+footer .version, footer .credits  {
+                                    float: left;
+ }
+
+.error-container, .home-container {
+                   margin-top: 70px;
+ }
+
+.error-container {
+                   text-align: center;
+ }
+
+
+.home-container h1{
+                    font-size: 100px;
+                    margin-top: 100px;
+                    line-height: 1;
+ }
+
+.marketing h1, .marketing h2, .marketing h3{
+               text-align: center;
+ }
+
+.marketing h3 {
+             font-weight: 100;
+ }
+.marketing {
+             margin-bottom: 90px;
+ }
+
+
+#share-modal #share-modal-header {
+                                   text-align: center;
+ }
+
+#share-modal .modal-body dd{
+                             margin-left: 0px;
+ }
+
+#share-modal .modal-body input {
+                                 margin-bottom: 0px;
+                                 margin-top: 0px;
+                                 width: 80%;
+ }

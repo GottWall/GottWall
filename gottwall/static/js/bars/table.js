@@ -16,7 +16,7 @@ define(["jquery", "underscore", "js/bars/base"], function($, _, BaseBar){
     setup_current_metric: function(){
       console.log("Setup current metric for table");
       var self = this;
-      var metric_current = "Показатель";
+      var metric_current = "Param";
 
       if(self.metric_name) {
 	metric_current = self.metric_name;
@@ -32,7 +32,7 @@ define(["jquery", "underscore", "js/bars/base"], function($, _, BaseBar){
       console.log("Setup current filter");
       var self = this;
 
-      var filter_current = "Фильтр";
+      var filter_current = "Filter";
       if(self.filter_name){
 	filter_current = self.filter_name;
       }
@@ -52,14 +52,14 @@ define(["jquery", "underscore", "js/bars/base"], function($, _, BaseBar){
       var template = swig.compile($("#table-filters-selector-template").text());
 
       if(!this.node){
-	this.render();
+      	this.render();
       }
 
       this.node.find('.filters-selector .dropdown-menu').html(
-	$(template({
+	template({
     	  "filters": _.map(filters, function(value, key){
     	    return key;
-    	  })})));
+    	  })}));
 
       this.node.on('click', '.filters-selector li a', function(){
 	var button = $(this);
@@ -70,6 +70,9 @@ define(["jquery", "underscore", "js/bars/base"], function($, _, BaseBar){
 	self.gottwall.save_to_storage();
 	return false;
       });
+    },
+    render_metrics: function(metrics){
+      this._super(metrics);
     }
   });
 

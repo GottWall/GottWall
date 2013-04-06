@@ -44,7 +44,7 @@ define(["jquery", "underscore", "js/bars/base", "js/metrics/metric","select2"], 
     setup_current_filter: function(){
       var self = this;
 
-      var filter_current = "Фильтр";
+      var filter_current = "Filter";
       if(self.filter_name && self.filter_value){
 	filter_current = self.filter_name+":"+self.filter_value;
       }
@@ -54,7 +54,7 @@ define(["jquery", "underscore", "js/bars/base", "js/metrics/metric","select2"], 
     setup_current_metric: function(){
       console.log("Setup current metric");
       var self = this;
-      var metric_current = "Показатель";
+      var metric_current = "Param";
 
       if(self.metric_name) {
 	metric_current = self.metric_name;
@@ -73,11 +73,11 @@ define(["jquery", "underscore", "js/bars/base", "js/metrics/metric","select2"], 
       if(!this.node){
 	this.render();
       }
-      this.node.find('.filters-selector .dropdown-menu').html($(template({
+      this.node.find('.filters-selector .dropdown-menu').html(template({
 	"filters": _.map(filters, function(value, key){
 	  return [key, value];
 	})
-      })));
+      }));
 
       $(this.node.find('.filters-selector li select')).select2({
 	placeholder: "Select a State",
@@ -96,6 +96,26 @@ define(["jquery", "underscore", "js/bars/base", "js/metrics/metric","select2"], 
 	return false;
       });
     },
+    render_metrics: function(metrics){
+      var self = this;
+
+      this._super(metrics);
+
+      this.node.on('click', '.metrics-selector .dropdown-menu li a',  function(){
+	var metric = $(this);
+	self.metric_name = metric.data('name');
+
+	self.filter_name = null;
+	self.filter_value = null;
+	self.render_filters(this.metric_name, metrics[self.metric_name]);
+	metric.parent().parent().parent().removeClass('open');
+	metric.parent().parent().parent().find('.current').text(self.metric_name);
+	self.setup_current_filter();
+	self.chart.render_chart_graph();
+	self.gottwall.save_to_storage();
+	return false;
+      });
+    }
   });
 
   return Bar;

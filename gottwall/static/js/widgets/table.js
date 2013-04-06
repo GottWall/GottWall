@@ -48,7 +48,7 @@ var Table = Widget.extend({
     return bar_widget;
   },
   setup_bar: function(bar){
-    this.bar = bar
+    this.bar = bar;
   },
   get_metrics: function(){
     var self = this;
@@ -57,7 +57,13 @@ var Table = Widget.extend({
   render_chart_graph: function(){
     var self = this;
     console.log("Render table");
+
     var metric = this.get_metrics();
+
+    if(!metric.filter_name){
+      self.hide_loader();
+      return false;
+    }
     self.show_loader();
 
     $.when.apply($, [metric.get_resource_loader(self.gottwall.current_period)]).done(
@@ -77,7 +83,9 @@ var Table = Widget.extend({
       return [key, value['range']];
     }),
 			    'caption': self.bar.metric_name,
-			    'column_names': date_range,
+			    'column_names': _.map(date_range, function(e){
+			      return self.gottwall.pretty_date_format(self.gottwall.parse_serialized_date(e));
+			    }),
 			    'group_column_name': self.bar.filter_name}));
 
     table.tablesorter({

@@ -1,8 +1,19 @@
 define(["jquery", "js/metrics/base"], function($, MetricBase){
 
   var MetricSet = MetricBase.extend({
+    init: function(gottwall, name, filter, data){
+      this.gottwall = gottwall;
+      this.project = gottwall.current_project;
+      this.name = name;
+      if(filter == 'null'){
+	this.filter_name = null;
+      }else{
+	this.filter_name = filter;
+      }
+      this.data = data;
+    },
     stats_url: function(){
-      var url = this.project + "/api/stats_dataset?period="+this.gottwall.current_period+"&name="+this.name;
+      var url = "/api/v1/" + this.project + "/stats_dataset?period="+this.gottwall.current_period+"&name="+this.name;
       if(this.filter_name){
 	url = url + "&filter_name="+this.filter_name;
       }

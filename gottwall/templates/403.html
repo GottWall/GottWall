@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}Forbidden{% endblock %}
+
+{% block content %}
+<div class="container error-container">
+  <div class="alert alert-error">
+    <h3>{{ _("Access forbidden") }}</h3>
+  </div>
+</div>
+{% endblock %}
