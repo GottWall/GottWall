@@ -14,12 +14,12 @@ define(["js/class", "js/widgets/chart", "js/widgets/table", "js/bars/bar", "js/b
   size_mode_key: "size_mode",
 
   date_formatters: {
-    "day": d3.time.format("%Y%m%d"),
+    "day": d3.time.format("%Y-%m-%d"),
     "year": d3.time.format("%Y"),
-    "month": d3.time.format("%Y%m"),
-    "hour": d3.time.format("%Y%m%dT%H"),
-    "minute": d3.time.format("%Y%m%dT%H%M"),
-    "week": d3.time.format("%Y%W")
+    "month": d3.time.format("%Y-%m"),
+    "hour": d3.time.format("%Y-%m-%dT%H"),
+    "minute": d3.time.format("%Y-%m-%dT%H:%M"),
+    "week": d3.time.format("%Y-%W")
     },
   date_formats: {
     "day": "%Y-%m-%d",
@@ -45,10 +45,11 @@ define(["js/class", "js/widgets/chart", "js/widgets/table", "js/bars/bar", "js/b
       "minute": d3.time.format("%Y-%m-%dT%H:%M"),
       "week": d3.time.format("%Y-%W")
     },
-  init: function(debug){
+    init: function(debug, prefix){
     this.debug_flag = debug || false;
     this.metrics = {};
     this.charts = {};
+      this.prefix = prefix;
 
     this.current_project = null;
     this.chart_container = $('#chart');
@@ -88,10 +89,31 @@ define(["js/class", "js/widgets/chart", "js/widgets/table", "js/bars/bar", "js/b
     }
     return null;
   },
+    get_embedded_create_url: function(){
+      return "/api/v1/" + this.current_project + "/embedded/";
+    },
 
+    make_embedded: function(data, success){
+      var api_url = this.get_embedded_create_url();
+
+      var self = this;
+
+      console.debug("Making embedded link");
+
+      $.ajax({
+	type: "POST",
+	url: api_url,
+	data: data,
+	dataType: 'json',
+	success: success,
+	error: function(){
+	  $.log(error);
+	}
+      });
+    },
   get_metrics_url: function(){
     // Metrics structure url
-    return this.current_project + "/api/metrics";
+    return "/api/v1/" + this.current_project + "/metrics";
   },
   metrics_resource_loader: function(){
     var self = this;
@@ -378,6 +400,11 @@ define(["js/class", "js/widgets/chart", "js/widgets/table", "js/bars/bar", "js/b
       return false;
     });
   },
+    bind_modal_hide: function(){
+      $('#share-modal').on('hidden', function () {
+	$('#modal-body').html("");
+      });
+    },
   add_bindings: function(){
     this.bind_period_selectors();
     this.bind_project_selector();
@@ -385,6 +412,7 @@ define(["js/class", "js/widgets/chart", "js/widgets/table", "js/bars/bar", "js/b
     this.bind_dates_selectors();
     this.bind_resize_button();
     this.bind_add();
+    this.bind_modal_hide();
   },
   save_to_storage: function(){
     // Save controls states to localStorage

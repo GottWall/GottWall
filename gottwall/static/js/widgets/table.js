@@ -48,7 +48,7 @@ var Table = Widget.extend({
     return bar_widget;
   },
   setup_bar: function(bar){
-    this.bar = bar
+    this.bar = bar;
   },
   get_metrics: function(){
     var self = this;

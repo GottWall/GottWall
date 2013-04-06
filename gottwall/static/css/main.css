@@ -317,8 +317,7 @@ footer .contribute {
                      float: right;
  }
 footer .version, footer .credits  {
-                  float: left;
-                                    margin-right: 20px;
+                                    float: left;
  }
 
 .error-container, .home-container {
@@ -345,4 +344,19 @@ footer .version, footer .credits  {
  }
 .marketing {
              margin-bottom: 90px;
+ }
+
+
+#share-modal #share-modal-header {
+                                   text-align: center;
+ }
+
+#share-modal .modal-body dd{
+                             margin-left: 0px;
+ }
+
+#share-modal .modal-body input {
+                                 margin-bottom: 0px;
+                                 margin-top: 0px;
+                                 width: 80%;
  }

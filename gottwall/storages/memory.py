@@ -6,11 +6,12 @@ gottwall.storage.memory
 
 Memory storage for collect statistics
 
-:copyright: (c) 2012 by GottWall team, see AUTHORS for more details.
+:copyright: (c) 2012 - 2013 by GottWall team, see AUTHORS for more details.
 :license: BSD, see LICENSE for more details.
-:github: http://github.com/Lispython/GottWall
+:github: http://github.com/GottWall/GottWall
 """
 
+import uuid
 from itertools import ifilter
 from base import BaseStorage
 from gottwall.utils import get_by_period, MagicDict, get_datetime
@@ -25,6 +26,7 @@ class MemoryStorage(BaseStorage):
         super(MemoryStorage, self).__init__(application)
         self._store = MagicDict()
         self._metrics = {}
+        self._embedded = {}
 
     def load_db(self, f):
         """Load data from f
@@ -37,6 +39,22 @@ class MemoryStorage(BaseStorage):
         """Save data to file
         """
         raise RuntimeError
+
+    def make_embedded(self, project, metrics=[]):
+        """Save metrics for share key
+        """
+        uid = uuid.uuid4()
+        self._embedded[uid] = {
+            "project": project,
+            "metrics": metrics}
+        return uid
+
+    def get_embedded(self, h):
+        """Get metrics from share key
+        """
+        if h not in self._embedded:
+            return None
+        return self._embedded[h]
 
     def save_value(self, project, name, period, timestamp, fname=None, fvalue=None, value=1):
         """Save value to store dict

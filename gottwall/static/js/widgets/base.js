@@ -55,8 +55,12 @@ define( ["jquery", "js/class", "js/bars/bar", "js/utils/guid", "rickshaw"], func
       this.node.on(
 	'click', '.chart-controls .share-chart', function(){
 	  console.log("Share chart");
-	  $('#share-modal').modal();
-	  console.log(self);
+	  var params = self.to_dict();
+	  params['period'] = self.gottwall.current_period;
+	  self.gottwall.make_embedded(JSON.stringify(params),
+				      function(data){
+					return self.links_loaded(data);
+				      });
 	});
     },
     remove: function(){
@@ -65,6 +69,16 @@ define( ["jquery", "js/class", "js/bars/bar", "js/utils/guid", "rickshaw"], func
     node_key: function(){
       return "chart-"+this.id;
     },
+    links_loaded: function(data){
+      console.log(this);
+      console.log(data);
+      this.render_share_modal_body(data);
+      $('#share-modal').modal();
+    },
+    render_share_modal_body: function(data){
+      var template = swig.compile($("#share-modal-body").text());
+      $("#share-modal .modal-body").html(template(data));
+    }
   });
   return Widget;
 });

@@ -56,10 +56,10 @@ define(["jquery", "underscore", "js/bars/base"], function($, _, BaseBar){
       }
 
       this.node.find('.filters-selector .dropdown-menu').html(
-	$(template({
+	template({
     	  "filters": _.map(filters, function(value, key){
     	    return key;
-    	  })})));
+    	  })}));
 
       this.node.on('click', '.filters-selector li a', function(){
 	var button = $(this);

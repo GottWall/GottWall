@@ -73,11 +73,11 @@ define(["jquery", "underscore", "js/bars/base", "js/metrics/metric","select2"], 
       if(!this.node){
 	this.render();
       }
-      this.node.find('.filters-selector .dropdown-menu').html($(template({
+      this.node.find('.filters-selector .dropdown-menu').html(template({
 	"filters": _.map(filters, function(value, key){
 	  return [key, value];
 	})
-      })));
+      }));
 
       $(this.node.find('.filters-selector li select')).select2({
 	placeholder: "Select a State",

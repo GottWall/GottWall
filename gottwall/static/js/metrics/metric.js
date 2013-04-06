@@ -4,7 +4,7 @@ define(["jquery", "underscore", "js/metrics/base"], function($, _, MetricBase){
     load: function(){},
     show: function(){},
     stats_url: function(){
-      var url = this.project + "/api/stats?period="+this.gottwall.current_period+"&name="+this.name;
+      var url =  "/api/v1/" + this.project + "/stats?period="+this.gottwall.current_period+"&name="+this.name;
       if(this.filter_name && this.filter_value){
 	url = url + "&filter_name="+this.filter_name+"&filter_value="+this.filter_value;
       }

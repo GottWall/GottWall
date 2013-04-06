@@ -3,7 +3,9 @@
   <head>
     <title>{% block title %}{{ handler.settings['site_title'] }}{% endblock %}</title>
     <meta name="description" content="{{ handler.settings['site_title'] }}"/>
-    <meta name="version" content="{{ version }}"/>
+    <meta name="title" content="{{ handler.settings['site_title'] }}" />
+    <meta name="generator" content="{{ generator }}"/>
+
     <link rel="stylesheet" type="text/css" media="all" href="{{ static }}vendor/bootstrap/css/bootstrap.css"/>
     <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/tablesorter.bootstrap.css"/>
     <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/main.css"/>
@@ -76,9 +78,8 @@
     <footer>
       <div class="container">
 
-        <div class="contribute">GottWall is open source software <a href="https://github.com/GottWall/GottWall" class="btn btn-small">Contribute</a></div>
-        <div class="version">GottWall {{ version }}</div>
-        <div class="credits">Created by the <a href="https://github.com/GottWall?tab=members">GottWall</a> team with <a href="https://github.com/GottWall/GottWall/contributors">lots of help</a></div>
+        <div class="contribute">{% trans %}GottWall is open source software <a href="https://github.com/GottWall/GottWall" class="btn btn-small">Contribute</a>{% endtrans %}</div>
+        <div class="credits">{% trans %}<span class="version">{{ generator }} </span> &mdash; created by the <a href="https://github.com/GottWall?tab=members">GottWall</a> team with <a href="https://github.com/GottWall/GottWall/contributors">lots of help</a>{% endtrans %}</div>
 
       </div>
     </footer>

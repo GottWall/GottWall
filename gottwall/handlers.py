@@ -5,13 +5,15 @@
 handlers
 ~~~~~~~~
 
-module description
 
-:copyright: (c) 2012 by GottWall team, see AUTHORS for more details.
+:copyright: (c) 2012 - 2013 by GottWall team, see AUTHORS for more details.
 :license: BSD, see LICENSE for more details.
 :github: http://github.com/GottWall/GottWall
 """
 import logging
+from datetime import datetime
+
+from dateutil.relativedelta import relativedelta
 import tornado.escape
 from tornado.auth import GoogleMixin
 from tornado.web import RequestHandler, HTTPError, asynchronous, authenticated
@@ -25,13 +27,14 @@ import tornado.web
 import tornado.gen
 from tornado import gen
 
-from gottwall import get_version
+from gottwall import get_version, GOTTWALL_HOME, GOTTWALL_DESCRIPTION
 from gottwall.utils import (timestamp_to_datetime, date_range, format_date_by_period,
                             date_min, date_max)
-from gottwall.settings import DATE_FILTER_FORMAT
+from gottwall.settings import DATE_FILTER_FORMAT, PERIODS
 
 logger = logging.getLogger('gottwall')
 
+SERVER_NAME = "GottWall / {0}".format(get_version())
 
 class User(object):
     """Request user object
@@ -50,7 +53,7 @@ class User(object):
 class BaseHandler(RequestHandler):
     def __init__(self, *args, **kwargs):
         super(BaseHandler, self).__init__(*args, **kwargs)
-        self.set_header("Server", "GottWall/{0}".format(get_version()))
+        self.set_header("Server", SERVER_NAME)
 
     def initialize(self, config, db, env):
         self.config = config
@@ -86,6 +89,9 @@ class BaseHandler(RequestHandler):
         kwargs['user'] = self.current_user
         kwargs['reverse'] = self.reverse_url
         kwargs['version'] = get_version()
+        kwargs['generator'] = SERVER_NAME
+        kwargs['gottwall_home'] = GOTTWALL_HOME
+        kwargs['gottwall_description'] = GOTTWALL_DESCRIPTION
         data = self.render_to_string(template, context=kwargs)
         return self.finish(data)
 
@@ -128,6 +134,7 @@ class HomeHandler(BaseHandler):
             self.render("home.html", config=self.application.config,
                         projects=self.config['PROJECTS'] if self.current_user else [])
 
+
 class NotFoundHandler(BaseHandler):
 
     def get(self, *args, **kwargs):
@@ -135,7 +142,17 @@ class NotFoundHandler(BaseHandler):
         self.render("404.html", config=self.application.config)
 
 
-class APIHandler(BaseHandler):
+class JSONMixin(object):
+    def json_response(self, data, finish=True):
+        output_json = tornado.escape.json_encode(data)
+        self.set_header("Content-Type", "application/json")
+        if finish is True:
+            self.finish(output_json)
+        else:
+            return output_json
+
+
+class APIHandler(BaseHandler, JSONMixin):
     """Base class for api handlers
     """
 
@@ -147,134 +164,6 @@ class APIHandler(BaseHandler):
             logger.error("Invalid authorixation key: {0}".format(key))
             raise HTTPError(401, "Authorization required")
         return True
-
-    def json_response(self, data, finish=True):
-        output_json = tornado.escape.json_encode(data)
-        self.set_header("Content-Type", "application/json")
-        if finish is True:
-            self.finish(output_json)
-        else:
-            return output_json
-
-
-class StatsMixin(object):
-
-    def convert_date_range(self, from_date, to_date):
-        """Convert str from_date and to_data objects to
-        datetime object
-
-        :param from_date: from date string
-        :param to_date: to date string
-        :return: tuple (from_date, to_date)
-        """
-
-        from_date = timestamp_to_datetime(from_date, DATE_FILTER_FORMAT) if from_date else from_date
-        to_date = timestamp_to_datetime(to_date, DATE_FILTER_FORMAT) if to_date else to_date
-        return from_date, to_date
-
-    def get_params(self):
-        name = self.get_argument('name', None)
-        from_date = self.get_argument('from_date', None)
-        to_date = self.get_argument('to_date', None)
-        period = self.get_argument('period', 'week')
-        filter_name = self.get_argument('filter_name', None)
-        filter_value = self.get_argument('filter_value', None)
-
-        return name, from_date, to_date, period, filter_name, filter_value
-
-    def clean_period(self, from_date, to_date):
-        try:
-            from_date, to_date = self.convert_date_range(from_date, to_date)
-        except ValueError:
-            self.set_status(400)
-            self.json_response({"text": "Invalid date range params"})
-            return None, None
-        return from_date, to_date
-
-
-    def validate_name(self, name, period):
-        if not all([name, period]):
-            self.set_status(400)
-            self.json_response({"text": "You need specify name and period"})
-            return
-        return True
-
-
-class StatsHandler(APIHandler, StatsMixin):
-    """Load periods statistics
-    """
-
-    @authenticated
-    @tornado.web.asynchronous
-    @gen.engine
-    def get(self, project, *args, **kwargs):
-
-        try:
-            name, from_date, to_date, period, filter_name, filter_value = self.get_params()
-        except Exception:
-            self.set_status(400)
-            self.json_response({"text": "Bad request"})
-            return
-
-        from_date, to_date = self.clean_period(from_date, to_date)
-
-        if self.validate_name(name, period) and from_date and to_date:
-
-            data = yield gen.Task(self.application.storage.slice_data,
-                                  project, name, period, from_date, to_date, filter_name, filter_value)
-
-            self.json_response({"range": list(data),
-                                "project": project,
-                                "period": period,
-                                "name": name,
-                                "filter_name": filter_name,
-                                "filter_value": filter_value,
-                                "avg": 0})
-
-
-class StatsDataSetHandler(APIHandler, StatsMixin):
-    """Load data for filters without filter value
-    """
-    @authenticated
-    @tornado.web.asynchronous
-    @gen.engine
-    def get(self, project, *args, **kwargs):
-
-        try:
-            name, from_date, to_date, period, filter_name, filter_value = self.get_params()
-            from_date, to_date = self.convert_date_range(from_date, to_date)
-
-        except Exception:
-            self.set_status(400)
-            self.json_response({"text": "Bad request"})
-            return
-
-        from_date, to_date = self.clean_period(from_date, to_date)
-
-        if self.validate_name(name, period) and from_date and to_date:
-
-            data = yield gen.Task(self.application.storage.slice_data_set,
-                                  project, name, period, from_date, to_date, filter_name)
-
-            self.json_response({"data": data,
-                                "project": project,
-                                "period": period,
-                                "name": name,
-                                "filter_name": filter_name,
-                                "date_range": [format_date_by_period(x, period)
-                                               for x in date_range(date_min(from_date, period),
-                                                                   date_max(to_date, period), period)]})
-
-
-class MetricsHandler(APIHandler):
-    """Load metrics structure
-    """
-    @authenticated
-    @tornado.web.asynchronous
-    @gen.engine
-    def get(self, project, *args, **kwargs):
-        metrics = yield gen.Task(self.application.storage.metrics, project)
-        self.json_response(metrics)
 
 
 class LogoutHandler(BaseHandler):

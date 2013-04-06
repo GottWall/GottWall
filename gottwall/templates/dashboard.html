@@ -4,7 +4,10 @@
 
 {% block head %}
 
-
+<script>
+var static_path = "{{ static }}";
+var prefix = "{{ handler.settings['PREFIX'] }}";
+</script>
 <script data-main="{{ static }}js/app" src="{{ static }}vendor/require.js"></script>
 
 {#<script type="text/javascript" src="{{ static }}vendor/moment.min.js"></script>#}
@@ -150,8 +153,7 @@
 <script type="text/html" id="filters-selector-template">
   {% raw %}
   {% for filter in filters %}
-  <li>
-  {% set values = filter[1] %}
+  <li>{% set values = filter[1] %}
   <select data-placeholder="{{ filter[0] }}" placeholder="{{ filter[0] }}" class="placeholder populate"><option></option>{% for value in values %}<option value="{{ value }}" data-filter-name="{{ filter[0] }}">{{ value }}</option>{% endfor %}</select>
   </li>{% endfor %}
   {% endraw %}
@@ -206,17 +208,30 @@
 {% endraw %}
 </script>
 
+<script type="text/html" id="share-modal-body">
+  {% raw %}
+  <dl>
+    <dt title="{% endraw %}Single page html version{% raw %}">{% endraw %}{{ _("Html:") }}{% raw %}</dt>
+    <dd><input type="text" value="{{ html_link }}" data-type="html"></dd>
+    <dt title="{% endraw %}Iframe tag{% raw %}">{% endraw %}{{ _("Iframe:") }}{% raw %}</dt>
+    <dd><input type="text" value="{{ iframe }}" data-type="iframe"></dd>
+    <dt title="{% endraw %}Link to javascript version for javascript tag{% raw %}">{% endraw %}{{ _("JavaScript:") }}{% raw %}</dt>
+    <dd><input type="text" value="{{ js_link }}" data-type="javascript"></dd>
+    <dt title="{% endraw %}JSON data response{% raw %}">{% endraw %}{{ _("JSON:") }}{% raw %}</dt>
+    <dd><input type="text" value="{{ json_link }}" data-type="json"></dd>
+  </dl>
+  {% endraw %}
+</script>
+
+
 <div id="share-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-    <h3 id="share-modal-header">Modal header</h3>
+    <h3 id="share-modal-header">{{ _("Share chart") }}</h3>
   </div>
-  <div class="modal-body">
-    <p>One fine body…</p>
-  </div>
+  <div class="modal-body"></div>
   <div class="modal-footer">
     <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-    <button class="btn btn-primary">Save changes</button>
   </div>
 </div>
 {% endblock %}

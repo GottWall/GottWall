@@ -32,7 +32,7 @@ static_url_prefix = "/static/"
 
 login_url = '/login'
 
-site_title=u"GottWall - statistics aggregator"
+site_title=u"GottWall - metrics aggregation platform"
 
 ALEMBIC_SCRIPT_LOCATION = 'gottwall:migrations'
 
@@ -59,3 +59,11 @@ JINJA2_EXTENSIONS = (
     'jinja2.ext.do',
     'jinja2.ext.i18n'
 )
+
+
+EMBEDDED_PARAMS = {
+    "height": 400,
+    "width": 800,
+    "renderer": "line", # area, stack, bar, line, and scatterplot,
+    "interpolation": 'linear' # linear, step-after, cardinal,  basis
+    }
