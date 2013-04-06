@@ -52,7 +52,7 @@ define(["jquery", "underscore", "js/bars/base"], function($, _, BaseBar){
       var template = swig.compile($("#table-filters-selector-template").text());
 
       if(!this.node){
-	this.render();
+      	this.render();
       }
 
       this.node.find('.filters-selector .dropdown-menu').html(
@@ -70,6 +70,9 @@ define(["jquery", "underscore", "js/bars/base"], function($, _, BaseBar){
 	self.gottwall.save_to_storage();
 	return false;
       });
+    },
+    render_metrics: function(metrics){
+      this._super(metrics);
     }
   });
 

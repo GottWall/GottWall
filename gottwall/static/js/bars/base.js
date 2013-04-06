@@ -48,20 +48,6 @@ define(["jquery", "underscore", "swig", "js/class", "js/utils/guid"], function($
 
       self.setup_current_metric();
 
-      this.node.on('click', '.metrics-selector .dropdown-menu li a',  function(){
-	var metric = $(this);
-	self.metric_name = metric.data('name');
-
-	self.filter_name = null;
-	self.filter_value = null;
-	self.render_filters(this.metric_name, metrics[self.metric_name]);
-	metric.parent().parent().parent().removeClass('open');
-	metric.parent().parent().parent().find('.current').text(self.metric_name);
-	self.setup_current_filter();
-	self.chart.render_chart_graph();
-	self.gottwall.save_to_storage();
-	return false;
-      });
     },
   });
   return BaseBar;

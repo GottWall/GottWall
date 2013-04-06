@@ -77,7 +77,9 @@ var Table = Widget.extend({
       return [key, value['range']];
     }),
 			    'caption': self.bar.metric_name,
-			    'column_names': date_range,
+			    'column_names': _.map(date_range, function(e){
+			      return self.gottwall.pretty_date_format(self.gottwall.parse_serialized_date(e));
+			    }),
 			    'group_column_name': self.bar.filter_name}));
 
     table.tablesorter({
