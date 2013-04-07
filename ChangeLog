@@ -1,5 +1,16 @@
-gottwall Changelog
+GottWall Changelog
 ====================
+
+# v0.3.1 (06-11-2013)
+
+- Refactored redis storage
+- Added sharing and embedded charts
+- Added cahrt type selector
+- Migrated to rickshaw charts.
+- Migrated js to requirejs.
+- Added screenshots.
+- Added documentation.
+- Translated into english.
 
 # v0.0.1 (18-11-2012)
 ---------------------
