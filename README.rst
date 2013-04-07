@@ -12,7 +12,9 @@ and all of the logic behind storage and aggregation.
 .. image:: https://travis-ci.org/GottWall/GottWall.png
 	   :target: https://travis-ci.org/GottWall/GottWall
 
-.. image:: http://obout.ru/s/s/empty.gif
+.. image:: http://obout.ru/s/empty.gif
+   :height: 1px
+   :width: 1 px
 
 Features
 --------
