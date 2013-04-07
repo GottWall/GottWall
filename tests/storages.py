@@ -275,9 +275,10 @@ class RedisStorageTestCase(AsyncBaseTestCase, RedisTestCaseMixin):
         timestamp = datetime.datetime(2012, 4, 10, 4, 5)
 
         for x in xrange(10):
-            self.assertTrue((yield Task(storage.incr, project_name, "redis_metric_name",
-                             timestamp, filters={"filter1": True,
-                                                 "filter2": ["web", "iphone", "android"]})))
+            res = (yield Task(storage.incr, project_name, "redis_metric_name",
+                              timestamp, filters={"filter1": True,
+                                                  "filter2": ["web", "iphone", "android"]}))
+            self.assertTrue(res)
 
         timestamp2 = datetime.datetime(2012, 1, 10, 3, 43)
         for x in xrange(10):
