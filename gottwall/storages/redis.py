@@ -12,6 +12,7 @@ Redis storage for collect statistics
 """
 import uuid
 from logging import getLogger
+from types import NoneType
 
 import tornado.gen
 from tornado.escape import json_decode, json_encode
@@ -187,7 +188,7 @@ class RedisStorage(BaseStorage):
         """
 
         pipe = self.client.pipeline(transactional=True)
-        pipe.select(self.client.selected_db)
+        pipe.select(self.selected_db)
 
         for period in self._application.config['PERIODS']:
             if filters:
@@ -226,7 +227,7 @@ class RedisStorage(BaseStorage):
 
         if isinstance(filters, dict):
             filters_part = u"/".join(
-                [u"{0}|{1}".format(f, to_unicode(filters[f]))
+                [u"{0}|{1}".format(f, to_unicode(self.clean_filter_value(filters[f])))
                  for f in sorted(filters.keys(), key=lambda x: x) if f])
 
             if filters_part:
@@ -246,8 +247,6 @@ class RedisStorage(BaseStorage):
         items = yield Task(self.client.hgetall, key)
         data_range = self.filter_by_period(map(lambda x: (x[0], int(x[1])), items.iteritems()),
                                            period, from_date, to_date)
-
-        filtered_range_values = map(lambda x: int(x[1]), data_range)
 
 
         if callback:
@@ -290,7 +289,7 @@ class RedisStorage(BaseStorage):
         """
         client = self.client
 
-        self.client.select(self.client.selected_db)
+        self.client.select(self.selected_db)
 
         metrics = {}
 
@@ -307,3 +306,16 @@ class RedisStorage(BaseStorage):
 
         if callback:
             callback(metrics)
+
+
+    def clean_filter_value(self, filter_value):
+        """Convert filter value to string object
+
+        :param filter_value:
+        :return: string object
+        """
+        if isinstance(filter_value, bool) or isinstance(filter_value, NoneType):
+            return str(bool)
+        return filter_value
+
+

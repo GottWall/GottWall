@@ -308,13 +308,17 @@ class RedisStorageTestCase(AsyncBaseTestCase, RedisTestCaseMixin):
                                               ("filter2", "web"),
                                               ("filter2", "iphone"),
                                               (None, None)):
-                d = list((yield Task(storage.query, "test_redis_project",
+                d = (yield Task(storage.query, "test_redis_project",
                                      "redis_metric_name", period,
                                      from_date=from_date,
                                      to_date=to_date,
                                      filter_name=filter_name,
-                                     filter_value=filter_value)))
-                self.assertTrue(10 in [x[1] for x in d])
+                                     filter_value=filter_value))
+
+                self.assertEquals(max([x[1] for x in list(d['range'])]), d['max'])
+                self.assertEquals(min([x[1] for x in list(d['range'])]), d['min'])
+                self.assertEquals(sum([x[1] for x in list(d['range'])]) / len(d['range']), d['min'])
+                self.assertTrue(10 in [x[1] for x in list(d['range'])])
 
 
         for period in ["year"]:
@@ -322,12 +326,19 @@ class RedisStorageTestCase(AsyncBaseTestCase, RedisTestCaseMixin):
                                               ("filter2", "web"),
                                               ("filter2", "iphone"),
                                               (None, None)):
-                for x in list((yield Task(storage.query, "test_redis_project",
-                                          "redis_metric_name", period,
-                                          from_date=from_date,
-                                          to_date=to_date,
-                                          filter_name=filter_name,
-                                          filter_value=filter_value))):
+
+                d = (yield Task(storage.query, "test_redis_project",
+                                "redis_metric_name", period,
+                                from_date=from_date,
+                                to_date=to_date,
+                                filter_name=filter_name,
+                                filter_value=filter_value))
+
+                for x in list(d['range']):
                     self.assertEquals(int(x[1]), 20)
+
+                self.assertEquals(max([x[1] for x in list(d['range'])]), d['max'])
+                self.assertEquals(min([x[1] for x in list(d['range'])]), d['min'])
+                self.assertEquals(sum([x[1] for x in list(d['range'])]) / len(d['range']), d['min'])
 
         self.stop()
