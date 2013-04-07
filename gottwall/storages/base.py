@@ -6,9 +6,9 @@ gottwall.storages
 
 GottWall storages backends
 
-:copyright: (c) 2012 by GottWall Team, see AUTHORS for more details.
+:copyright: (c) 2012 - 2013 by GottWall Team, see AUTHORS for more details.
 :license: BSD, see LICENSE for more details.
-:github: http://github.com/gottwall/gottwall
+:github: http://github.com/GottWall/GottWall
 """
 from itertools import ifilter
 from logging import getLogger
