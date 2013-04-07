@@ -125,7 +125,6 @@ class MemoryStorageTestCase(AsyncBaseTestCase):
         from_date = datetime.datetime(2011, 1, 1)
         to_date = datetime.datetime(2013, 1, 2)
 
-        from pprint import pprint
         # Disabled minute range
         for period in ["month", "day", "hour"]:
             for filter_name, filter_value in (("filter1", True),
@@ -138,9 +137,10 @@ class MemoryStorageTestCase(AsyncBaseTestCase):
                                           to_date=to_date,
                                           filter_name=filter_name,
                                           filter_value=filter_value))
-
+                self.assertEquals(max([x[1] for x in list(d['range'])]), d['max'])
+                self.assertEquals(min([x[1] for x in list(d['range'])]), d['min'])
+                self.assertEquals(sum([x[1] for x in list(d['range'])]) / len(d['range']), d['min'])
                 self.assertTrue(10 in [x[1] for x in list(d['range'])])
-
 
 
         for period in ["year"]:
@@ -148,13 +148,19 @@ class MemoryStorageTestCase(AsyncBaseTestCase):
                                               ("filter2", "web"),
                                               ("filter2", "iphone"),
                                               (None, None)):
-                for x in list((yield Task(storage.query, "test_memory_project",
-                                          "metric_name", period,
-                                          from_date=from_date,
-                                          to_date=to_date,
-                                          filter_name=filter_name,
-                                          filter_value=filter_value))['range']):
+                d = (yield Task(storage.query, "test_memory_project",
+                                "metric_name", period,
+                                from_date=from_date,
+                                to_date=to_date,
+                                filter_name=filter_name,
+                                filter_value=filter_value))
+                for x in list(d['range']):
                     self.assertEquals(x[1], 20)
+
+                self.assertEquals(max([x[1] for x in list(d['range'])]), d['max'])
+                self.assertEquals(min([x[1] for x in list(d['range'])]), d['min'])
+                self.assertEquals(sum([x[1] for x in list(d['range'])]) / len(d['range']), d['min'])
+
         self.stop()
 
 
