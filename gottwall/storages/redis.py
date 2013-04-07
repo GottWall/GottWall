@@ -236,7 +236,7 @@ class RedisStorage(BaseStorage):
 
 
     @gen.engine
-    def slice_data(self, project, name, period, from_date=None, to_date=None,
+    def query(self, project, name, period, from_date=None, to_date=None,
                    filter_name=None, filter_value=None, callback=None):
 
 
@@ -244,13 +244,22 @@ class RedisStorage(BaseStorage):
                             {filter_name: filter_value})
 
         items = yield Task(self.client.hgetall, key)
+        data_range = self.filter_by_period(map(lambda x: (x[0], int(x[1])), items.iteritems()),
+                                           period, from_date, to_date)
+
+        filtered_range_values = map(lambda x: int(x[1]), data_range)
+
 
         if callback:
-            callback(self.filter_by_period(map(lambda x: (x[0], int(x[1])), items.iteritems()),
-                                           period, from_date, to_date))
+            callback({"range": data_range,
+                      "max": max(filtered_range_values),
+                      "min": min(filtered_range_values),
+                      "avg": (sum(filtered_range_values) / len(filtered_range_values)) \
+                      if (len(filtered_range_values) > 0) else 0
+                      })
 
     @gen.engine
-    def slice_data_set(self, project, name, period, from_date=None, to_date=None,
+    def query_set(self, project, name, period, from_date=None, to_date=None,
                        filter_name=None, callback=None):
 
         client = self.client

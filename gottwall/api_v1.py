@@ -99,16 +99,18 @@ class StatsHandlerV1(APIHandler, StatsMixin):
 
         if self.validate_name(name, period) and from_date and to_date:
 
-            data = yield gen.Task(self.application.storage.slice_data,
+            data = yield gen.Task(self.application.storage.query,
                                   project, name, period, from_date, to_date, filter_name, filter_value)
 
-            self.json_response({"range": list(data),
+            self.json_response({"range": list(data['range']),
                                 "project": project,
                                 "period": period,
                                 "name": name,
                                 "filter_name": filter_name,
                                 "filter_value": filter_value,
-                                "avg": 0})
+                                "avg": data['avg'],
+                                "min": data['min'],
+                                "max": data['max']})
 
 
 class StatsDataSetHandlerV1(APIHandler, StatsMixin):
@@ -132,7 +134,7 @@ class StatsDataSetHandlerV1(APIHandler, StatsMixin):
 
         if self.validate_name(name, period) and from_date and to_date:
 
-            data = yield gen.Task(self.application.storage.slice_data_set,
+            data = yield gen.Task(self.application.storage.query_set,
                                   project, name, period, from_date, to_date, filter_name)
 
             self.json_response({"data": data,
@@ -255,7 +257,7 @@ class EmbeddedBaseHandlerV1(BaseHandler, TimeMixin, JSONMixin):
 
         for metric in meta_info['metrics']:
             metric['range'] = (yield gen.Task(
-                self.application.storage.slice_data,
+                self.application.storage.query,
                 meta_info['project'], metric['m'], response_data['period'],
                 from_date, to_date, metric.get('fn'), metric.get('fv')))
 
