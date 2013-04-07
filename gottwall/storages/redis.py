@@ -251,12 +251,7 @@ class RedisStorage(BaseStorage):
 
 
         if callback:
-            callback({"range": data_range,
-                      "max": max(filtered_range_values),
-                      "min": min(filtered_range_values),
-                      "avg": (sum(filtered_range_values) / len(filtered_range_values)) \
-                      if (len(filtered_range_values) > 0) else 0
-                      })
+            callback(self.get_range_info(data_range))
 
     @gen.engine
     def query_set(self, project, name, period, from_date=None, to_date=None,

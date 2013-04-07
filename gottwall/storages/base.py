@@ -60,6 +60,19 @@ class BaseStorage(object):
         """
         raise NotImplementedError
 
+    @staticmethod
+    def get_range_info(data_range):
+        """Get additional info for `data_range`
+        """
+        filtered_range_values = map(lambda x: int(x[1]), data_range)
+
+        return {"range": data_range,
+                "max": max(filtered_range_values),
+                "min": min(filtered_range_values),
+                "avg": (sum(filtered_range_values) / len(filtered_range_values)) \
+                if (len(filtered_range_values) > 0) else 0}
+
+
     def query(self, period, from_date, to_date, filter_name, filter_value):
         """Get data by range and filters
 

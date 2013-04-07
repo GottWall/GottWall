@@ -153,7 +153,7 @@ class MemoryStorage(BaseStorage):
         items = self.filter_by_period(items, period, from_date, to_date)
 
         if callback:
-            callback(items)
+            callback(self.get_range_info(items))
 
 
     @gen.engine
