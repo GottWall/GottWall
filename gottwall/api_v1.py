@@ -317,14 +317,14 @@ class JSEmbeddedHandlerV1(HTMLEmbeddedHandlerV1):
         if not any([from_date, to_date]):
             return
 
-        height, width, renderer, interpolation = self.get_chart_params()
+        height, width, interpolation = self.get_chart_params()
 
 
         self.render("js_embedded.html",
                     width=width, height=height,
                     from_date=from_date.strftime(DATE_FILTER_FORMAT),
                     to_date=to_date.strftime(DATE_FILTER_FORMAT), period=period,
-                    renderer=renderer, interpolation=interpolation, uid=uid)
+                    interpolation=interpolation, uid=uid)
 
 
 
