@@ -9,8 +9,8 @@ It will handle authenticating `clients <Available clients>`_ (such as stati)
 and all of the logic behind storage and aggregation.
 
 
-.. image:: https://secure.travis-ci.org/GottWall/GottWall.png
-	   :target: https://secure.travis-ci.org/GottWall/GottWall
+.. image:: https://travis-ci.org/GottWall/GottWall.png
+	   :target: https://travis-ci.org/GottWall/GottWall
 
 Features
 --------

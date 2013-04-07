@@ -1,7 +1,8 @@
 
 define(['jquery', 'bootstrap-datepicker'], function($){
-
-  $('.input_date').datepicker();
-
+  $('.datepicker').datepicker()
+    .on('changeDate', function(ev){
+      $('.datepicker').datepicker('hide');
+    });
   return {};
 });

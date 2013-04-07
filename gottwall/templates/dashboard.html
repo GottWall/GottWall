@@ -3,6 +3,7 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block head %}
+<link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/datepicker.css"/>
 
 <script>
 var static_path = "{{ static }}";
@@ -38,11 +39,11 @@ var prefix = "{{ handler.settings['PREFIX'] }}";
     </div>
   </div>
 
-  <div class="span5 intervals datepicker" data-date-format="yyyy-mm-dd">
+  <div class="span5 intervals" data-date-format="yyyy-mm-dd">
     <span style="display:inline-block;width: 80px;text-align: right;">{{ _("Period from") }}</span>
-    <input data-datepicker="datepicker" data-date-format="yyyy-mm-dd" type="text" name="start-date" class="input_date start-date datepicker date" id="from-date">
+    <input data-date-format="yyyy-mm-dd" type="text" name="start-date" class="input_date start-date datepicker" id="from-date">
     <span style="display:inline-block;width: 20px;text-align: right;">{{ _("to") }}</span>
-    <input data-datepicker="datepicker" data-date-format="yyyy-mm-dd" type="text" name="end-date" class="input_date end-date datepicker date" id="to-date">
+    <input data-date-format="yyyy-mm-dd" type="text" name="end-date" class="input_date end-date datepicker" id="to-date">
   </div>
   <div class="redraw pull-right">
     <button class="btn" id="redraw-button"><i class=" icon-refresh"></i> {{ _("Redraw") }}</button>

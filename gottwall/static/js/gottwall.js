@@ -98,8 +98,6 @@ define(["js/class", "js/widgets/chart", "js/widgets/table", "js/bars/bar", "js/b
 
       var self = this;
 
-      console.debug("Making embedded link");
-
       $.ajax({
 	type: "POST",
 	url: api_url,
@@ -168,7 +166,7 @@ define(["js/class", "js/widgets/chart", "js/widgets/table", "js/bars/bar", "js/b
 
   switch_full_size_mode: function(mode_on){
     var self = this;
-    console.log("Switch full size mode");
+
     var button = $('#resize-area-switcher');
     if(mode_on){
       button.addClass('active');
@@ -212,7 +210,7 @@ define(["js/class", "js/widgets/chart", "js/widgets/table", "js/bars/bar", "js/b
     this.current_period = period;
 
     if(_.has(this.date_formats, period)){
-      console.log("Setup current date formatter");
+
       this.current_date_format = this.date_formats[period];
       this.current_date_formatter = d3.time.format(this.date_formats[period]);
     }
@@ -258,7 +256,7 @@ define(["js/class", "js/widgets/chart", "js/widgets/table", "js/bars/bar", "js/b
   set_date_range: function(){
     var self = this;
     if(self.current_period == 'hour'){
-      console.log("Selected hour");
+
       var to_d = new Date();
       var from_d = new Date();
       from_d.setDate(to_d.getDate()-3);
@@ -274,7 +272,6 @@ define(["js/class", "js/widgets/chart", "js/widgets/table", "js/bars/bar", "js/b
   },
   change_project: function(){
     var self = this;
-    console.log("Changed to project: " + self.current_project);
 
     self.charts_container.children().remove();
 
@@ -304,7 +301,6 @@ define(["js/class", "js/widgets/chart", "js/widgets/table", "js/bars/bar", "js/b
   },
   redraw_charts: function(){
     var self = this;
-    console.log("Redraw charts for project " + this.current_project);
 
     _.each(this.charts[this.current_project], function(chart, key){
       chart.render_chart_graph();
@@ -442,12 +438,10 @@ define(["js/class", "js/widgets/chart", "js/widgets/table", "js/bars/bar", "js/b
 
   },
   restore_charts: function(){
-    console.log("Restore charts");
     var self = this;
 
     var projects = JSON.parse(localStorage.getItem(this.charts_key)) || {};
 
-    console.log("Restore project " + self.current_project);
     var project = self.current_project;
 
     if(!project){

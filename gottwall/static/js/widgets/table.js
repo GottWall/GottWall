@@ -2,7 +2,6 @@ define(["jquery", "underscore", "swig", "js/widgets/base", "js/bars/table", "js/
 
 var Table = Widget.extend({
   init: function(gottwall, id){
-    console.log("Initialize table widget");
     this._super(gottwall, id, null);
     this.type = "table";
     this.bar = null;
@@ -15,12 +14,10 @@ var Table = Widget.extend({
 	    "type": this.type}
    },
   show_loader: function(){
-    console.log("Show loader");
     this.node.find('div.table-area').hide();
     this.node.find('.loader').show();
   },
   hide_loader: function(){
-    console.log("Hide loader");
     this.node.find('div.table-area').show();
     this.node.find('.loader').hide();
   },
@@ -56,7 +53,6 @@ var Table = Widget.extend({
   },
   render_chart_graph: function(){
     var self = this;
-    console.log("Render table");
 
     var metric = this.get_metrics();
 
@@ -68,14 +64,12 @@ var Table = Widget.extend({
 
     $.when.apply($, [metric.get_resource_loader(self.gottwall.current_period)]).done(
       function(){
-	console.log("Metrics loaded");
 	var response = arguments;
 	self.hide_loader();
 	return self.render_metrics_table(response[0]);
       });
   },
   render_metrics_table: function(metrics){
-    console.log("Render metrics table");
     var self = this;
     var template = swig.compile($("#table-template").text());
     var date_range = metrics.date_range;

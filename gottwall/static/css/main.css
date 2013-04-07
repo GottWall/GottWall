@@ -360,3 +360,8 @@ footer .version, footer .credits  {
                                  margin-top: 0px;
                                  width: 80%;
  }
+
+
+input.datepicker {
+                   width: 80px;
+ }

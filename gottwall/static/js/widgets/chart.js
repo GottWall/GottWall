@@ -4,7 +4,6 @@ define( ["jquery", "underscore", "swig", "js/widgets/base", "js/metrics/metric",
  var Chart = Widget.extend({
 
    init: function(gottwall, id, period){
-     console.log("Initialize chart widget: "+id);
      this._super(gottwall, id);
 
      this.period = period || 'month';
@@ -25,7 +24,6 @@ define( ["jquery", "underscore", "swig", "js/widgets/base", "js/metrics/metric",
 	     "type": this.type}
    },
    render_chart_graph: function(){
-     console.log("Load stats for chart ..."+this.id);
      var self = this;
      var metrics = this.get_metrics();
      self.show_loader();
@@ -78,7 +76,6 @@ define( ["jquery", "underscore", "swig", "js/widgets/base", "js/metrics/metric",
    },
   render_metrics: function(metrics){
     // Rendering chart by metrics hash
-    console.log("Chart rendering...");
     var self = this;
     var selector = '#chart-' + self.id + " ";
     var selector_prefix = "#chart-" + self.id;
@@ -132,7 +129,6 @@ define( ["jquery", "underscore", "swig", "js/widgets/base", "js/metrics/metric",
 
     graph.render();
     self.graph = graph;
-    console.log(self.graph);
   },
   get_metrics: function(){
     // Get activated metrics
@@ -141,23 +137,19 @@ define( ["jquery", "underscore", "swig", "js/widgets/base", "js/metrics/metric",
     }));
   },
   add_bar: function(bar){
-    console.log("Add new bar");
     this.bars.push(bar);
   },
 
   remove_bar: function(bar){
-    console.log("Remove bar " + bar);
 
     for(var i in this.bars){
       if(_.isEqual(this.bars[i].node, bar.node)){
-	console.log("Remove bar "+i);
 	this.bars.splice(i, 1)
       }
     }
     bar.node.remove();
   },
   render_widget: function(){
-    console.log("Render chart widget");
 
     var template = swig.compile($("#chart-template").text());
 

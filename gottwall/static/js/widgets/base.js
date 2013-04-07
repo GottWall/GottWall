@@ -2,7 +2,6 @@ define( ["jquery", "js/class", "js/bars/bar", "js/utils/guid", "rickshaw"], func
 
   var Widget = Class.extend({
     init: function(gottwall, id){
-      console.log("Initialize widget");
       this.id = id;
       this.type = "widget";
       this.gottwall = gottwall;
@@ -10,12 +9,10 @@ define( ["jquery", "js/class", "js/bars/bar", "js/utils/guid", "rickshaw"], func
       this.palette = new Rickshaw.Color.Palette();
     },
     show_loader: function(){
-      console.log("Show loader");
       this.node.find('svg').hide();
       this.node.find('.loader').show();
     },
     hide_loader: function(){
-      console.log("Hide loader");
       this.node.find('svg').show();
       this.node.find('.loader').hide();
     },
@@ -54,7 +51,6 @@ define( ["jquery", "js/class", "js/bars/bar", "js/utils/guid", "rickshaw"], func
 	});
       this.node.on(
 	'click', '.chart-controls .share-chart', function(){
-	  console.log("Share chart");
 	  var params = self.to_dict();
 	  params['period'] = self.gottwall.current_period;
 	  self.gottwall.make_embedded(JSON.stringify(params),
@@ -70,8 +66,6 @@ define( ["jquery", "js/class", "js/bars/bar", "js/utils/guid", "rickshaw"], func
       return "chart-"+this.id;
     },
     links_loaded: function(data){
-      console.log(this);
-      console.log(data);
       this.render_share_modal_body(data);
       $('#share-modal').modal();
     },
