@@ -1,14 +1,11 @@
 include *.txt *.md *.rst Makefile *.py
 recursive-include gottwall *.py
 recursive-exclude gottwall *.pyo *.pyc
-recursive-include gottwall templates
-recursive-include gottwall/templates *
-recursive-include gottwall static
+recursive-include gottwall/templates *.html *.css
 recursive-include gottwall/static *
-recursive-include docs *.txt *.py *.rst *.md *
-recursive-include docs *
-recursive-exclude docs/source/images/*
-recursive-exclude docs/build/*
+recursive-include docs/source *.txt *.py *.rst *.md *
+recursive-exclude docs/source/images/ *.png
+recursive-exclude docs/source/images *.png
 recursive-exclude docs/build/ *
 recursive-exclude docs/source/_static/*
 recursive-exclude docs/source/_static/ *
