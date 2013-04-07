@@ -8,6 +8,7 @@ Unittests for gottwall
 
 :copyright: (c) 2012 - 2013 by GottWall team, see AUTHORS for more details.
 :license: BSD, see LICENSE for more details.
+:github: http://github.com/GottWall/GottWall
 """
 
 import unittest
@@ -28,10 +29,10 @@ def suite():
     # suite.addTest(unittest.makeSuite(TCPBackendTestCase))
     # suite.addTest(unittest.makeSuite(HTTPBackendTestCase))
     # suite.addTest(unittest.makeSuite(RedisBackendTestCase))
-    suite.addTest(unittest.makeSuite(APITestCase))
+    # suite.addTest(unittest.makeSuite(APITestCase))
     # suite.addTest(unittest.makeSuite(StorageTestCase))
     # suite.addTest(unittest.makeSuite(RedisStorageTestCase))
-    # suite.addTest(unittest.makeSuite(MemoryStorageTestCase))
+    suite.addTest(unittest.makeSuite(MemoryStorageTestCase))
     # suite.addTest(unittest.makeSuite(UtilsTestCase))
     # suite.addTest(unittest.makeSuite(ProcessorTestCase))
     return suite

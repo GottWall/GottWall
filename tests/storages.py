@@ -6,20 +6,18 @@ gottwall.tests
 
 Unittests for gottwall
 
-:copyright: (c) 2012 by GottWall team, see AUTHORS for more details.
+:copyright: (c) 2012 - 2013 by GottWall team, see AUTHORS for more details.
 :license: BSD, see LICENSE for more details.
+:github: http://github.com/GottWall/GottWall
 """
 
 import datetime
-import json
-from random import choice, randint
 
-from tornado.web import Application
 import tornado.gen
 import tornado.ioloop
 
 from gottwall.app import HTTPApplication
-from gottwall.config import Config, default_settings
+from gottwall.config import Config
 import gottwall.default_config
 from utils import async_test
 import tornadoredis
@@ -127,19 +125,22 @@ class MemoryStorageTestCase(AsyncBaseTestCase):
         from_date = datetime.datetime(2011, 1, 1)
         to_date = datetime.datetime(2013, 1, 2)
 
+        from pprint import pprint
         # Disabled minute range
         for period in ["month", "day", "hour"]:
             for filter_name, filter_value in (("filter1", True),
                                               ("filter2", "web"),
                                               ("filter2", "iphone"),
                                               (None, None)):
-                d = list((yield Task(storage.slice_data, "test_memory_project",
+                d = (yield Task(storage.query, "test_memory_project",
                                           "metric_name", period,
                                           from_date=from_date,
                                           to_date=to_date,
                                           filter_name=filter_name,
-                                          filter_value=filter_value)))
-                self.assertTrue(10 in [x[1] for x in d])
+                                          filter_value=filter_value))
+
+                self.assertTrue(10 in [x[1] for x in list(d['range'])])
+
 
 
         for period in ["year"]:
@@ -147,12 +148,12 @@ class MemoryStorageTestCase(AsyncBaseTestCase):
                                               ("filter2", "web"),
                                               ("filter2", "iphone"),
                                               (None, None)):
-                for x in list((yield Task(storage.slice_data, "test_memory_project",
+                for x in list((yield Task(storage.query, "test_memory_project",
                                           "metric_name", period,
                                           from_date=from_date,
                                           to_date=to_date,
                                           filter_name=filter_name,
-                                          filter_value=filter_value))):
+                                          filter_value=filter_value))['range']):
                     self.assertEquals(x[1], 20)
         self.stop()
 
@@ -301,7 +302,7 @@ class RedisStorageTestCase(AsyncBaseTestCase, RedisTestCaseMixin):
                                               ("filter2", "web"),
                                               ("filter2", "iphone"),
                                               (None, None)):
-                d = list((yield Task(storage.slice_data, "test_redis_project",
+                d = list((yield Task(storage.query, "test_redis_project",
                                      "redis_metric_name", period,
                                      from_date=from_date,
                                      to_date=to_date,
@@ -315,7 +316,7 @@ class RedisStorageTestCase(AsyncBaseTestCase, RedisTestCaseMixin):
                                               ("filter2", "web"),
                                               ("filter2", "iphone"),
                                               (None, None)):
-                for x in list((yield Task(storage.slice_data, "test_redis_project",
+                for x in list((yield Task(storage.query, "test_redis_project",
                                           "redis_metric_name", period,
                                           from_date=from_date,
                                           to_date=to_date,
