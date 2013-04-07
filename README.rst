@@ -23,17 +23,17 @@ Features
 Screenshots
 -----------
 
-.. image:: https://raw.github.com/GottWall/GottWall/master/docs/images/GottWall_1_thumb.png
-	   :target: https://raw.github.com/GottWall/GottWall/master/docs/images/GottWall_1.png
+.. image:: https://raw.github.com/GottWall/GottWall/master/docs/source/images/GottWall_1_thumb.png
+	   :target: https://raw.github.com/GottWall/GottWall/master/docs/sourece/images/GottWall_1.png
 
-.. image:: https://raw.github.com/GottWall/GottWall/master/docs/images/GottWall_2_thumb.png
-	   :target: https://raw.github.com/GottWall/GottWall/master/docs/images/GottWall_2.png
+.. image:: https://raw.github.com/GottWall/GottWall/master/docs/sourece/images/GottWall_2_thumb.png
+	   :target: https://raw.github.com/GottWall/GottWall/master/docs/sourece/images/GottWall_2.png
 
-.. image:: https://raw.github.com/GottWall/GottWall/master/docs/images/GottWall_4_thumb.png
-	   :target: https://raw.github.com/GottWall/GottWall/master/docs/images/GottWall_4.png
+.. image:: https://raw.github.com/GottWall/GottWall/master/docs/sourece/images/GottWall_4_thumb.png
+	   :target: https://raw.github.com/GottWall/GottWall/master/docs/sourece/images/GottWall_4.png
 
-.. image:: https://raw.github.com/GottWall/GottWall/master/docs/images/GottWall_5_thumb.png
-	   :target: https://raw.github.com/GottWall/GottWall/master/docs/images/GottWall_5.png
+.. image:: https://raw.github.com/GottWall/GottWall/master/docs/sourece/images/GottWall_5_thumb.png
+	   :target: https://raw.github.com/GottWall/GottWall/master/docs/sourece/images/GottWall_5.png
 
 
 Installation
