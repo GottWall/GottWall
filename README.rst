@@ -13,8 +13,9 @@ and all of the logic behind storage and aggregation.
 	   :target: https://travis-ci.org/GottWall/GottWall
 
 .. image:: http://obout.ru/s/empty.gif
+	   :target: http://obout.ru/s/empty.gif
    :height: 1px
-   :width: 1 px
+   :width: 1px
 
 Features
 --------
