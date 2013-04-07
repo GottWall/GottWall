@@ -256,10 +256,10 @@ class EmbeddedBaseHandlerV1(BaseHandler, TimeMixin, JSONMixin):
         names = []
 
         for metric in meta_info['metrics']:
-            metric['range'] = (yield gen.Task(
+            metric.update((yield gen.Task(
                 self.application.storage.query,
                 meta_info['project'], metric['m'], response_data['period'],
-                from_date, to_date, metric.get('fn'), metric.get('fv')))
+                from_date, to_date, metric.get('fn'), metric.get('fv'))))
 
             metric['name'] = metric.pop('m')
             names.append(metric['name'])
