@@ -384,3 +384,19 @@ footer {
                  margin-top: 0px;
                  font-weight: 100;
  }
+
+.svg-wrapper {
+               float: left;
+               width: 100%;
+ }
+
+.svg-wrapper .y_axis {
+                       float: left;
+                       width: 40px;
+                       display: block;
+ }
+
+.svg-wrapper .linen {
+                      float: left;
+                      width: 90%;
+ }

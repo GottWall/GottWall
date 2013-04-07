@@ -147,9 +147,9 @@ define( ["jquery", "underscore", "swig", "js/widgets/base", "js/metrics/metric",
 
       var y_axis = new Rickshaw.Graph.Axis.Y({
 	graph: graph,
-	//orientation: 'left',
+	orientation: 'left',
 	//element: document.querySelector('#' + section.identifier + ' .y-axis'),
-	//element: document.getElementById("y_axis-"+self.id),
+	element: document.getElementById("y_axis-"+self.id),
 	tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
       });
 
