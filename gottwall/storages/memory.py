@@ -141,7 +141,7 @@ class MemoryStorage(BaseStorage):
         return self.incr(project, name, timestamp,  0 - abs(value), filters, **kwargs)
 
     @gen.engine
-    def slice_data(self, project, name, period, from_date=None,
+    def query(self, project, name, period, from_date=None,
                    to_date=None, filter_name=None, filter_value=None, callback=None):
         """Get statistics by filters
         """

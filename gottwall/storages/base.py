@@ -60,7 +60,7 @@ class BaseStorage(object):
         """
         raise NotImplementedError
 
-    def slice_data(self, period, from_date, to_date, filter_name, filter_value):
+    def query(self, period, from_date, to_date, filter_name, filter_value):
         """Get data by range and filters
 
         :param period: range periodic
@@ -92,6 +92,7 @@ class BaseStorage(object):
         to_date = date_max(to_date, period)
 
         data = self.convert_range_to_datetime(data, period)
+
 
         if from_date and to_date:
             new_data = OrderedDict(map(lambda x: (x, 0),
