@@ -32,7 +32,7 @@ static_url_prefix = "/static/"
 
 login_url = '/login'
 
-site_title=u"GottWall - metrics aggregation platform"
+site_title=u"GottWall is a scalable realtime metrics collecting and aggregation platform and service."
 
 ALEMBIC_SCRIPT_LOCATION = 'gottwall:migrations'
 
@@ -67,3 +67,18 @@ EMBEDDED_PARAMS = {
     "renderer": "line", # area, stack, bar, line, and scatterplot,
     "interpolation": 'linear' # linear, step-after, cardinal,  basis
     }
+
+RENDERERS = [
+    "area",
+    "stack",
+    "bar",
+    "line",
+    "scatterplot",
+    ]
+
+INTERPOLATIONS = [
+    "linear",
+    "step-after",
+    "cardinal",
+    "basis"
+    ]

@@ -7,9 +7,9 @@ gottwall.config
 
 Gottwall configs wrapper
 
-:copyright: (c) 2012 by GottWall team, see AUTHORS for more details.
+:copyright: (c) 2012 - 2013 by GottWall team, see AUTHORS for more details.
 :license: BSD, see LICENSE for more details.
-:github: http://github.com/gottwall/gottwall
+:github: http://github.com/GottWall/GottWall
 """
 import imp
 import os.path

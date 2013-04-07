@@ -167,6 +167,17 @@ class EmbeddedCreateHandlerV1(APIHandler, TimeMixin):
             return
         return True
 
+    def validate_renderer(self, renderer=None):
+        if not renderer:
+            return True
+
+        if renderer not in self.config.get('RENDERERS', []):
+            self.set_status(400)
+            self.json_response({"text": "You need specify name and period"})
+            return
+        return True
+
+
     @authenticated
     @tornado.web.asynchronous
     @gen.engine
@@ -176,6 +187,7 @@ class EmbeddedCreateHandlerV1(APIHandler, TimeMixin):
             data = json_decode(self.request.body)
             metrics = data['metrics']
             period = data['period']
+            renderer = data.get('renderer')
         except Exception:
             self.set_status(400)
             self.json_response({"text": "Bad request"})
@@ -184,9 +196,12 @@ class EmbeddedCreateHandlerV1(APIHandler, TimeMixin):
         if not self.validate_period(period):
             return
 
+        if not self.validate_renderer(renderer):
+            return
+
         embedded_hash = (yield gen.Task(
             self.application.storage.make_embedded,
-                project, period, metrics))
+                project, period, metrics, renderer))
 
         if not embedded_hash:
             self.set_status(500)
@@ -209,8 +224,14 @@ class EmbeddedBaseHandlerV1(BaseHandler, TimeMixin, JSONMixin):
         from_date = self.get_argument('from_date', datetime.now() - relativedelta(months=1))
         to_date = self.get_argument('to_date', datetime.now())
         period = self.get_argument('period', 'month')
-
         return from_date, to_date, period
+
+    def get_renderer(self, meta_info):
+        EMBEDDED_PARAMS = self.config.get('EMBEDDED_PARAMS', {})
+
+        return self.get_argument('renderer', meta_info.get('renderer',
+                                                           EMBEDDED_PARAMS.get('renderer')) or\
+                                 DEFAULT_EMBEDDED_PARAMS['renderer'])
 
     @gen.engine
     def get_data(self, uid, callback=None):
@@ -223,6 +244,7 @@ class EmbeddedBaseHandlerV1(BaseHandler, TimeMixin, JSONMixin):
         meta_info =  (yield gen.Task(self.application.storage.get_embedded, uid))
 
         response_data = {
+            "renderer": self.get_renderer(meta_info),
             "metrics": [],
             "period": self.get_argument('period', meta_info['period']),
             "from_date": from_date.strftime(DATE_FILTER_FORMAT),
@@ -255,32 +277,30 @@ class EmbeddedBaseHandlerV1(BaseHandler, TimeMixin, JSONMixin):
 class HTMLEmbeddedHandlerV1(EmbeddedBaseHandlerV1):
 
     def get_chart_params(self):
-        EMBEDDED_PARAMS = self.application.config.get('EMBEDDED_PARAMS', {})
+        EMBEDDED_PARAMS = self.config.get('EMBEDDED_PARAMS', {})
 
         height = int(self.get_argument('height', EMBEDDED_PARAMS.get('height')) or
                      DEFAULT_EMBEDDED_PARAMS['height'])
         width = int(self.get_argument('width', EMBEDDED_PARAMS.get('width')) or
                     DEFAULT_EMBEDDED_PARAMS['width'])
-        renderer = self.get_argument('renderer', EMBEDDED_PARAMS.get('renderer')) or\
-                   DEFAULT_EMBEDDED_PARAMS['renderer']
         interpolation = self.get_argument('interpolation', EMBEDDED_PARAMS.get('interpolation')) or\
                    DEFAULT_EMBEDDED_PARAMS['interpolation']
 
-        return height, width, renderer, interpolation
+        return height, width, interpolation
 
 
     @tornado.web.asynchronous
     @gen.engine
     def get(self, uid, *args, **kwargs):
         response_data = (yield gen.Task(self.get_data, uid))
-        height, width, renderer, interpolation = self.get_chart_params()
+        height, width, interpolation = self.get_chart_params()
 
         def x_converter(x):
             return datetime_to_int(get_datetime(x, response_data['period']), response_data['period'])
 
-        self.render("embedded.html", config=self.application.config,
+        self.render("embedded.html",
                     data=response_data, width=width, height=height,
-                    renderer=renderer, interpolation=interpolation,
+                    interpolation=interpolation,
                     x_converter=x_converter, uid=uid)
 
 
@@ -297,7 +317,7 @@ class JSEmbeddedHandlerV1(HTMLEmbeddedHandlerV1):
         height, width, renderer, interpolation = self.get_chart_params()
 
 
-        self.render("js_embedded.html", config=self.application.config,
+        self.render("js_embedded.html",
                     width=width, height=height,
                     from_date=from_date.strftime(DATE_FILTER_FORMAT),
                     to_date=to_date.strftime(DATE_FILTER_FORMAT), period=period,

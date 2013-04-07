@@ -58,7 +58,6 @@ class BaseHandler(RequestHandler):
     def initialize(self, config, db, env):
         self.config = config
         self.jinja_env = env
-        self.config = config
 
     def get_current_user(self):
         """ Return current logged user or None.
@@ -92,6 +91,7 @@ class BaseHandler(RequestHandler):
         kwargs['generator'] = SERVER_NAME
         kwargs['gottwall_home'] = GOTTWALL_HOME
         kwargs['gottwall_description'] = GOTTWALL_DESCRIPTION
+        kwargs['config'] = self.config
         data = self.render_to_string(template, context=kwargs)
         return self.finish(data)
 
@@ -121,7 +121,7 @@ class DashboardHandler(BaseHandler):
     @authenticated
     def get(self, *args, **kwargs):
 
-        self.render("dashboard.html", config=self.application.config,
+        self.render("dashboard.html",
                     projects=self.config['PROJECTS'])
 
 
@@ -131,7 +131,7 @@ class HomeHandler(BaseHandler):
         if self.application.config.get("HOME_AUTOREDIRECT", False) or self.current_user:
             self.redirect(self.reverse_url('dashboard'))
         else:
-            self.render("home.html", config=self.application.config,
+            self.render("home.html",
                         projects=self.config['PROJECTS'] if self.current_user else [])
 
 
@@ -139,7 +139,7 @@ class NotFoundHandler(BaseHandler):
 
     def get(self, *args, **kwargs):
         self.set_status(404)
-        self.render("404.html", config=self.application.config)
+        self.render("404.html", )
 
 
 class JSONMixin(object):
@@ -187,7 +187,7 @@ class LoginHandler(BaseHandler, GoogleMixin):
         if not user:
             self.set_status(403)
 
-            self.render("403.html", config=self.application.config,
+            self.render("403.html",
                         projects=self.config['PROJECTS'], user=user)
 
         if not self.application.config.get('ANONYMOUS_LOGIN', False) and \
@@ -195,7 +195,7 @@ class LoginHandler(BaseHandler, GoogleMixin):
 
             self.set_status(403)
 
-            self.render("403.html", config=self.application.config,
+            self.render("403.html",
                         projects=self.config['PROJECTS'], user=user)
 
         self.set_secure_cookie("user", json_encode(user))

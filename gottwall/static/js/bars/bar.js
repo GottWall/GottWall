@@ -4,12 +4,8 @@ define(["jquery", "underscore", "js/bars/base", "js/metrics/metric","select2"], 
     init: function(gottwall, chart, id, color, metric_name, filter_name, filter_value){
 
       this._super(gottwall, chart, id, metric_name, filter_name, filter_value);
-
-      // this.bar = this.chart.node.find("#bar-"+this.id);
-
       this.metric = null;
       this.color = color;
-      // this.render_selectors();
     },
     render: function(){
       var template = swig.compile($("#selectors-bar-template").text());
@@ -52,7 +48,6 @@ define(["jquery", "underscore", "js/bars/base", "js/metrics/metric","select2"], 
       this.node.find('.filters-selector .current').text(filter_current);
     },
     setup_current_metric: function(){
-      console.log("Setup current metric");
       var self = this;
       var metric_current = "Param";
 
@@ -66,8 +61,8 @@ define(["jquery", "underscore", "js/bars/base", "js/metrics/metric","select2"], 
       self.setup_current_filter();
     },
     render_filters: function(metric_name, filters){
-      console.log("Render filters");
       var self = this;
+
       var template = swig.compile($("#filters-selector-template").text());
 
       if(!this.node){

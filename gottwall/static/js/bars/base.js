@@ -13,9 +13,7 @@ define(["jquery", "underscore", "swig", "js/class", "js/utils/guid"], function($
       // DOM object node
       this.node = null;
     },
-    add_bindings: function(){
-      console.log("Add bindings to BaseBar");
-    },
+    add_bindings: function(){},
     render: function(){
       var template = swig.compile($("#selectors-bar-template").text());
       this.node = $(template({"id": this.id}));
@@ -32,8 +30,6 @@ define(["jquery", "underscore", "swig", "js/class", "js/utils/guid"], function($
       this.render_metrics(this.gottwall.metrics[this.gottwall.current_project]);
     },
     render_metrics: function(metrics){
-      $.log("Render metrics selectors");
-
       var self = this;
       var template = swig.compile($("#metrics-selector-template").text());
 

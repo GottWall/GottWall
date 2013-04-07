@@ -95,8 +95,8 @@
       },
       height: {{ height }},
       width: {{ width }},
-      renderer: "{{ renderer }}",
-      {% if interpolation %}interpolation: "{{ interpolation }}",{% endif %}
+      renderer: "{{ data['renderer'] }}",
+      //{% if interpolation %}interpolation: "{{ interpolation }}",{% endif %}
       element: document.querySelector("#graph"),
       series: [{% for metric in data["metrics"] -%}{{ render_metric(metric) -}}{%- if not loop.last -%},{%- endif -%}{%- endfor %}]
     });

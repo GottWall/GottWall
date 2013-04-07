@@ -58,3 +58,25 @@ DEFAULT_EMBEDDED_PARAMS = {
     "renderer": "line", # area, stack, bar, line, and scatterplot,
     "interpolation": None, #"linear" # linear, step-after, cardinal,  basis
     }
+
+
+RENDERERS = [
+    "area",
+    "stack",
+    "bar",
+    "line",
+    "scatterplot",
+    ]
+
+INTERPOLATIONS = [
+    "linear",
+    "step-after",
+    "cardinal",
+    "basis"
+    ]
+
+
+JINJA2_EXTENSIONS = (
+    'jinja2.ext.do',
+    'jinja2.ext.i18n'
+)

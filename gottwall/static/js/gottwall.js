@@ -314,12 +314,25 @@ define(["js/class", "js/widgets/chart", "js/widgets/table", "js/bars/bar", "js/b
       self.save_to_storage();
     });
   },
+    validate_dates_range: function(from_date, to_date){
+      var from_date_obj = this.date_formatters["day"].parse(from_date);
+      var to_date_obj = this.date_formatters["day"].parse(to_date);
+
+      if (from_date_obj > to_date_obj){
+	$("#invalid-dates-modal").modal();
+	return false;
+      }
+      return true;
+    },
   bind_dates_selectors: function(){
     var self = this;
     this.from_date_selector.bind('click', function(e){
       var input = $(this);
 
       if(input.val() != self.from_date){
+	if(!self.validate_dates_range(self.get_from_date(), self.get_to_date())){
+	  return false;
+	}
 	self.from_date = input.val();
       }
     });
@@ -328,13 +341,22 @@ define(["js/class", "js/widgets/chart", "js/widgets/table", "js/bars/bar", "js/b
       var input = $(this);
 
       if(input.val() != self.to_date){
+	if(!self.validate_dates_range(self.get_from_date(), self.get_to_date())){
+	  return false;
+	}
 	self.to_date = input.val();
       }
     });
     this.from_date_selector.on('change', function(){
+      if(!self.validate_dates_range(self.get_from_date(), self.get_to_date())){
+	return false;
+      }
       self.redraw_charts();
     });
     this.to_date_selector.on('change', function(){
+      if(!self.validate_dates_range(self.get_from_date(), self.get_to_date())){
+	return false;
+      }
       self.redraw_charts();
     });
   },
@@ -384,6 +406,7 @@ define(["js/class", "js/widgets/chart", "js/widgets/table", "js/bars/bar", "js/b
       var chart = self.get_new_chart($(this).attr('data-type'))
       self.add_chart(chart);
       $(this).parent().parent().parent().removeClass('open');
+      window.location.hash = chart.dom_id;
       return false;
     });
   },
@@ -415,7 +438,7 @@ define(["js/class", "js/widgets/chart", "js/widgets/table", "js/bars/bar", "js/b
 
     var self = this;
     if(this.charts){
-      console.log("Save charts");
+
       var charts = {};
 
       for(var project in self.charts){
@@ -449,10 +472,10 @@ define(["js/class", "js/widgets/chart", "js/widgets/table", "js/bars/bar", "js/b
     }
     this.charts[project] = {};
     for(var chart_id in projects[self.current_project]){
-      console.log("Restore chart " + chart_id);
+
       var type = projects[project][chart_id]['type'];
       if (type == "chart" || type === undefined){
-	var chart = new Chart(self, chart_id);
+	var chart = new Chart(self, chart_id, projects[project][chart_id]['renderer']);
 
 	for(var bar_id in projects[project][chart_id]['metrics']){
 	  var bar_params = projects[project][chart_id]['metrics'][bar_id];

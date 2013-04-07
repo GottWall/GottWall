@@ -51,7 +51,6 @@ define(["jquery", "underscore", "js/metrics/base"], function($, _, MetricBase){
 		  "name": key,
 		  "color": this.color}
 
-      console.log(data);
       return data
     }
   });

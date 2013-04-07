@@ -14,7 +14,6 @@ define(["jquery", "underscore", "js/bars/base"], function($, _, BaseBar){
       return this.node;
     },
     setup_current_metric: function(){
-      console.log("Setup current metric for table");
       var self = this;
       var metric_current = "Param";
 
@@ -29,7 +28,6 @@ define(["jquery", "underscore", "js/bars/base"], function($, _, BaseBar){
       self.setup_current_filter();
     },
     setup_current_filter: function(){
-      console.log("Setup current filter");
       var self = this;
 
       var filter_current = "Filter";

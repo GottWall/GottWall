@@ -10,11 +10,13 @@ define( ["jquery", "js/class", "js/bars/bar", "js/utils/guid", "rickshaw"], func
     },
     show_loader: function(){
       this.node.find('svg').hide();
+      this.node.find('.alert').hide();
       this.node.find('.loader').show();
     },
     hide_loader: function(){
       this.node.find('svg').show();
       this.node.find('.loader').hide();
+      this.node.find('.alert').hide();
     },
     get_class_by_type: function(type){
       if(type=="table"){
@@ -26,9 +28,6 @@ define( ["jquery", "js/class", "js/bars/bar", "js/utils/guid", "rickshaw"], func
     },
     render_bar: function(bar){
       // Render bar on Chart area
-      if(!this.renders_selector){
-	console.log("Render chart area before");
-      }
       this.selectors_node.append(bar.render());
       bar.render_selectors();
       bar.add_bindings();

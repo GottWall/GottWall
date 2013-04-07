@@ -7,7 +7,7 @@
 
 <script>
 var static_path = "{{ static }}";
-var prefix = "{{ handler.settings['PREFIX'] }}";
+var prefix = "{{ config['PREFIX'] }}";
 </script>
 <script data-main="{{ static }}js/app" src="{{ static }}vendor/require.js"></script>
 
@@ -119,6 +119,11 @@ var prefix = "{{ handler.settings['PREFIX'] }}";
 	  <div class="legend" id="legend-{{ id }}"></div>
 	  <!--<div class="x_axis" id="x_axis-{{ id }}"></div>-->
 	</div>
+	<div class="alert">
+	    {% endraw %}
+	    {{ _("<strong>Notice!</strong> You need select a metric") }}
+	    {% raw %}
+	  </div>
 	<div class="loader">
 	  <span>{% endraw %}{{ _("Loading...") }}{% raw %}</span>
 	  <div class="progress progress-striped active">
@@ -127,9 +132,23 @@ var prefix = "{{ handler.settings['PREFIX'] }}";
 	</div>
       </div>
       <div class="span4 widget-bar">
-	<div class="chart-controls"><button class="add-bar btn"><i class="icon-plus"></i>{% endraw %}{{ _("Add metric") }}{% raw %}</button>
+	<div class="chart-controls">
+	  <button class="add-bar btn"><i class="icon-plus"></i>{% endraw %}{{ _("Add metric") }}{% raw %}</button>
 	  <button class="share-chart btn"><i class="icon-share"></i>{% endraw %}{{ _("Share") }}{% raw %}</button>
-	  <button class="close remove-chart">×</button></div>
+	  <div class="btn-group renderers-selector">
+	    <a class="btn dropdown-toggle with-tooltip" data-toggle="dropdown" href="#" data-toggle="tooltip" title="{% endraw %}{{ _("Chart type")}}{% raw %}"><i class="icon-wrench"></i> <span class="current">{{ renderer }}</span>
+	      <span class="caret"></span>
+	    </a>
+	    <ul class="dropdown-menu">
+	      {% endraw %}
+	      {% for item in config['RENDERERS'] %}
+              <li><a href="" data-type="{{ item }}"> {{ item }}</a></li>
+	      {% endfor %}
+	      {% raw %}
+	    </ul>
+	  </div>
+	  <button class="close remove-chart">×</button>
+	</div>
         <div class="selectors"></div>
       </div>
     </div>
@@ -232,7 +251,20 @@ var prefix = "{{ handler.settings['PREFIX'] }}";
   </div>
   <div class="modal-body"></div>
   <div class="modal-footer">
-    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+    <button class="btn" data-dismiss="modal" aria-hidden="true">{{ _("Close") }}</button>
+  </div>
+</div>
+
+<div id="invalid-dates-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="share-modal-header">{{ _("Invalid dates") }}</h3>
+  </div>
+  <div class="modal-body">
+    <p>{% trans %}Invalid dates range{% endtrans %}</p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">{{ _("Close") }}</button>
   </div>
 </div>
 {% endblock %}

@@ -347,8 +347,8 @@ footer .version, footer .credits  {
  }
 
 
-#share-modal #share-modal-header {
-                                   text-align: center;
+.modal-header h3 {
+                   text-align: center;
  }
 
 #share-modal .modal-body dd{
@@ -364,4 +364,16 @@ footer .version, footer .credits  {
 
 input.datepicker {
                    width: 80px;
+ }
+
+.chart-area .loader {
+                      display: none;
+
+ }
+
+footer {
+         padding-top: 15px;
+         padding-bottom: 15px;
+         vertical-align: middle;
+         border-top: 2px #aaa solid;
  }
