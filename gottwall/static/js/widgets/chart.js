@@ -3,8 +3,8 @@ define( ["jquery", "underscore", "swig", "js/widgets/base", "js/metrics/metric",
 
   var Chart = Widget.extend({
 
-    init: function(gottwall, id, renderer){
-      this._super(gottwall, id, renderer);
+    init: function(gottwall, id, renderer, name){
+      this._super(gottwall, id, name);
 
       this.bars = [];
       this.dom_id = '#chart-'+this.id;
@@ -13,6 +13,7 @@ define( ["jquery", "underscore", "swig", "js/widgets/base", "js/metrics/metric",
       this.selectors_node = null;
       this.graph = null;
       this.renderer = renderer || "line";
+      this.name = name;
     },
     setup_node: function(){
       this.node = $(this.dom_id);
@@ -22,6 +23,7 @@ define( ["jquery", "underscore", "swig", "js/widgets/base", "js/metrics/metric",
 	      "metrics": _.map(this.bars, function(bar){
 		return bar.to_dict();
 	      }),
+	      "name": this.name,
 	      "type": this.type,
 	      "renderer": this.renderer}
     },
@@ -38,6 +40,23 @@ define( ["jquery", "underscore", "swig", "js/widgets/base", "js/metrics/metric",
 	item.parent().parent().parent().removeClass('open');
 
 	return false;
+      });
+      self.bind_editable_title();
+    },
+    bind_editable_title: function(){
+      var self = this;
+      self.node.on('keydown', '.title', function(event){
+	var title_node = $(event.target);
+	if(event.which == 27){
+	  document.execCommand('undo');
+	  event.target.blur();
+	}
+	else if(event.which == 13){
+	  event.target.blur();
+	  self.name = title_node.text();
+	  event.preventDefault();
+	  self.gottwall.save_to_storage();
+	}
       });
     },
     render_chart_graph: function(){
@@ -174,7 +193,8 @@ define( ["jquery", "underscore", "swig", "js/widgets/base", "js/metrics/metric",
 	"id": this.id,
 	"project_name": this.gottwall.current_project,
 	"type": this.type,
-	"renderer": this.renderer}));
+	"renderer": this.renderer,
+	"name": this.name}));
       var selectors_node = widget.find('.selectors');
       this.selectors_node = selectors_node;
 

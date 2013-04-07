@@ -464,18 +464,20 @@ define(["js/class", "js/widgets/chart", "js/widgets/table", "js/bars/bar", "js/b
     var self = this;
 
     var projects = JSON.parse(localStorage.getItem(this.charts_key)) || {};
-
     var project = self.current_project;
 
     if(!project){
       console.log("Skip restore charts");
     }
+
     this.charts[project] = {};
     for(var chart_id in projects[self.current_project]){
 
       var type = projects[project][chart_id]['type'];
       if (type == "chart" || type === undefined){
-	var chart = new Chart(self, chart_id, projects[project][chart_id]['renderer']);
+	var chart = new Chart(self, chart_id,
+			      projects[project][chart_id]['renderer'],
+			      projects[project][chart_id]['name']);
 
 	for(var bar_id in projects[project][chart_id]['metrics']){
 	  var bar_params = projects[project][chart_id]['metrics'][bar_id];

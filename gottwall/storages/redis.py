@@ -71,7 +71,8 @@ class RedisStorage(BaseStorage):
         self.client.select(self.selected_db)
 
     @gen.engine
-    def make_embedded(self, project, period, metrics=[], renderer=None, callback=None):
+    def make_embedded(self, project, period, metrics=[],
+                      renderer=None, name=None, callback=None):
         """Save chart data for sharings
 
         :param project: project name
@@ -96,6 +97,9 @@ class RedisStorage(BaseStorage):
 
         if renderer:
             data['renderer'] = renderer
+
+        if name:
+            data['name'] = name
 
         json_data = json_encode(data)
         res = (yield gen.Task(self.client.set, self.make_embedded_key(uid), json_data))

@@ -188,6 +188,7 @@ class EmbeddedCreateHandlerV1(APIHandler, TimeMixin):
             metrics = data['metrics']
             period = data['period']
             renderer = data.get('renderer')
+            name = data.get('name')
         except Exception:
             self.set_status(400)
             self.json_response({"text": "Bad request"})
@@ -201,7 +202,7 @@ class EmbeddedCreateHandlerV1(APIHandler, TimeMixin):
 
         embedded_hash = (yield gen.Task(
             self.application.storage.make_embedded,
-                project, period, metrics, renderer))
+                project, period, metrics, renderer, name))
 
         if not embedded_hash:
             self.set_status(500)

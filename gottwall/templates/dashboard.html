@@ -114,6 +114,7 @@ var prefix = "{{ config['PREFIX'] }}";
     <div class="row-fluid">
       <div class="span8 data-area">
 	<div class="svg-wrapper">
+	  <h3 class="title" contenteditable="true">{{ name|default("{% endraw %}{{ _("Editable chart title") }}{% raw %}") }}</h3>
 	  <div class="y_axis" id="y_axis-{{ id }}"></div>
 	  <div class="linen" id="linen-{{ id }}"></div>
 	  <div class="legend" id="legend-{{ id }}"></div>

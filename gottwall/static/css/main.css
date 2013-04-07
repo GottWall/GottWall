@@ -377,3 +377,10 @@ footer {
          vertical-align: middle;
          border-top: 2px #aaa solid;
  }
+
+.chart-area h3 {
+                 text-align: center;
+                 color: #666;
+                 margin-top: 0px;
+                 font-weight: 100;
+ }
