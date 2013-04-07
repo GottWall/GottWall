@@ -45,9 +45,16 @@ PERIOD_PATTERNS = {
 
 STORAGE_SETTINGS_KEY = "STORAGE_SETTINGS"
 
-
 DATE_FILTER_FORMAT = "%Y-%m-%d"
 
 PERIODIC_PROCESSOR_TIME = 1000*60*1
 
 TASKS_CHUNK = 20
+
+
+DEFAULT_EMBEDDED_PARAMS = {
+    "height": 400,
+    "width": 800,
+    "renderer": "line", # area, stack, bar, line, and scatterplot,
+    "interpolation": None, #"linear" # linear, step-after, cardinal,  basis
+    }

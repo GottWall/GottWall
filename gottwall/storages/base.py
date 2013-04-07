@@ -14,7 +14,7 @@ from itertools import ifilter
 from logging import getLogger
 
 from gottwall.compat import OrderedDict
-from gottwall.utils import get_by_period, date_range, date_min, date_max, get_datetime
+from gottwall.utils import format_date_by_period, date_range, date_min, date_max, get_datetime
 
 
 logger = getLogger("gottwall.storages")
@@ -35,6 +35,10 @@ class BaseStorage(object):
         application.storage = storage
         return storage
 
+    def make_embedded(self, project, metrics):
+        """Make embedded hash for metrics
+        """
+        raise NotImplementedError
 
     def incr(self, project, name, timestamp, value=1, filters=None, **kwargs):
         """Add count for metric `name` and `filters`
@@ -73,6 +77,7 @@ class BaseStorage(object):
         raise NotImplementedError
 
     def convert_range_to_datetime(self, data, period):
+
         return map(lambda x: (get_datetime(x[0], period), x[1]), data)
 
     def filter_by_period(self, data, period, from_date=None, to_date=None):
@@ -97,9 +102,8 @@ class BaseStorage(object):
 
         # Convert datestring to datetime object in list
 
-
         new_data = sorted(ifilter(lambda x: (True if from_date is None else x[0] >= from_date) and \
                                   (True if to_date is None else x[0] <= to_date), new_data.items()),
                           key=lambda x: x[0])
 
-        return map(lambda x: (get_by_period(x[0], period), x[1]), new_data)
+        return map(lambda x: (format_date_by_period(x[0], period), x[1]), new_data)

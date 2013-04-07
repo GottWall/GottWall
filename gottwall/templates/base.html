@@ -3,29 +3,16 @@
   <head>
     <title>{% block title %}{{ handler.settings['site_title'] }}{% endblock %}</title>
     <meta name="description" content="{{ handler.settings['site_title'] }}"/>
-    <meta name="version" content="{{ version }}"/>
+    <meta name="title" content="{{ handler.settings['site_title'] }}" />
+    <meta name="generator" content="{{ generator }}"/>
+
     <link rel="stylesheet" type="text/css" media="all" href="{{ static }}vendor/bootstrap/css/bootstrap.css"/>
     <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/tablesorter.bootstrap.css"/>
-    <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/metric.css"/>
     <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/main.css"/>
-    <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/nv.d3.css"/>
+    <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/rickshaw.min.css"/>
+    <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/graph.css"/>
     <link rel="stylesheet" type="text/css" media="all" href="{{ static }}vendor/select2/select2.css" />
 
-    <script type="text/javascript" src="{{ static }}js/underscore-min.js"></script>
-    <script type="text/javascript" src="{{ static }}js/jquery.js"></script>
-    <script type="text/javascript" src="{{ static }}vendor/bootstrap/js/bootstrap.js"></script>
-    <script type="text/javascript" src="{{ static }}js/d3.v2.js"></script>
-    <script type="text/javascript" src="{{ static }}js/nv.d3.js"></script>
-    <script type="text/javascript" src="{{ static }}js/swig.pack.min.js"></script>
-    <script type="text/javascript" src="{{ static }}js/bootstrap-datepicker.js"></script>
-    <script type="text/javascript" src="{{ static }}js/locales/bootstrap-datepicker.ru.js"></script>
-    <script type="text/javascript" src="{{ static }}vendor/select2/select2.min.js"></script>
-    <script type="text/javascript" src="{{ static }}js/jquery.tablesorter.js"></script>
-    <script type="text/javascript" src="{{ static }}js/jquery.tablesorter.widgets.js"></script>
-    <script type="text/javascript" src="{{ static }}vendor/moment.min.js"></script>
-    <script type="text/javascript" src="{{ static }}vendor/moment-range.js"></script>
-    <script type="text/javascript" src="{{ static }}js/main.js"></script>
-    <script></script>
     {% block head %}{% endblock %}
   </head>
   <body>
@@ -39,11 +26,12 @@
             <span class="icon-bar"></span>
           </button>
           <a class="brand" href="{{ reverse('home') }}">{{ handler.settings['site_title'] }}</a>
+	  {% if user %}
           <div class="pull-left">
             <ul class="nav secondary-nav project-dropdown">
               <li class="dropdown js-project-dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="">
-                  <span class="js-current-project">Projects</span>
+                  <span class="js-current-project">{{ _("Projects") }}</span>
                   <b class="caret"></b>
                 </a>
                 <ul class="dropdown-menu pull-right" id="project-selector">
@@ -54,6 +42,7 @@
               </li>
             </ul>
           </div>
+	  {% endif %}
 	  <ul class="nav pull-right">
 	    {% if user %}
 	    <ul class="nav secondary-nav">
@@ -63,18 +52,19 @@
                   <b class="caret"></b>
                 </a>
                 <ul class="dropdown-menu pull-right">
-		  <li><a href="{{ reverse('logout') }}">Logout</a></li>
+		  <li><a href="{{ reverse('logout') }}">{{ _("Logout") }}</a></li>
                 </ul>
               </li>
             </ul>
 	    {% else %}
-	    <li><a href="{{ reverse('login') }}">Login</a></li>
+	    <li><a href="{{ reverse('login') }}">{{ _("Login") }}</a></li>
 	    {% endif %}
           </ul>
         </div>
       </div>
     </div>
     {% endblock %}
+    {% block content %}
     <div id="controls" class="navbar container">
       <div class="navbar-inner">
 	{% block control %}<h1>Not implemented error</h1>{% endblock %}
@@ -82,7 +72,18 @@
     </div>
     <div class="container charts-container">
     {% block charts %}<h1>Not implemented error</h1>{% endblock %}
-    {% block footer %}<footer><p>©</p></footer>{% endblock %}
+
+    {% endblock %}
+    {% block footer %}
+    <footer>
+      <div class="container">
+
+        <div class="contribute">{% trans %}GottWall is open source software <a href="https://github.com/GottWall/GottWall" class="btn btn-small">Contribute</a>{% endtrans %}</div>
+        <div class="credits">{% trans %}<span class="version">{{ generator }} </span> &mdash; created by the <a href="https://github.com/GottWall?tab=members">GottWall</a> team with <a href="https://github.com/GottWall/GottWall/contributors">lots of help</a>{% endtrans %}</div>
+
+      </div>
+    </footer>
+    {% endblock %}
     </div>
 </body>
 </html>

@@ -10,9 +10,11 @@ Redis storage for collect statistics
 :license: BSD, see LICENSE for more details.
 :github: http://github.com/gottwall/gottwall
 """
+import uuid
 from logging import getLogger
 
 import tornado.gen
+from tornado.escape import json_decode, json_encode
 import tornadoredis
 from tornado import gen
 from tornado.gen import Task
@@ -54,18 +56,71 @@ class RedisStorage(BaseStorage):
     def __init__(self, application):
         super(RedisStorage, self).__init__(application)
         config = self._application.config
+        self.selected_db = int(config[STORAGE_SETTINGS_KEY].get('DB', 0))
 
         self.client = Client(
             host=config[STORAGE_SETTINGS_KEY].get('HOST', 'localhost'),
             port=int(config[STORAGE_SETTINGS_KEY].get('PORT', 6379)),
             password=config[STORAGE_SETTINGS_KEY].get('PASSWORD', None),
-            selected_db=int(config[STORAGE_SETTINGS_KEY].get('DB', 0)))
+            selected_db=self.selected_db)
 
         logger.info("Redis storage client {0}".format(repr(self.client)))
         self.client._reconnect_callback = self.client.connect
 
         self.client.connect()
-        self.client.select(self.client.selected_db)
+        self.client.select(self.selected_db)
+
+    @gen.engine
+    def make_embedded(self, project, period, metrics=[], callback=None):
+        """Save chart data for sharings
+
+        :param project: project name
+        :param metrics: list of metrics
+        :param callback: callback function for async call
+        """
+        uid = uuid.uuid4()
+
+        for i, metric in enumerate(metrics):
+
+            metric['fn'] = metric.pop('filter_name', None)
+            metric['m'] = metric.pop('metric_name', None)
+            metric['fv'] = metric.pop('filter_value', None)
+
+            for k, v in metric.items():
+                if (k not in ['m', 'fn', 'fv']) or not v:
+                    del metric[k]
+
+        data = {"project": project,
+                "metrics": metrics,
+                "period": period}
+
+        json_data = json_encode(data)
+        res = (yield gen.Task(self.client.set, self.make_embedded_key(uid), json_data))
+
+        if callback:
+            callback(uid if res else None)
+
+    @gen.engine
+    def get_embedded(self, uid, callback=None):
+        """Get share data from storage by hash
+        """
+        try:
+            json_data = (yield gen.Task(self.client.get, self.make_embedded_key(uid)))
+            data = json_decode(json_data)
+        except Exception:
+            data = {}
+
+        if callback:
+            callback(data)
+
+    @staticmethod
+    def make_embedded_key(uid):
+        """Make key for embedded chart data
+
+        :param uid: unique embedded chart identificator string
+        :return: key string
+        """
+        return "embedded-{0}".format(uid)
 
     @gen.engine
     def save_metric_meta(self, pipe, project, name,
@@ -184,7 +239,7 @@ class RedisStorage(BaseStorage):
         items = yield Task(self.client.hgetall, key)
 
         if callback:
-            callback(self.filter_by_period(map(lambda x: (get_datetime(x[0], period), int(x[1])), items.iteritems()),
+            callback(self.filter_by_period(map(lambda x: (x[0], int(x[1])), items.iteritems()),
                                            period, from_date, to_date))
 
     @gen.engine

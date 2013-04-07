@@ -1,7 +1,7 @@
-Welcome to gottwall's documentation!
+Welcome to GottWall's documentation!
 ======================================
 
-GottWall is a scalable realtime metrics aggragation platform.
+GottWall is a scalable realtime metrics collecting and aggregation platform and service.
 This package, at its core, is just a simple aggregation server and
 beautiful customizable web dashboard for visualizing metrics with charts.
 
@@ -17,11 +17,23 @@ Features
 
 - Beautiful customizable dashboard for visualizing metrics with charts.
 - Data aggregation
+- Data collection
+- Embedded charts (`HTML <http://demo.gottwall.com/api/embedded/hash.html>`_, iframe, `javascript <http://demo.gottwall.com/api/mbedded/hash.js>`_, `JSON <http://demo.gottwall.com/api/embedded/hash.json>`_)
 
 Screenshots
 -----------
 
+.. image:: https://raw.github.com/GottWall/GottWall/master/docs/images/GottWall_1_thumb.png
+	   :target: https://raw.github.com/GottWall/GottWall/master/docs/images/GottWall_1.png
 
+.. image:: https://raw.github.com/GottWall/GottWall/master/docs/images/GottWall_2_thumb.png
+	   :target: https://raw.github.com/GottWall/GottWall/master/docs/images/GottWall_2.png
+
+.. image:: https://raw.github.com/GottWall/GottWall/master/docs/images/GottWall_4_thumb.png
+	   :target: https://raw.github.com/GottWall/GottWall/master/docs/images/GottWall_4.png
+
+.. image:: https://raw.github.com/GottWall/GottWall/master/docs/images/GottWall_5_thumb.png
+	   :target: https://raw.github.com/GottWall/GottWall/master/docs/images/GottWall_5.png
 
 
 Installation
@@ -80,6 +92,7 @@ The following transport available:
 
 - Redis transport backend
 - TCP/IP transport backend
+- TODO: UDP transport backend
 - HTTP transport backend
 
 
@@ -91,8 +104,6 @@ Available clients
 The following clients are officially recognized as production-ready, and support the current GottWall protocol:
 
 - stati-redis (`stati-redis-python <http://github.com/GottWall/stati-redis-python>`_) with redis transport.
-
-
 
 
 CONTRIBUTE
@@ -107,3 +118,9 @@ We need you help.
 #. Send a pull request and bug the maintainer until it gets merged and published.
 
 .. _`the repository`: https://github.com/GottWall/GottWall/
+
+
+ETC
+---
+
+* Graphs widgets rendered with `rickshaw <http://code.shutterstock.com/rickshaw/>`_ (HTML5 + SVG and `d3.js <http://d3js.org/>`_) library.

@@ -25,15 +25,17 @@ STORAGE_SETTINGS = dict(
 
 REDIS = {"CHANNEL": "gottwall"}
 
+ANONYMOUS_LOGIN = True
 
-USERS = ['alexandr.s.rus@gmail.com']
+USERS = []
 
 SECRET_KEY = "dwefwefwefwecwef"
 
 # http://public_key:secret_key@host.com
 
 PROJECTS = {"test_project": "my_public_key",
-            "another_project": "my_public_key"}
+            "another_project": "my_public_key",
+            "SampleProject": "my_public_key"}
 
 cookie_secret="fkewrlhfwhrfweiurbweuybfrweoubfrowebfioubweoiufbwbeofbowebfbwup2XdTP1o/Vo="
 
@@ -52,7 +54,7 @@ DATABASE = {
 
 PREFIX = ''
 
-site_title = "Stats"
+site_title = "GottWall"
 
 
 PERIODIC_PROCESSOR_TIME = 1000*60*0.5

@@ -18,7 +18,10 @@ from jinja2 import Environment, FileSystemLoader
 from tornado.web import Application, URLSpec
 
 from handlers import DashboardHandler, LoginHandler, HomeHandler,\
-     StatsHandler, MetricsHandler, LogoutHandler, StatsDataSetHandler
+     NotFoundHandler, LogoutHandler
+from api_v1 import (StatsHandlerV1, MetricsHandlerV1, StatsDataSetHandlerV1,
+                    HTMLEmbeddedHandlerV1, JSONEmbeddedHandlerV1,
+                    JSEmbeddedHandlerV1, EmbeddedCreateHandlerV1)
 from jinja_utils import load_filters, load_globals
 from processing import Tasks
 
@@ -46,13 +49,23 @@ class HTTPApplication(Application):
             (r"{0}/login".format(self.config['PREFIX']), LoginHandler, params, 'login'),
             (r"{0}/logout".format(self.config['PREFIX']), LogoutHandler, params, 'logout'),
             (r"{0}/dashboard".format(self.config['PREFIX']), DashboardHandler, params, 'dashboard'),
-            (r"{0}/(?P<project>.+)/api/stats".format(self.config['PREFIX']),
-             StatsHandler, params, 'api-stats'),
-            (r"{0}/(?P<project>.+)/api/stats_dataset".format(self.config['PREFIX']),
-             StatsDataSetHandler, params, 'api-stats-dataset'),
-            (r"{0}/(?P<project>.+)/api/metrics".format(self.config['PREFIX']),
-             MetricsHandler, params, 'api-metrics'),
-            (r"{0}/".format(self.config['PREFIX']), HomeHandler, params, 'home')]
+            (r"{0}/api/v1/(?P<project>.+)/stats".format(self.config['PREFIX']),
+             StatsHandlerV1, params, 'api-v1-stats'),
+            (r"{0}/api/v1/(?P<project>.+)/stats_dataset".format(self.config['PREFIX']),
+             StatsDataSetHandlerV1, params, 'api-v1-stats-dataset'),
+            (r"{0}/api/v1/(?P<project>.+)/metrics".format(self.config['PREFIX']),
+             MetricsHandlerV1, params, 'api-v1-metrics'),
+            (r"{0}/api/v1/(?P<project>.+)/embedded/".format(self.config['PREFIX']),
+             EmbeddedCreateHandlerV1, params, 'api-v1-embedded-create'),
+            (r"{0}/api/v1/embedded/(?P<uid>.+).html".format(self.config['PREFIX']),
+             HTMLEmbeddedHandlerV1, params, 'api-v1-html-embedded'),
+            (r"{0}/api/v1/embedded/(?P<uid>.+).json".format(self.config['PREFIX']),
+             JSONEmbeddedHandlerV1, params, 'api-v1-json-embedded'),
+            (r"{0}/api/v1/embedded/(?P<uid>.+).js".format(self.config['PREFIX']),
+             JSEmbeddedHandlerV1, params, 'api-v1-js-embedded'),
+            (r"{0}/".format(self.config['PREFIX']), HomeHandler, params, 'home'),
+            (r"{0}.*".format(self.config['PREFIX']), NotFoundHandler, params, 'not_found'),
+            ]
 
         config['login_url'] = config['PREFIX'] + config['login_url']
 
@@ -73,6 +86,11 @@ class HTTPApplication(Application):
 
         env.filters.update(load_filters(filters))
         env.globals.update(load_globals(globals))
+
+        try:
+            env.install_gettext_translations()
+        except Exception:
+            env.install_null_translations()
 
         return env
 

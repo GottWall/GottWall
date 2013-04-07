@@ -11,6 +11,8 @@ PROJECTS = {}
 
 USERS = []
 
+ANONYMOUS_LOGIN = False
+
 PERIODS = [
     "week",
     "day",
@@ -30,7 +32,7 @@ static_url_prefix = "/static/"
 
 login_url = '/login'
 
-site_title=u"GottWall - statistics aggregator"
+site_title=u"GottWall - metrics aggregation platform"
 
 ALEMBIC_SCRIPT_LOCATION = 'gottwall:migrations'
 
@@ -51,3 +53,17 @@ PERIODIC_PROCESSOR_TIME = 1000*60*1
 cookie_secret = 'cookie_secret'
 
 MAX_LOADING = 150
+
+
+JINJA2_EXTENSIONS = (
+    'jinja2.ext.do',
+    'jinja2.ext.i18n'
+)
+
+
+EMBEDDED_PARAMS = {
+    "height": 400,
+    "width": 800,
+    "renderer": "line", # area, stack, bar, line, and scatterplot,
+    "interpolation": 'linear' # linear, step-after, cardinal,  basis
+    }

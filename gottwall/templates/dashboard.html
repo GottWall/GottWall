@@ -2,39 +2,50 @@
 
 {% block title %}Dashboard{% endblock %}
 
+{% block head %}
+
+<script>
+var static_path = "{{ static }}";
+var prefix = "{{ handler.settings['PREFIX'] }}";
+</script>
+<script data-main="{{ static }}js/app" src="{{ static }}vendor/require.js"></script>
+
+{#<script type="text/javascript" src="{{ static }}vendor/moment.min.js"></script>#}
+{#<script type="text/javascript" src="{{ static }}vendor/moment-range.js"></script>#}
+{% endblock %}
+
+
 {% block control %}
 <div class="row chart-control">
   <div class="span8 periods">
     <div class="btn-group" id="chart-add">
-      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-plus"></i> Добавить виджет
+      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-plus"></i> {{ _("Add widget") }}
 	<span class="caret"></span>
       </a>
       <ul class="dropdown-menu">
-        <li><a href="#" data-type="chart"><i class="icon-signal"></i> С графиком</a></li>
-        <li><a href="#" data-type="table"><i class="icon-th"></i> С таблицей</a></li>
+        <li><a href="#" data-type="chart"><i class="icon-signal"></i> {{ _("Graph") }}</a></li>
+        <li><a href="#" data-type="table"><i class="icon-th"></i> {{ _("Table") }}</a></li>
       </ul>
     </div>
     <button class="btn" id="resize-area-switcher"><i class="icon-resize-full"></i></button>
-    <span style="display:inline-block; width: 60px; text-align: right;">по</span>
+    <span style="display:inline-block; width: 60px; text-align: right;">{{ _("group by") }}</span>
     <div class="btn-group selector" id="period-selector">
-      <button class="btn" data-type="year">годам</button>
-      <button class="btn" data-type="month">месяцам</button>
-      <!--<button class="btn" data-type="week">неделям</button>-->
-      <button class="btn" data-type="day">дням</button>
-      <button class="btn" data-type="hour">часам</button>
-      <!--<button class="btn" data-type="minute">минутам</button>-->
+      <button class="btn" data-type="year">{{ _("years") }}</button>
+      <button class="btn" data-type="month">{{ _("months") }}</button>
+      <!--<button class="btn" data-type="week">{{ _("weeks") }}</button>-->
+      <button class="btn" data-type="day">{{ _("days") }}</button>
+      <button class="btn" data-type="hour">{{ _("hours") }}</button>      <!--<button class="btn" data-type="minute">{{ _("minutes") }}</button>-->
     </div>
   </div>
 
-  <div class="span5 intervals">
-    <span style="display:inline-block;width: 60px;text-align: right;">Интервал:</span>
-    <span style="display:inline-block;width: 20px;text-align: right;">с</span>
-    <input data-datepicker="datepicker" data-date-format="yyyy-mm" type="text" name="start-date" class="input_date start-date" id="from-date">
-    <span style="display:inline-block;width: 20px;text-align: right;">по</span>
-    <input data-datepicker="datepicker" data-date-format="yyyy-mm-dd" type="text" name="end-date" class="input_date end-date" id="to-date">
+  <div class="span5 intervals datepicker" data-date-format="yyyy-mm-dd">
+    <span style="display:inline-block;width: 80px;text-align: right;">{{ _("Period from") }}</span>
+    <input data-datepicker="datepicker" data-date-format="yyyy-mm-dd" type="text" name="start-date" class="input_date start-date datepicker date" id="from-date">
+    <span style="display:inline-block;width: 20px;text-align: right;">{{ _("to") }}</span>
+    <input data-datepicker="datepicker" data-date-format="yyyy-mm-dd" type="text" name="end-date" class="input_date end-date datepicker date" id="to-date">
   </div>
   <div class="redraw pull-right">
-    <button class="btn" id="redraw-button">Перерисовать</button>
+    <button class="btn" id="redraw-button"><i class=" icon-refresh"></i> {{ _("Redraw") }}</button>
   </div>
 </div>
 {% endblock %}
@@ -46,9 +57,15 @@
   <div id="table-{{ id }}" class="hero-unit chart-area conrainer-fluid {{ project_name }}">
     <div class="row-fluid">
       <div class="span8 data-area">
-	<div class="table-area"></div>
+	<div class="table-area">
+	  <div class="alert">
+	    {% endraw %}
+	    {{ _("<strong>Notice!</strong> You need select a filter") }}
+	    {% raw %}
+	  </div>
+	</div>
 	<div class="loader">
-	  <span>Идет загрузка данных</span>
+	  <span>{% endraw %}{{ _("Loading ...") }}{% raw %}</span>
 	  <div class="progress progress-striped active">
 	    <div class="bar" style="width: 100%;"></div>
 	  </div>
@@ -95,23 +112,22 @@
   <div class="hero-unit chart-area container-fluid {{ project_name }}" id="chart-{{ id }}" data-type="{{ type }}">
     <div class="row-fluid">
       <div class="span8 data-area">
-	<svg></svg>
+	<div class="svg-wrapper">
+	  <div class="y_axis" id="y_axis-{{ id }}"></div>
+	  <div class="linen" id="linen-{{ id }}"></div>
+	  <div class="legend" id="legend-{{ id }}"></div>
+	  <!--<div class="x_axis" id="x_axis-{{ id }}"></div>-->
+	</div>
 	<div class="loader">
-	  <span>Идет загрузка данных</span>
+	  <span>{% endraw %}{{ _("Loading...") }}{% raw %}</span>
 	  <div class="progress progress-striped active">
 	    <div class="bar" style="width: 100%;"></div>
 	  </div>
 	</div>
       </div>
       <div class="span4 widget-bar">
-	<div class="chart-controls"><button class="add-bar btn"><i class="icon-plus"></i>добавить показатель</button>
-	  <!--<div class="btn-group chart-type" id="chart-type-selector-{{ id }}">
-	    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">Тип графика<span class="caret"></span></a>
-	    <ul class="dropdown-menu">
-	      <li><a href="#" data-type="simple-line">Simple line</a></li>
-	      <li><a href="#" data-type="stacked">Stacked</a></li>
-	    </ul>
-	  </div>-->
+	<div class="chart-controls"><button class="add-bar btn"><i class="icon-plus"></i>{% endraw %}{{ _("Add metric") }}{% raw %}</button>
+	  <button class="share-chart btn"><i class="icon-share"></i>{% endraw %}{{ _("Share") }}{% raw %}</button>
 	  <button class="close remove-chart">×</button></div>
         <div class="selectors"></div>
       </div>
@@ -125,6 +141,7 @@
   {% for metric in metrics %}<li><a href="#" data-name="{{ metric }}">{{ metric }}</a></li>{% endfor %}
   {% endraw %}
 </script>
+
 <script type="text/html" id="table-filters-selector-template">
   {% raw %}
   {% for filter in filters %}
@@ -136,8 +153,7 @@
 <script type="text/html" id="filters-selector-template">
   {% raw %}
   {% for filter in filters %}
-  <li>
-  {% set values = filter[1] %}
+  <li>{% set values = filter[1] %}
   <select data-placeholder="{{ filter[0] }}" placeholder="{{ filter[0] }}" class="placeholder populate"><option></option>{% for value in values %}<option value="{{ value }}" data-filter-name="{{ filter[0] }}">{{ value }}</option>{% endfor %}</select>
   </li>{% endfor %}
   {% endraw %}
@@ -151,11 +167,11 @@
         <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse"></a>
         <ul class="nav" style="float:none;margin-right:46px;">
           <li class="dropdown metrics-selector">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="current">Параметр</span><!--<b class="caret"></b>--></a>
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="current">{% endraw %}{{ _("Param") }}{% raw %}</span><!--<b class="caret"></b>--></a>
             <ul class="dropdown-menu"></ul>
           </li>
           <li class="dropdown filters-selector">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="current">Фильтр</span></a>
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="current">{% endraw %}{{ _("Filter") }}{% raw %}</span></a>
             <ul class="dropdown-menu"></ul>
           </li>
 	</ul>
@@ -176,12 +192,13 @@
           <li><a href="#" class="delete-bar">×</a></li>
         </ul>
         <ul class="nav" style="float:none;margin-right:46px;">
+	  <li class="color-wrapper"><span style="background-color: {{ color }}" class="color"></span></li>
           <li class="dropdown metrics-selector">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="current">Параметр</span><!--<b class="caret"></b>--></a>
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="current">{% endraw %}{{ _("Param") }}{% raw %}</span><!--<b class="caret"></b>--></a>
             <ul class="dropdown-menu"></ul>
           </li>
           <li class="dropdown filters-selector">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="current">Фильтр</span></a>
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="current">{% endraw %}{{ _("Filter") }}{% raw %}</span></a>
             <ul class="dropdown-menu"></ul>
           </li>
 	</ul>
@@ -190,4 +207,31 @@
   </div>
 {% endraw %}
 </script>
+
+<script type="text/html" id="share-modal-body">
+  {% raw %}
+  <dl>
+    <dt title="{% endraw %}Single page html version{% raw %}">{% endraw %}{{ _("Html:") }}{% raw %}</dt>
+    <dd><input type="text" value="{{ html_link }}" data-type="html"></dd>
+    <dt title="{% endraw %}Iframe tag{% raw %}">{% endraw %}{{ _("Iframe:") }}{% raw %}</dt>
+    <dd><input type="text" value="{{ iframe }}" data-type="iframe"></dd>
+    <dt title="{% endraw %}Link to javascript version for javascript tag{% raw %}">{% endraw %}{{ _("JavaScript:") }}{% raw %}</dt>
+    <dd><input type="text" value="{{ js_link }}" data-type="javascript"></dd>
+    <dt title="{% endraw %}JSON data response{% raw %}">{% endraw %}{{ _("JSON:") }}{% raw %}</dt>
+    <dd><input type="text" value="{{ json_link }}" data-type="json"></dd>
+  </dl>
+  {% endraw %}
+</script>
+
+
+<div id="share-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="share-modal-header">{{ _("Share chart") }}</h3>
+  </div>
+  <div class="modal-body"></div>
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+  </div>
+</div>
 {% endblock %}

@@ -11,6 +11,7 @@ Core GottWall utilities
 :github: http://github.com/gottwall/gottwall
 """
 import os.path
+from time import mktime
 from datetime import datetime, timedelta, date
 from urllib2 import parse_http_list
 from dateutil.relativedelta import relativedelta
@@ -51,8 +52,23 @@ def timestamp_to_datetime(timestamp, format=TIMESTAMP_FORMAT):
     return timestamp
 
 
+def format_date_by_period(dt, period):
+    """Get "%Y-%m-%dT%H:%M"t period value by timestamp
+
+    :param dt: `datetime.datetime` instance
+    :param period: period name
+    :returns: str repr of timestamp
+    """
+    ts = timestamp_to_datetime(dt)
+
+    if period == "week":
+        return "{0}-{1}".format(ts.year, ts.isocalendar()[1])
+    elif period in PERIOD_PATTERNS:
+        return ts.strftime(PERIOD_PATTERNS[period])
+    return None
+
 def get_by_period(dt, period):
-    """Ge"%Y-%m-%dT%H:%M"t period value by timestamp
+    """Get "%Y-%m-%dT%H:%M"t period value by timestamp
 
     :param dt: `datetime.datetime` instance
     :param period: period name
@@ -86,6 +102,19 @@ def get_datetime(timestamp, period):
     elif period in PERIOD_PATTERNS:
         return datetime.strptime(timestamp, PERIOD_PATTERNS[period])
     return None
+
+def datetime_to_int(dt, period):
+    """Convert datetime object to unix timestamp
+    """
+    if period in ['day', 'hour']:
+        return int(mktime(dt.timetuple()))
+    elif period == "year":
+        return dt.strftime("%Y")
+    elif period == "month":
+        return dt.strftime("%Y%m")
+    elif period == "week":
+        return "{0}-{1}".format(dt.year, dt.isocalendar()[1])
+    return 0
 
 
 def parse_dict_header(value):
