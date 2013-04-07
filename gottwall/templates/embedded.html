@@ -1,9 +1,9 @@
 {% macro render_metric(metric) -%}
 {%- set filter_name = metric["filter_name"] -%}
 {%- set filter_value = metric["filter_value"] -%}
-{"name": "{{ metric["name"] }}{% if filter_name and filter_value %} | {{ filter_name }}:{{ filter_value }}{% endif %}",
+{"name": "{{ metric["name"]|e }}{% if filter_name and filter_value %} | {{ filter_name|e }}:{{ filter_value|e }}{% endif %}",
  "color": palette.color(),
- "data": [{% for item in metric["range"] -%}{"x": {{ x_converter(item[0]) }}, "y": {{ item[1] }}}{% if not loop.last %},{% endif %}{%- endfor %}]
+ "data": [{% for item in metric["range"] -%}{"x": {{ x_converter(item[0]) }}, "y": {{ item[1]|e }}}{% if not loop.last %},{% endif %}{%- endfor %}]
 }
 {% endmacro %}
 
@@ -15,8 +15,8 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>{{ handler.settings["site_title"] }} → {{ data["name"] }}</title>
-    <meta name="description" content="{{ handler.settings["site_title"] }} → {{ data["name"] }}"/>
+    <title>{{ handler.settings["site_title"] }} → {{ data["name"]|e }}</title>
+    <meta name="description" content="{{ handler.settings["site_title"] }} → {{ data["name"]|e }}"/>
     <meta name="title" content="{{ handler.settings["site_title"] }}" />
     <meta name="generator" content="{{ generator }}" />
 
@@ -32,8 +32,8 @@
   <body>
     <content>
       <div id="chart-container">
-	<h2 style="width: {{ width+40 }}px;">{{ data["name"] }}</h2>
-	<h3 style="width: {{ width+40 }}px;">{{ data["from_date"] }} &mdash; {{ data["to_date"] }}</h3>
+	<h2 style="width: {{ width+40 }}px;">{{ data["name"]|e }}</h2>
+	<h3 style="width: {{ width+40 }}px;">{{ data["from_date"]|e }} &mdash; {{ data["to_date"]|e }}</h3>
         <div id="y_axis" style="height: {{height}}px"></div>
         <div id="graph" style="height:{{ height }}px; width: {{ width }}px;"></div>
 	<div id="sidebar">
@@ -70,7 +70,7 @@
       "week": d3.time.format("%Y-%W")
     }
 
-    var date_formatter = date_display_formatters["{{ data["period"] }}"];
+    var date_formatter = date_display_formatters["{{ data["period"]|e }}"];
     console.log(date_formatter);
 
     var timestamp_to_date = function(timestamp){
@@ -95,8 +95,8 @@
       },
       height: {{ height }},
       width: {{ width }},
-      renderer: "{{ data['renderer'] }}",
-      //{% if interpolation %}interpolation: "{{ interpolation }}",{% endif %}
+      renderer: "{{ data['renderer']|e }}",
+      //{% if interpolation %}interpolation: "{{ interpolation|e }}",{% endif %}
       element: document.querySelector("#graph"),
       series: [{% for metric in data["metrics"] -%}{{ render_metric(metric) -}}{%- if not loop.last -%},{%- endif -%}{%- endfor %}]
     });

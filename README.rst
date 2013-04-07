@@ -20,6 +20,13 @@ Features
 - Data collection
 - Embedded charts (`HTML <http://demo.gottwall.com/api/embedded/hash.html>`_, iframe, `javascript <http://demo.gottwall.com/api/mbedded/hash.js>`_, `JSON <http://demo.gottwall.com/api/embedded/hash.json>`_)
 
+Demo
+----
+
+You can try free demo charts on `demo.gottwall.com <http://demo.gottwall.com>`_.
+Login opened for all users.
+
+
 Screenshots
 -----------
 
