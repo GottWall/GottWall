@@ -5,7 +5,7 @@ GottWall is a scalable realtime metrics collecting and aggregation platform and 
 This package, at its core, is just a simple aggregation server and
 beautiful customizable web dashboard for visualizing metrics with charts.
 
-It will handle authenticating `clients <Available clients>`_ (such as stati)
+It will handle authenticating clients (such as stati)
 and all of the logic behind storage and aggregation.
 
 
@@ -55,13 +55,13 @@ Simple chart charing
 Installation
 ------------
 
-To use gottwall  use `pip` or `easy_install`:
+To use gottwall  use `pip` or `easy_install`::
 
-``pip install gottwall``
+  pip install gottwall
 
-or
+or ::
 
-``easy_install gottwall``
+  easy_install gottwall
 
 or you can use official `gottwall chef cookbook <https://github.com/GottWall/gottwall-cookbook>`_
 for automatic setup on system.
@@ -81,13 +81,17 @@ GottWall have 2 independent parts. Web interface application and aggregator appl
 Starting web dashboard
 ^^^^^^^^^^^^^^^^^^^^^^
 
-To run web application execute command: ``gottwall --config="examples/config.py" server start``
+To run web application execute command::
+
+  gottwall --config="examples/config.py" server start
 
 
 Starting aggregator
 ^^^^^^^^^^^^^^^^^^^
 
-To run aggregator application execute command: ``gottwall --config="examples/config.py" aggregator start``
+To run aggregator application execute command::
+
+  gottwall --config="examples/config.py" aggregator start
 
 
 Available storages
