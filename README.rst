@@ -23,17 +23,33 @@ Features
 Screenshots
 -----------
 
-.. image:: https://raw.github.com/GottWall/GottWall/master/docs/source/images/GottWall_1_thumb.png
-	   :target: https://raw.github.com/GottWall/GottWall/master/docs/source/images/GottWall_1.png
+Dashboard
+^^^^^^^^^
 
-.. image:: https://raw.github.com/GottWall/GottWall/master/docs/source/images/GottWall_2_thumb.png
-	   :target: https://raw.github.com/GottWall/GottWall/master/docs/source/images/GottWall_2.png
+.. image:: https://raw.github.com/GottWall/GottWall/master/docs/source/images/GottWall_6_thumb.png
+	   :target: https://raw.github.com/GottWall/GottWall/master/docs/source/images/GottWall_6.png
 
-.. image:: https://raw.github.com/GottWall/GottWall/master/docs/source/images/GottWall_4_thumb.png
-	   :target: https://raw.github.com/GottWall/GottWall/master/docs/source/images/GottWall_4.png
+.. image:: https://raw.github.com/GottWall/GottWall/master/docs/source/images/GottWall_7_thumb.png
+	   :target: https://raw.github.com/GottWall/GottWall/master/docs/source/images/GottWall_7.png
 
-.. image:: https://raw.github.com/GottWall/GottWall/master/docs/source/images/GottWall_5_thumb.png
-	   :target: https://raw.github.com/GottWall/GottWall/master/docs/source/images/GottWall_5.png
+Custom graph type and title
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. image:: https://raw.github.com/GottWall/GottWall/master/docs/source/images/GottWall_8_thumb.png
+	   :target: https://raw.github.com/GottWall/GottWall/master/docs/source/images/GottWall_8.png
+
+.. image:: https://raw.github.com/GottWall/GottWall/master/docs/source/images/GottWall_11_thumb.png
+	   :target: https://raw.github.com/GottWall/GottWall/master/docs/source/images/GottWall_11.png
+
+
+Simple chart charing
+^^^^^^^^^^^^^^^^^^^^
+
+.. image:: https://raw.github.com/GottWall/GottWall/master/docs/source/images/GottWall_9_thumb.png
+	   :target: https://raw.github.com/GottWall/GottWall/master/docs/source/images/GottWall_9.png
+
+.. image:: https://raw.github.com/GottWall/GottWall/master/docs/source/images/GottWall_10_thumb.png
+	   :target: https://raw.github.com/GottWall/GottWall/master/docs/source/images/GottWall_10.png
 
 
 Installation
