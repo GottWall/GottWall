@@ -24,7 +24,7 @@ import tornado.gen
 from tornado import gen
 
 from gottwall.utils import (timestamp_to_datetime, date_range, format_date_by_period,
-                            date_min, date_max, datetime_to_utimestamp, get_datetime)
+                            date_min, date_max, datetime_to_int, get_datetime)
 from gottwall.settings import DATE_FILTER_FORMAT, PERIODS, DEFAULT_EMBEDDED_PARAMS
 
 logger = logging.getLogger('gottwall.apiv1')
@@ -276,7 +276,7 @@ class HTMLEmbeddedHandlerV1(EmbeddedBaseHandlerV1):
         height, width, renderer, interpolation = self.get_chart_params()
 
         def x_converter(x):
-            return datetime_to_utimestamp(get_datetime(x, response_data['period']))
+            return datetime_to_int(get_datetime(x, response_data['period']), response_data['period'])
 
         self.render("embedded.html", config=self.application.config,
                     data=response_data, width=width, height=height,

@@ -103,10 +103,18 @@ def get_datetime(timestamp, period):
         return datetime.strptime(timestamp, PERIOD_PATTERNS[period])
     return None
 
-def datetime_to_utimestamp(dt):
+def datetime_to_int(dt, period):
     """Convert datetime object to unix timestamp
     """
-    return int(mktime(dt.timetuple()))
+    if period in ['day', 'hour']:
+        return int(mktime(dt.timetuple()))
+    elif period == "year":
+        return dt.strftime("%Y")
+    elif period == "month":
+        return dt.strftime("%Y%m")
+    elif period == "week":
+        return "{0}-{1}".format(dt.year, dt.isocalendar()[1])
+    return 0
 
 
 def parse_dict_header(value):
