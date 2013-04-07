@@ -29,7 +29,7 @@ Screenshots
 .. image:: https://raw.github.com/GottWall/GottWall/master/docs/source/images/GottWall_2_thumb.png
 	   :target: https://raw.github.com/GottWall/GottWall/master/docs/source/images/GottWall_2.png
 
-.. image:: https://raw.github.com/GottWall/GottWall/master/docs/sourece/images/GottWall_4_thumb.png
+.. image:: https://raw.github.com/GottWall/GottWall/master/docs/source/images/GottWall_4_thumb.png
 	   :target: https://raw.github.com/GottWall/GottWall/master/docs/source/images/GottWall_4.png
 
 .. image:: https://raw.github.com/GottWall/GottWall/master/docs/source/images/GottWall_5_thumb.png
