@@ -167,12 +167,8 @@ def date_min(from_date, period):
         return from_date.replace(month=1, hour=0, day=1, minute=0, second=0)
     elif period == "month":
         return from_date.replace(hour=0, day=1, minute=0, second=0)
-    elif period == "day":
+    elif period in ["day", "hour", "minute"]:
         return from_date.replace(hour=0, minute=0, second=0)
-    elif period == "hour":
-        return from_date.replace(minute=0, second=0)
-    elif period == "minute":
-        return from_date.replace(second=0)
     return from_date
 
 def date_max(to_date, period):
@@ -180,10 +176,6 @@ def date_max(to_date, period):
         return to_date.replace(month=12, hour=23, day=31, minute=59, second=59)
     elif period == "month":
         to_date = to_date.replace(day=1, hour=23, minute=59, second=59) + relativedelta(months=+1, days=-1)
-    elif period == "day":
+    elif period in ["day", "hour", "minute"]:
         return to_date.replace(hour=23, minute=59, second=59)
-    elif period == "hour":
-        return to_date.replace(minute=59, second=59)
-    elif period == "minute":
-        return to_date.replace(second=59)
     return to_date
