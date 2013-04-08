@@ -33,7 +33,7 @@ from handlers import SERVER_NAME, BaseHandler, JSONMixin, APIHandler
 
 
 class TimeMixin(object):
-    def convert_date_range(self, from_date, to_date):
+    def convert_date_range(self, from_date, to_date, period):
         """Convert str from_date and to_data objects to
         datetime object
 
@@ -44,11 +44,11 @@ class TimeMixin(object):
 
         from_date = timestamp_to_datetime(from_date, DATE_FILTER_FORMAT) if from_date else from_date
         to_date = timestamp_to_datetime(to_date, DATE_FILTER_FORMAT) if to_date else to_date
-        return from_date, to_date
+        return date_min(from_date, period), date_max(to_date, period)
 
-    def clean_date_range(self, from_date, to_date):
+    def clean_date_range(self, from_date, to_date, period):
         try:
-            from_date, to_date = self.convert_date_range(from_date, to_date)
+            from_date, to_date = self.convert_date_range(from_date, to_date, period)
             if from_date > to_date:
                 raise RuntimeError
         except (ValueError, RuntimeError):
@@ -56,7 +56,6 @@ class TimeMixin(object):
             self.json_response({"text": "Invalid date range"})
             return None, None
         return from_date, to_date
-
 
 
 class StatsMixin(TimeMixin):
@@ -95,7 +94,7 @@ class StatsHandlerV1(APIHandler, StatsMixin):
             self.json_response({"text": "Bad request"})
             return
 
-        from_date, to_date = self.clean_date_range(from_date, to_date)
+        from_date, to_date = self.clean_date_range(from_date, to_date, period)
 
         if self.validate_name(name, period) and from_date and to_date:
 
@@ -123,7 +122,7 @@ class StatsDataSetHandlerV1(APIHandler, StatsMixin):
 
         try:
             name, from_date, to_date, period, filter_name, filter_value = self.get_params()
-            from_date, to_date = self.convert_date_range(from_date, to_date)
+            from_date, to_date = self.convert_date_range(from_date, to_date, period)
 
         except Exception:
             self.set_status(400)
