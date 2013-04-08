@@ -8,7 +8,7 @@
 {% endmacro %}
 
 {% macro renderer_item(r) %}
-<input type="radio" value="{{ r }}" id="{{ r }}" name="renderer" {% if renderer == r %}checked{% endif %}> &mdash;
+<input type="radio" value="{{ r }}" id="{{ r }}" name="renderer" {% if data['renderer']|e == r %}checked{% endif %}> &mdash;
 <label for="{{ r }}">{{ r }}</label><br>
 {% endmacro %}
 

@@ -222,11 +222,10 @@ class EmbeddedCreateHandlerV1(APIHandler, TimeMixin):
 
 
 class EmbeddedBaseHandlerV1(BaseHandler, TimeMixin, JSONMixin):
-    def get_params(self):
+    def get_date_params(self):
         from_date = self.get_argument('from_date', datetime.now() - relativedelta(months=1))
         to_date = self.get_argument('to_date', datetime.now())
-        period = self.get_argument('period', 'month')
-        return from_date, to_date, period
+        return from_date, to_date
 
     def get_renderer(self, meta_info):
         EMBEDDED_PARAMS = self.config.get('EMBEDDED_PARAMS', {})
@@ -237,18 +236,21 @@ class EmbeddedBaseHandlerV1(BaseHandler, TimeMixin, JSONMixin):
 
     @gen.engine
     def get_data(self, uid, callback=None):
-        from_date, to_date, period = self.get_params()
-        from_date, to_date = self.clean_date_range(from_date, to_date)
+        from_date, to_date = self.get_date_params()
+
+        meta_info =  (yield gen.Task(self.application.storage.get_embedded, uid))
+
+        period = self.get_argument('period', meta_info['period'])
+
+        from_date, to_date = self.clean_date_range(from_date, to_date, period)
 
         if not any([from_date, to_date]):
             return
 
-        meta_info =  (yield gen.Task(self.application.storage.get_embedded, uid))
-
         response_data = {
             "renderer": self.get_renderer(meta_info),
             "metrics": [],
-            "period": self.get_argument('period', meta_info['period']),
+            "period": period,
             "from_date": from_date.strftime(DATE_FILTER_FORMAT),
             "to_date": to_date.strftime(DATE_FILTER_FORMAT)}
 
@@ -310,8 +312,13 @@ class JSEmbeddedHandlerV1(HTMLEmbeddedHandlerV1):
     @tornado.web.asynchronous
     @gen.engine
     def get(self, uid, *args,**kwargs):
-        from_date, to_date, period = self.get_params()
-        from_date, to_date = self.clean_date_range(from_date, to_date)
+        from_date, to_date = self.get_date_params()
+
+        meta_info =  (yield gen.Task(self.application.storage.get_embedded, uid))
+
+        period = self.get_argument('period', meta_info['period'])
+
+        from_date, to_date = self.clean_date_range(from_date, to_date, period)
 
         if not any([from_date, to_date]):
             return
