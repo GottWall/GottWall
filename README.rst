@@ -30,15 +30,6 @@ Demo
 You can try free demo charts on `demo.gottwall.com <http://demo.gottwall.com>`_.
 Login opened for all users.
 
-Embedded shared charts
-----------------------
-
-.. raw:: html
-
-   <iframe src="http://demo.gottwall.com/api/v1/embedded/89507c2a-fe76-41bf-8ddd-fd5daa43ec9f.html" width="400" height="60" align="left">
-   You browser doesn't support iframes.
-   </iframe>
-
 
 Screenshots
 -----------

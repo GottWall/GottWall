@@ -4,7 +4,7 @@
 gottwall
 ~~~~~~~~
 
-Realtime statistics aggregation platform
+GottWall is scalable realtime metrics collecting and aggregation platform and service
 
 :copyright: (c) 2012 - 2013 by GottWall team, see AUTHORS for more details.
 :license: BSD, see LICENSE for more details.
@@ -67,7 +67,7 @@ for folder in ['static', 'templates']:
 setup(
     name="gottwall",
     version=VERSION,
-    description="Realtime statistics aggregation platform",
+    description="GottWall is scalable realtime metrics collecting and aggregation platform and service",
     long_description=readme_content,
     author="Alex Lispython",
     author_email="alex@obout.ru",
