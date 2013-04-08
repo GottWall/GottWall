@@ -244,7 +244,6 @@ class EmbeddedBaseHandlerV1(BaseHandler, TimeMixin, JSONMixin):
 
         from_date, to_date = self.clean_date_range(from_date, to_date, period)
 
-        import ipdb; ipdb.set_trace()
         if not any([from_date, to_date]):
             return
 
