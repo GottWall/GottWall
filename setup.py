@@ -25,7 +25,7 @@ except Exception, e:
     readme_content = __doc__
 
 
-VERSION = "0.3.3"
+VERSION = "0.3.4"
 
 
 def run_tests():
@@ -83,21 +83,32 @@ setup(
     install_requires=install_requires,
     tests_require=tests_require,
     license="BSD",
-#    test_suite="nose.collector",
     platforms = ['Linux', 'Mac'],
     classifiers=[
         "Environment :: Web Environment",
         "License :: OSI Approved :: BSD License",
         "Programming Language :: Python",
+        "Programming Language :: Python :: 2.6",
+        "Programming Language :: Python :: 2.7",
         "Operating System :: MacOS :: MacOS X",
         "Operating System :: POSIX",
         "Topic :: Internet",
         "Topic :: Software Development :: Libraries",
         "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "Topic :: System :: Installation/Setup",
         "Topic :: System :: Logging",
         "Topic :: System :: Monitoring",
-        "Topic :: System :: Networking"
+        "Topic :: System :: Networking",
+        "Intended Audience :: Customer Service",
+        "Intended Audience :: Developers",
+        "Intended Audience :: Information Technology",
+        "Intended Audience :: System Administrators",
+        "Topic :: Internet :: Log Analysis",
+        "Topic :: Scientific/Engineering :: Information Analysis",
+        "Topic :: Scientific/Engineering :: Visualization",
+        "Topic :: System :: Networking",
+        "Topic :: System :: Networking :: Monitoring"
         ],
     test_suite = '__main__.run_tests'
     )
