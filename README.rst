@@ -35,7 +35,7 @@ Embedded shared charts
 
 .. raw:: html
 
-   <iframe src="banner.html" width="400" height="60" align="left">
+   <iframe src="http://demo.gottwall.com/api/v1/embedded/89507c2a-fe76-41bf-8ddd-fd5daa43ec9f.html" width="400" height="60" align="left">
    You browser doesn't support iframes.
    </iframe>
 
