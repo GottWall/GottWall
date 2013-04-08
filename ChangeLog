@@ -1,7 +1,12 @@
 GottWall Changelog
 ====================
 
-# v0.3.1 (06-11-2013)
+# v0.3.4 (08-04-2013)
+
+- Fixed date range filters
+- Fixed chart type selectors on embedded
+
+# v0.3.1 (06-04-2013)
 
 - Refactored redis storage
 - Added sharing and embedded charts
