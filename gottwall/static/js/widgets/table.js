@@ -1,8 +1,8 @@
 define(["jquery", "underscore", "swig", "js/widgets/base", "js/bars/table", "js/metrics/set"], function($, _, swig, Widget, TableBar, MetricSet){
 
 var Table = Widget.extend({
-  init: function(gottwall, id){
-    this._super(gottwall, id, null);
+  init: function(gottwall, id, name){
+    this._super(gottwall, id, name);
     this.type = "table";
     this.bar = null;
     this.metric_name = null;
@@ -11,7 +11,8 @@ var Table = Widget.extend({
   to_dict: function(){
     return {"id": this.id,
 	    "metrics": this.bar.to_dict(),
-	    "type": this.type}
+	    "type": this.type,
+	    "name": this.name}
    },
   show_loader: function(){
     this.node.find('div.table-area').hide();
@@ -26,12 +27,13 @@ var Table = Widget.extend({
   },
   render_widget: function(){
     var template = swig.compile($('#table-widget-template').text());
-    var widget = $(template({
+    var rendered_template = template({
       "id": this.id,
       "type": this.type,
-      "project_name": this.gottwall.current_project
-    }));
-
+      "project_name": this.gottwall.current_project,
+      "name": this.name
+    });
+    var widget = $(rendered_template);
     var selectors_node = widget.find('.selectors');
     this.selectors_node = selectors_node;
     this.selectors_node.append(this.render_bar(this.bar));

@@ -486,7 +486,7 @@ define(["js/class", "js/widgets/chart", "js/widgets/table", "js/bars/bar", "js/b
 	}
       }
       else if (type == "table"){
-	this.charts[project][chart_id] = chart = new Table(self, chart_id);
+	this.charts[project][chart_id] = chart = new Table(self, chart_id, projects[project][chart_id]['name']);
 	var bar_params = projects[project][chart_id]['metrics'];
 	this.charts[project][chart_id].setup_bar(new TableBar(self, chart, bar_params,
 							      bar_params['metric_name'], bar_params['filter_name']));

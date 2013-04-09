@@ -30,6 +30,7 @@ define(["jquery", "underscore", "swig", "js/class", "js/utils/guid"], function($
       this.render_metrics(this.gottwall.metrics[this.gottwall.current_project]);
     },
     render_metrics: function(metrics){
+      console.log("Render metrics list");
       var self = this;
       var template = swig.compile($("#metrics-selector-template").text());
 

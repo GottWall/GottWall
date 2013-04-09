@@ -13,7 +13,6 @@ define( ["jquery", "underscore", "swig", "js/widgets/base", "js/metrics/metric",
       this.selectors_node = null;
       this.graph = null;
       this.renderer = renderer || "line";
-      this.name = name;
     },
     setup_node: function(){
       this.node = $(this.dom_id);
@@ -41,24 +40,8 @@ define( ["jquery", "underscore", "swig", "js/widgets/base", "js/metrics/metric",
 
 	return false;
       });
-      self.bind_editable_title();
     },
-    bind_editable_title: function(){
-      var self = this;
-      self.node.on('keydown', '.title', function(event){
-	var title_node = $(event.target);
-	if(event.which == 27){
-	  document.execCommand('undo');
-	  event.target.blur();
-	}
-	else if(event.which == 13){
-	  event.target.blur();
-	  self.name = title_node.text();
-	  event.preventDefault();
-	  self.gottwall.save_to_storage();
-	}
-      });
-    },
+
     render_chart_graph: function(){
       var self = this;
       var metrics = this.get_metrics();

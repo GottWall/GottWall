@@ -1,12 +1,14 @@
 define( ["jquery", "js/class", "js/bars/bar", "js/utils/guid", "rickshaw"], function($, Class, Bar, GUID, Rickshaw){
 
   var Widget = Class.extend({
-    init: function(gottwall, id){
+    init: function(gottwall, id, name){
       this.id = id;
       this.type = "widget";
       this.gottwall = gottwall;
       this.selectors_node = null;
       this.palette = new Rickshaw.Color.Palette();
+      this.name = name;
+
     },
     show_loader: function(){
       this.node.find('svg').hide();
@@ -57,6 +59,8 @@ define( ["jquery", "js/class", "js/bars/bar", "js/utils/guid", "rickshaw"], func
 					return self.links_loaded(data);
 				      });
 	});
+
+      self.bind_editable_title();
     },
     remove: function(){
       this.gottwall.remove_chart(this);
@@ -71,7 +75,23 @@ define( ["jquery", "js/class", "js/bars/bar", "js/utils/guid", "rickshaw"], func
     render_share_modal_body: function(data){
       var template = swig.compile($("#share-modal-body").text());
       $("#share-modal .modal-body").html(template(data));
-    }
+    },
+    bind_editable_title: function(){
+      var self = this;
+      self.node.on('keydown', '.title', function(event){
+	var title_node = $(event.target);
+	if(event.which == 27){
+	  document.execCommand('undo');
+	  event.target.b();
+	}
+	else if(event.which == 13){
+	  event.target.blur();
+	  self.name = title_node.text();
+	  event.preventDefault();
+	  self.gottwall.save_to_storage();
+	}
+      });
+    },
   });
   return Widget;
 });

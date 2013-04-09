@@ -58,6 +58,8 @@ var prefix = "{{ config['PREFIX'] }}";
   <div id="table-{{ id }}" class="hero-unit chart-area conrainer-fluid {{ project_name }}">
     <div class="row-fluid">
       <div class="span8 data-area">
+	<h3 class="title" contenteditable="true">{{ name|default("{% endraw %}{{ _("Editable chart title") }}{% raw %}") }}</h3>
+
 	<div class="table-area">
 	  <div class="alert">
 	    {% endraw %}
@@ -84,7 +86,6 @@ var prefix = "{{ config['PREFIX'] }}";
 <script type="text/html" id="table-template">
   {% raw %}
   <table border="0" class="tablesorter table table-striped table-condensed tablesorter-bootstrap">
-    <caption>{{ caption }}</caption>
     <thead class="tablesorter-header">
       <tr class="success">
 	<th class="tablesorter-header bootstrap-header">{{ group_column_name }}</th>
@@ -113,8 +114,8 @@ var prefix = "{{ config['PREFIX'] }}";
   <div class="hero-unit chart-area container-fluid {{ project_name }}" id="chart-{{ id }}" data-type="{{ type }}">
     <div class="row-fluid">
       <div class="span8 data-area">
+	<h3 class="title" contenteditable="true">{{ name|default("{% endraw %}{{ _("Editable chart title") }}{% raw %}") }}</h3>
 	<div class="svg-wrapper">
-	  <h3 class="title" contenteditable="true">{{ name|default("{% endraw %}{{ _("Editable chart title") }}{% raw %}") }}</h3>
 	  <div class="y_axis" id="y_axis-{{ id }}"></div>
 	  <div class="linen" id="linen-{{ id }}"></div>
 	  <div class="legend" id="legend-{{ id }}"></div>
