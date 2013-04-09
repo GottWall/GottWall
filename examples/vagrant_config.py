@@ -14,7 +14,6 @@ BACKENDS = {
     'gottwall.backends.tcpip.TCPIPBackend': {}
     }
 
-TEMPLATE_DEBUG = True
 
 STORAGE_SETTINGS = dict(
     HOST = "10.8.9.8",

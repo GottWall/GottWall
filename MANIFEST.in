@@ -3,6 +3,10 @@ recursive-include gottwall *.py
 recursive-exclude gottwall *.pyo *.pyc
 recursive-include gottwall/templates *.html *.css
 recursive-include gottwall/static *
+recursive-exclude gottwall/static/js/ app.build.js
+recursive-exclude gottwall/static/css/ main.build.css
+recursive-exclude gottwall/static/js/ embedded.build.js
+recursive-exclude gottwall/static/css/ embedded.build.css
 recursive-include docs/source *.txt *.py *.rst *.md *
 recursive-exclude docs/source/images/ *.png
 recursive-exclude docs/source/images *.png

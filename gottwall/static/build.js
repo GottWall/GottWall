@@ -2,7 +2,7 @@
   "name": "app",
   "baseUrl": "./",
   "optimize": "none",
-  "out": "./js/app.min.js",
+  "out": "./js/app.build.js",
   "paths": {
     "app": "./js/app",
     "jquery": './js/jquery',

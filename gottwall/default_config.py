@@ -57,7 +57,9 @@ MAX_LOADING = 150
 
 JINJA2_EXTENSIONS = (
     'jinja2.ext.do',
-    'jinja2.ext.i18n'
+    'jinja2.ext.i18n',
+    'gottwall.jinja_utils.spaceless',
+    'gottwall.jinja_utils.strip'
 )
 
 
@@ -86,3 +88,5 @@ INTERPOLATIONS = [
 TEMPLATE_DEBUG = False
 
 TEMPLATE_DEBUG_RELOAD = False
+
+HOME_AUTOREDIRECT = False

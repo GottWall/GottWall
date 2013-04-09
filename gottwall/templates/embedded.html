@@ -1,16 +1,16 @@
-{% macro render_metric(metric) -%}
+{%- macro render_metric(metric) -%}
 {%- set filter_name = metric["filter_name"] -%}
 {%- set filter_value = metric["filter_value"] -%}
 {"name": "{{ metric["name"]|e }}{% if filter_name and filter_value %} | {{ filter_name|e }}:{{ filter_value|e }}{% endif %}",
  "color": palette.color(),
  "data": [{% for item in metric["range"] -%}{"x": {{ x_converter(item[0]) }}, "y": {{ item[1]|e }}}{% if not loop.last %},{% endif %}{%- endfor %}]
 }
-{% endmacro %}
+{%- endmacro -%}
 
-{% macro renderer_item(r) %}
+{%- macro renderer_item(r) -%}
 <input type="radio" value="{{ r }}" id="{{ r }}" name="renderer" {% if data['renderer']|e == r %}checked{% endif %}> &mdash;
 <label for="{{ r }}">{{ r }}</label><br>
-{% endmacro %}
+{%- endmacro -%}
 
 <!DOCTYPE html>
 <html>
@@ -19,15 +19,19 @@
     <meta name="description" content="{{ handler.settings["site_title"] }} → {{ data["name"]|e }}"/>
     <meta name="title" content="{{ handler.settings["site_title"] }}" />
     <meta name="generator" content="{{ generator }}" />
-
-    <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/rickshaw.min.css"/>
-    <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/graph.css"/>
+    {%- if config['TEMPLATE_DEBUG'] -%}
     <script type="text/javascript" src="{{ static }}js/jquery.js"></script>
     <script type="text/javascript" src="{{ static }}js/d3.v2.js"></script>
     <script type="text/javascript" src="{{ static }}vendor/rickshaw.js"></script>
-    <style type="text/css" media="screen">
-      {% include "embedded.css" %}
-    </style>
+    {%- else -%}
+    <script type="text/javascript" src="{{ static }}js/embedded.min.js"></script>
+    {%- endif -%}
+
+    {% if config['TEMPLATE_DEBUG'] %}
+    <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/embedded.css"/>
+    {% else %}
+    <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/embedded.min.css?{{ version }}"/>
+    {% endif %}
   </head>
   <body>
     <content>

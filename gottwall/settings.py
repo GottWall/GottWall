@@ -74,9 +74,3 @@ INTERPOLATIONS = [
     "cardinal",
     "basis"
     ]
-
-
-JINJA2_EXTENSIONS = (
-    'jinja2.ext.do',
-    'jinja2.ext.i18n'
-)

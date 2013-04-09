@@ -1,3 +1,4 @@
+{% strip %}
 <!DOCTYPE html>
 <html>
   <head>
@@ -8,7 +9,6 @@
      {% if config['TEMPLATE_DEBUG'] %}
     <meta name="debug" content="on"/>
     {% endif %}
-
 
     {% if config['TEMPLATE_DEBUG'] %}
     <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/main.css"/>
@@ -78,6 +78,7 @@
 
     {% endblock %}
     {% block footer %}
+    {% endstrip %}
     <footer>
       <div class="container">
 
@@ -87,6 +88,8 @@
       </div>
     </footer>
     {% endblock %}
+    {% strip %}
     </div>
 </body>
 </html>
+{% endstrip %}
