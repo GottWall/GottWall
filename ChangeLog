@@ -1,6 +1,12 @@
 GottWall Changelog
 ====================
 
+# v0.3.6 (09-04-2013)
+
+- Fixed table selectors.
+- Fixed dataset resource.
+- Refactored table widget header.
+
 # v0.3.4 (08-04-2013)
 
 - Fixed date range filters
