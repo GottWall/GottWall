@@ -45,6 +45,10 @@ define( ["jquery", "underscore", "swig", "js/widgets/base", "js/metrics/metric",
     render_chart_graph: function(){
       var self = this;
       var metrics = this.get_metrics();
+      if(_.isEmpty(metrics)){
+	// Empty metrics list
+	return false;
+      }
       self.show_loader();
 
       $.when.apply($, _.map(metrics, function(metric){
