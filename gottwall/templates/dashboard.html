@@ -7,6 +7,7 @@
 <script>
 var static_path = "{{ static }}";
 var prefix = "{{ config['PREFIX'] }}";
+var version = "{{ version }}";
 </script>
 
 {%- if config['TEMPLATE_DEBUG'] -%}
@@ -20,7 +21,7 @@ var prefix = "{{ config['PREFIX'] }}";
 {%- endblock -%}
 
 {%- block control -%}
-{%- strip -%}
+{%- spaceless -%}
 <div class="row chart-control">
   <div class="span8 periods">
     <div class="btn-group" id="chart-add">
@@ -53,11 +54,11 @@ var prefix = "{{ config['PREFIX'] }}";
     <button class="btn" id="redraw-button"><i class=" icon-refresh"></i> {{ _("Redraw") }}</button>
   </div>
 </div>
-{%- endstrip -%}
+{%- endspaceless -%}
 {%- endblock -%}
 
 {%- block charts -%}
-{%- strip -%}
+{%- spaceless -%}
 <div class="charts" id="charts"></div>
 <script type="text/html" id="table-widget-template">
   {%- raw -%}
@@ -275,5 +276,5 @@ var prefix = "{{ config['PREFIX'] }}";
     <button class="btn" data-dismiss="modal" aria-hidden="true">{{ _("Close") }}</button>
   </div>
 </div>
-{%- endstrip -%}
+{%- endspaceless -%}
 {%- endblock -%}

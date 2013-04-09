@@ -1,4 +1,4 @@
-{% strip %}
+{% spaceless %}
 <!DOCTYPE html>
 <html>
   <head>
@@ -78,7 +78,6 @@
 
     {% endblock %}
     {% block footer %}
-    {% endstrip %}
     <footer>
       <div class="container">
 
@@ -88,8 +87,7 @@
       </div>
     </footer>
     {% endblock %}
-    {% strip %}
     </div>
 </body>
 </html>
-{% endstrip %}
+{% endspaceless %}

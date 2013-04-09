@@ -27,7 +27,7 @@ build:
 
 release: static
 	git add ./gottwall/static/
-	git commit -m "Compiled static for v$(version)";
+	git commit -m "Compiled static for v$(version)"; echo "";
 	git tag -f v$(version) && git push --tags
 	python setup.py sdist upload
 
