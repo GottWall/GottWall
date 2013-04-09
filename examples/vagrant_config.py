@@ -39,7 +39,8 @@ PROJECTS = {"test_project": "my_public_key",
 
 cookie_secret="fkewrlhfwhrfweiurbweuybfrweoubfrowebfioubweoiufbwbeofbowebfbwup2XdTP1o/Vo="
 
-TEMPLATE_DEBUG = True
+TEMPLATE_DEBUG = False
+TEMPLATE_DEBUG_RELOAD = True
 
 
 DATABASE = {

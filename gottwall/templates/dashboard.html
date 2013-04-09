@@ -3,18 +3,21 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block head %}
-<link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/datepicker.css"/>
 
 <script>
 var static_path = "{{ static }}";
 var prefix = "{{ config['PREFIX'] }}";
 </script>
+
+{% if config['TEMPLATE_DEBUG'] %}
 <script data-main="{{ static }}js/app" src="{{ static }}vendor/require.js"></script>
+{% else %}
+<script data-main="{{ static }}js/app.min" src="{{ static }}vendor/require.js"></script>
+{% endif %}
 
 {#<script type="text/javascript" src="{{ static }}vendor/moment.min.js"></script>#}
 {#<script type="text/javascript" src="{{ static }}vendor/moment-range.js"></script>#}
 {% endblock %}
-
 
 {% block control %}
 <div class="row chart-control">

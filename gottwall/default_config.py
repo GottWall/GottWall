@@ -82,3 +82,7 @@ INTERPOLATIONS = [
     "cardinal",
     "basis"
     ]
+
+TEMPLATE_DEBUG = False
+
+TEMPLATE_DEBUG_RELOAD = False

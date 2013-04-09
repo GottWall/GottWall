@@ -5,13 +5,16 @@
     <meta name="description" content="{{ config['site_title'] }}"/>
     <meta name="title" content="{{ config['site_title'] }}" />
     <meta name="generator" content="{{ generator }}"/>
+     {% if config['TEMPLATE_DEBUG'] %}
+    <meta name="debug" content="on"/>
+    {% endif %}
 
-    <link rel="stylesheet" type="text/css" media="all" href="{{ static }}vendor/bootstrap/css/bootstrap.css"/>
-    <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/tablesorter.bootstrap.css"/>
+
+    {% if config['TEMPLATE_DEBUG'] %}
     <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/main.css"/>
-    <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/rickshaw.min.css"/>
-    <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/graph.css"/>
-    <link rel="stylesheet" type="text/css" media="all" href="{{ static }}vendor/select2/select2.css" />
+    {% else %}
+    <link rel="stylesheet" type="text/css" media="all" href="{{ static }}css/main.min.css?{{ version }}"/>
+    {% endif %}
 
     {% block head %}{% endblock %}
   </head>
@@ -79,7 +82,7 @@
       <div class="container">
 
         <div class="contribute">{% trans %}GottWall is open source software <a href="https://github.com/GottWall/GottWall" class="btn btn-small">Contribute</a>{% endtrans %}</div>
-        <div class="credits">{% trans %}<span class="version">{{ generator }} </span> &mdash; created by the <a href="https://github.com/GottWall?tab=members">GottWall</a> team with <a href="https://github.com/GottWall/GottWall/contributors">lots of help</a>{% endtrans %}</div>
+        <div class="credits">{% trans %}<span class="version">{{ generator }}</span> &mdash; created by the <a href="https://github.com/GottWall?tab=members">GottWall</a> team with <a href="https://github.com/GottWall/GottWall/contributors">lots of help</a>{% endtrans %}</div>
 
       </div>
     </footer>

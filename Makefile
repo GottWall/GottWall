@@ -20,8 +20,12 @@ audit:
 
 version := $(shell sh -c "grep -oP 'VERSION = \"\K[0-9\.]*?(?=\")' ./setup.py")
 
+build:
 
-release:
+
+release: build
+	git add ./gottwall/static/
+	git commit -m "Compiled static for v$(version)"
 	git tag -f v$(version) && git push --tags
 	python setup.py sdist upload
 
@@ -36,6 +40,13 @@ clean: clean-pyc
 find-print:
 	grep -r --include=*.py --exclude-dir=venv --exclude=fabfile* --exclude=tests.py --exclude-dir=tests --exclude-dir=commands 'print' ./
 
+activate:
+	. venv/bin/activate
+
+build: activate
+	echo "Building single css and js files for producition"
+	r.js -o ./gottwall/static/build.js
+	r.js -o ./gottwall/static/css_build.js
 env:
 	./buildenv.sh
 	. venv/bin/activate

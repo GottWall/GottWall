@@ -78,7 +78,7 @@ class HTTPApplication(Application):
         searchpath = list(self.config.get("TEMPLATES_PATH", 'templates'))
 
         env = Environment(loader=FileSystemLoader(searchpath),
-                          auto_reload=self.config.get('TEMPLATE_DEBUG', False),
+                          auto_reload=self.config.get('TEMPLATE_DEBUG_RELOAD', False),
                           cache_size=self.config.get('JINJA2_CACHE_SIZE', 50),
                           extensions=self.config.get('JINJA2_EXTENSIONS', ()))
         filters = self.config.get('JINJA2_FILTERS', ())
