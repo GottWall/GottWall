@@ -129,7 +129,7 @@ class StatsDataSetHandlerV1(APIHandler, StatsMixin):
             self.json_response({"text": "Bad request"})
             return
 
-        from_date, to_date = self.clean_date_range(from_date, to_date)
+        from_date, to_date = self.clean_date_range(from_date, to_date, period)
 
         if self.validate_name(name, period) and from_date and to_date:
 
