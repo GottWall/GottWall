@@ -7,9 +7,9 @@ gottwall.aggregator
 
 Gottwall main loop
 
-:copyright: (c) 2012 by GottWall team, see AUTHORS for more details.
+:copyright: (c) 2012 - 2013 by GottWall team, see AUTHORS for more details.
 :license: BSD, see LICENSE for more details.
-:github: http://github.com/gottwall/gottwall
+:github: http://github.com/GottWall/GottWall
 """
 import importlib
 import time
@@ -43,7 +43,7 @@ class AggregatorApplication(Application):
 
         self.dirty_handlers = [
             # Default HTTP backend
-            (r"{0}/(?P<project>.+)/api/store".format(self.config['PREFIX']),
+            (r"{0}/api/v1/(?P<project>.+)/store".format(self.config['PREFIX']),
              HTTPBackendHandler, params, 'store')]
 
         tornado.web.Application.__init__(

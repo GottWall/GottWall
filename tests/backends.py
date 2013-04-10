@@ -8,6 +8,7 @@ Unittests for gottwall
 
 :copyright: (c) 2011 - 2012 by GottWall team, see AUTHORS for more details.
 :license: BSD, see LICENSE for more details.
+:github: http://github.com/GottWall/GottWall
 """
 import datetime
 import json
@@ -129,7 +130,7 @@ class HTTPBackendTestCase(AsyncHTTPBaseTestCase):
         authorization = "{0}:{1}".format(app.config['PROJECTS']['test_project'],
                                          app.config['SECRET_KEY'])
 
-        response = self.fetch("/gottwall/test_project/api/store", method="POST",
+        response = self.fetch("/gottwall/api/v1/test_project/store", method="POST",
                               body=json.dumps(metric_data),
                               headers={"content-type": "application/json",
                                        "Authorization": b64encode(authorization)})
@@ -141,7 +142,7 @@ class HTTPBackendTestCase(AsyncHTTPBaseTestCase):
             app.config['SECRET_KEY'],
             app.config['PROJECTS']['test_project'])
 
-        response = self.fetch("/gottwall/test_project/api/store", method="POST",
+        response = self.fetch("/gottwall/api/v1/test_project/store", method="POST",
                               body=json.dumps(metric_data),
                               headers={"content-type": "application/json",
                                        "X-GottWall-Auth": auth_value})
@@ -151,7 +152,7 @@ class HTTPBackendTestCase(AsyncHTTPBaseTestCase):
 
         # Test without authorization
 
-        response = self.fetch("/gottwall/test_project/api/store", method="POST",
+        response = self.fetch("/gottwall/api/v1/test_project/store", method="POST",
                               body=json.dumps(metric_data),
                               headers={"content-type": "application/json"})
 
