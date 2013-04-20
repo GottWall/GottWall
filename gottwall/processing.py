@@ -101,13 +101,14 @@ class RedisBackendPeriodicProcessor(PeriodicProcessor):
         self._running = False
         self._timeout = None
 
+    @gen.engine
     def callback(self):
         """Periodic processor callback
 
         :param application: application instance
         """
         for project in self.config['PROJECTS'].keys():
-            self.backend.load_buckets(project)
+            (yield Task(self.backend.load_buckets, project))
 
 class Tasks(deque):
     """Custom wrapper for deque
