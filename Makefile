@@ -12,7 +12,7 @@ test:
 	python setup.py nosetests --stop --tests tests.py
 
 travis:
-	python setup.py nosetests --tests tests.py
+	python setup.py test
 
 shell:
 	../venv/bin/ipython
