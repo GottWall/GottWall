@@ -6,16 +6,16 @@ gottwall.utils
 
 Core GottWall utilities
 
-:copyright: (c) 2012 by GottWall team, see AUTHORS for more details.
+:copyright: (c) 2012 - 2013 by GottWall team, see AUTHORS for more details.
 :license: , see LICENSE for more details.
-:github: http://github.com/gottwall/gottwall
+:github: http://github.com/GottWall/GottWall
 """
 import os.path
-from time import mktime
-from datetime import datetime, timedelta, date
+import time
+from datetime import datetime
 from urllib2 import parse_http_list
 from dateutil.relativedelta import relativedelta
-from dateutil.rrule import rrule, MINUTELY, MONTHLY, DAILY, HOURLY
+from dateutil.rrule import rrule, MINUTELY, MONTHLY, DAILY, HOURLY, YEARLY, WEEKLY, MO, SU
 
 
 # Backport of OrderedDict() class that runs on Python 2.4, 2.5, 2.6, 2.7 and pypy.
@@ -51,22 +51,6 @@ def timestamp_to_datetime(timestamp, format=TIMESTAMP_FORMAT):
         return datetime.strptime(timestamp, format)
     return timestamp
 
-
-def format_date_by_period(dt, period):
-    """Get "%Y-%m-%dT%H:%M"t period value by timestamp
-
-    :param dt: `datetime.datetime` instance
-    :param period: period name
-    :returns: str repr of timestamp
-    """
-    ts = timestamp_to_datetime(dt)
-
-    if period == "week":
-        return "{0}-{1}".format(ts.year, ts.isocalendar()[1])
-    elif period in PERIOD_PATTERNS:
-        return ts.strftime(PERIOD_PATTERNS[period])
-    return None
-
 def get_by_period(dt, period):
     """Get "%Y-%m-%dT%H:%M"t period value by timestamp
 
@@ -76,45 +60,11 @@ def get_by_period(dt, period):
     """
     ts = timestamp_to_datetime(dt)
 
-    if period == "week":
-        return "{0}-{1}".format(ts.year, ts.isocalendar()[1])
-    elif period in PERIOD_PATTERNS:
-        return ts.strftime(PERIOD_PATTERNS[period])
+    if period == 'year':
+        return ts.year
+    elif period in ['month', 'day', 'week', 'minute', 'hour']:
+        return int(time.mktime(ts.timetuple()))
     return None
-
-
-def get_datetime(timestamp, period):
-    """Convert str timestamp to datetime object
-
-    Reverse for ``get_by_period``
-
-    :param timestamp: str representation of time
-    :param perid: period
-    """
-    if period == 'week' and isinstance(timestamp, (str, unicode)):
-        year, week = timestamp.split("-")
-        ret = datetime.strptime("{0}-{1}-1".format(year, week), '%Y-%W-%w')
-        if date(int(year), 1, 4).isoweekday() > 4:
-            ret -= timedelta(days=7)
-        return ret
-    if isinstance(timestamp, datetime):
-        return timestamp
-    elif period in PERIOD_PATTERNS:
-        return datetime.strptime(timestamp, PERIOD_PATTERNS[period])
-    return None
-
-def datetime_to_int(dt, period):
-    """Convert datetime object to unix timestamp
-    """
-    if period in ['day', 'hour']:
-        return int(mktime(dt.timetuple()))
-    elif period == "year":
-        return dt.strftime("%Y")
-    elif period == "month":
-        return dt.strftime("%Y%m")
-    elif period == "week":
-        return "{0}-{1}".format(dt.year, dt.isocalendar()[1])
-    return 0
 
 
 def parse_dict_header(value):
@@ -146,11 +96,22 @@ class MagicDict(dict):
 
 
 def date_range(from_date, to_date, period="month"):
+    """Building dates range
+
+    :param from_date: from_date after date_min
+    :param to_date: to_date after date_max
+    :param period: group period
+    :return: list
+    """
 
     rrule_period = None
 
-    if period == "month":
+    if period == "year":
+        rrule_period = YEARLY
+    elif period == "month":
         rrule_period = MONTHLY
+    elif period == "week":
+        rrule_period = WEEKLY
     elif period == "hour":
         rrule_period = HOURLY
     elif period == "minute":
@@ -162,20 +123,46 @@ def date_range(from_date, to_date, period="month"):
 
     return list(rrule(rrule_period, dtstart=from_date, until=to_date))
 
+
 def date_min(from_date, period):
+    for_replace = {"second": 0,
+                   "microsecond": 0}
+
     if period == "year":
-        return from_date.replace(month=1, hour=0, day=1, minute=0, second=0)
+        return from_date.replace(month=1, day=1, hour=0, minute=0, **for_replace)
     elif period == "month":
-        return from_date.replace(hour=0, day=1, minute=0, second=0)
-    elif period in ["day", "hour", "minute"]:
-        return from_date.replace(hour=0, minute=0, second=0)
+        return from_date.replace(day=1,hour=0, minute=0, **for_replace)
+    elif period == "week":
+        from_date = from_date.replace(hour=0, minute=0, **for_replace)
+        if from_date.isoweekday() != 1:
+            return from_date + relativedelta(weekday=MO, weeks=-1)
+        return from_date
+    elif period == "day":
+        return from_date.replace(hour=0, minute=0, **for_replace)
+    elif period == "hour":
+        return from_date.replace(minute=0, **for_replace)
+    elif period == 'minute':
+        return from_date.replace(**for_replace)
     return from_date
 
+
 def date_max(to_date, period):
+    for_replace = {"second": 59,
+                   "microsecond": 999999}
+
     if period == "year":
-        return to_date.replace(month=12, hour=23, day=31, minute=59, second=59)
+        return to_date.replace(month=12, day=31, hour=23, minute=59, **for_replace)
     elif period == "month":
-        to_date = to_date.replace(day=1, hour=23, minute=59, second=59) + relativedelta(months=+1, days=-1)
-    elif period in ["day", "hour", "minute"]:
-        return to_date.replace(hour=23, minute=59, second=59)
-    return to_date
+        return to_date.replace(day=1, hour=23, minute=59, **for_replace) + relativedelta(months=+1, days=-1)
+    elif period == "week":
+        to_date = to_date.replace(hour=23, minute=59, **for_replace)
+        if to_date.isoweekday() != 6:
+            return to_date + relativedelta(weekday=SU)
+        return to_date
+    elif period == "day":
+        return to_date.replace(hour=23, minute=59, **for_replace)
+    elif period == "hour":
+        return to_date.replace(minute=59, **for_replace)
+    elif period == "minute":
+        return to_date.replace(**for_replace)
+    return to_date.replace(**for_replace)

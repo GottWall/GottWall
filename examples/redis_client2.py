@@ -48,7 +48,7 @@ with measure_time("Test stats"):
 
 
 with measure_time("Test stats"):
-    for x in xrange(10000):
+    for x in xrange(1000000):
         stats_client.incr(u"Actions",
                           timestamp=datetime.datetime(choice([2012, 2013]), randint(1, 12), randint(1, 27)) + datetime.timedelta(days=randint(1, 4)),
                           value=randint(1, 5),
@@ -59,7 +59,7 @@ with measure_time("Test stats"):
 
 
 with measure_time("Test stats"):
-    for x in xrange(10000):
+    for x in xrange(1000000):
         stats_client.incr(choice([u"Reviews", u"Feedbacks", "Registrations"]),
                           timestamp=datetime.datetime(choice([2012, 2013]), randint(1, 12), randint(1, 27)) + datetime.timedelta(days=randint(1, 4)),
                           value=randint(1, 5),
@@ -68,7 +68,7 @@ with measure_time("Test stats"):
 
 
 with measure_time("Test stats"):
-    for x in xrange(10000):
+    for x in xrange(1000000):
         stats_client.incr(choice([u"Orders"]),
                           timestamp=datetime.datetime(choice([2012, 2013]), randint(1, 12), randint(1, 27)) + datetime.timedelta(days=randint(1, 4)),
                           value=randint(1, 5),

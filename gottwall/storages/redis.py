@@ -8,7 +8,7 @@ Redis storage for collect statistics
 
 :copyright: (c) 2012 - 2013 by GottWall Team, see AUTHORS for more details.
 :license: BSD, see LICENSE for more details.
-:github: http://github.com/gottwall/gottwall
+:github: http://github.com/GottWall/GottWall
 """
 import uuid
 from logging import getLogger
@@ -24,7 +24,7 @@ from tornadoredis.exceptions import ConnectionError
 
 from gottwall.settings import STORAGE_SETTINGS_KEY
 from gottwall.storages.base import BaseStorage
-from gottwall.utils import get_datetime, get_by_period
+from gottwall.utils import get_by_period, timestamp_to_datetime, date_min
 
 
 logger = getLogger()
@@ -80,30 +80,12 @@ class RedisStorage(BaseStorage):
         :param metrics: list of metrics
         :param callback: callback function for async call
         """
-        uid = uuid.uuid4()
-
-        for i, metric in enumerate(metrics):
-
-            metric['fn'] = metric.pop('filter_name', None)
-            metric['m'] = metric.pop('metric_name', None)
-            metric['fv'] = metric.pop('filter_value', None)
-
-            for k, v in metric.items():
-                if (k not in ['m', 'fn', 'fv']) or not v:
-                    del metric[k]
-
-        data = {"project": project,
-                "metrics": metrics,
-                "period": period}
-
-        if renderer:
-            data['renderer'] = renderer
-
-        if name:
-            data['name'] = name
+        uid, data = super(RedisStorage, self).make_embedded(
+            project, period, metrics, renderer, name)
 
         json_data = json_encode(data)
-        res = (yield gen.Task(self.client.set, self.make_embedded_key(uid), json_data))
+        res = (yield gen.Task(self.client.set,
+                              self.make_embedded_key(uid), json_data))
 
         if callback:
             callback(uid if res else None)
@@ -185,10 +167,18 @@ class RedisStorage(BaseStorage):
     @tornado.gen.engine
     def incr(self, project, name, timestamp, value=1, filters=None, callback=None, **kwargs):
         """Make incr in redis hash
+
+        :param project: project name
+        :param name: metric name
+        :param timestamp: timstamp object
+        :param value: increment value
+        :param filters: dict of filters
         """
 
         pipe = self.client.pipeline(transactional=True)
         pipe.select(self.selected_db)
+
+        timestamp = timestamp_to_datetime(timestamp)
 
         for period in self._application.config['PERIODS']:
             if filters:
@@ -200,9 +190,9 @@ class RedisStorage(BaseStorage):
                     for fvalue_item in fvalue:
                         pipe.hincrby(self.make_key(
                             project, name, period, {fname: fvalue_item}),
-                                     get_by_period(timestamp, period), value)
+                                     get_by_period(date_min(timestamp, period), period), value)
 
-            pipe.hincrby(self.make_key(project, name, period), get_by_period(timestamp, period), value)
+            pipe.hincrby(self.make_key(project, name, period), get_by_period(date_min(timestamp, period), period), value)
 
             self.save_metric_meta(pipe, project, name, filters)
 
@@ -240,11 +230,7 @@ class RedisStorage(BaseStorage):
     def query(self, project, name, period, from_date=None, to_date=None,
                    filter_name=None, filter_value=None, callback=None):
 
-
-        key = self.make_key(project, name, period,
-                            {filter_name: filter_value})
-
-        items = yield Task(self.client.hgetall, key)
+        items = (yield Task(self.get_range_for_metric, project, name, period, filter_name, filter_value))
         data_range = self.filter_by_period(map(lambda x: (x[0], int(x[1])), items.iteritems()),
                                            period, from_date, to_date)
 
@@ -253,29 +239,58 @@ class RedisStorage(BaseStorage):
             callback(self.get_range_info(data_range))
 
     @gen.engine
+    def get_filter_values(self, project, metric_name, filter_name, callback=None):
+        """Get filter values list
+
+        :param filter_name: filter_name
+        :return: list of values
+        """
+        values = sorted((yield gen.Task(
+            self.client.smembers,
+            self.get_filters_values_key(project, metric_name, filter_name))))
+
+        if callback:
+            callback(values)
+
+    @gen.engine
+    def get_filters(self, project, metric_name, callback=None):
+        """Get list of filters
+
+        :param project: projet name
+        :param metric_name: metric name
+        :return: list of filters
+        """
+        filters = sorted((yield gen.Task(self.client.smembers,
+                                         self.get_filters_names_key(project, metric_name))))
+        if callback:
+            callback(filters)
+
+
+    @gen.engine
+    def get_metrics_list(self, project, callback=None):
+        """Get list of metrics
+
+        :param project: project name
+        :return: list of metrics names
+        """
+        metrics = sorted((yield gen.Task(self.client.smembers,
+                                         self.get_metrics_key(project))))
+        if callback:
+            callback(metrics)
+
+
+    @gen.engine
     def query_set(self, project, name, period, from_date=None, to_date=None,
                        filter_name=None, callback=None):
 
-        client = self.client
+        if callback:
+            super(RedisStorage, self).query_set(
+                project, name, period, from_date, to_date, filter_name, callback)
 
-        filter_values = sorted((yield gen.Task(client.smembers,
-                                               self.get_filters_values_key(project, name, filter_name))))
-        items = {}
-
-        for value in filter_values:
-            items[value] = {}
-            tmp_range = yield Task(self.client.hgetall,
-                                   self.make_key(project, name, period, {filter_name: value}))
-
-            items[value]['range'] = self.filter_by_period(map(lambda x: (get_datetime(x[0], period),
-                                                                         int(x[1])), tmp_range.items()),
-                                                          period, from_date, to_date)
-
-            filtered_range_values = map(lambda x: int(x[1]), items[value]['range'])
-            items[value]['avg'] = (sum(filtered_range_values) / len(items[value]['range'])) \
-                                  if (len(items[value]['range']) > 0) else 0
-            items[value]['max'] = max(filtered_range_values)
-            items[value]['min'] = min(filtered_range_values)
+    @tornado.gen.engine
+    def get_range_for_metric(self, project, name, period, filter_name, filter_value, callback=None):
+        items = (yield Task(self.client.hgetall,
+                            self.make_key(project, name, period, {filter_name: filter_value})))
 
         if callback:
             callback(items)
@@ -287,22 +302,18 @@ class RedisStorage(BaseStorage):
         :param project: project name
         :returns: result dict
         """
-        client = self.client
 
         self.client.select(self.selected_db)
 
         metrics = {}
 
-        for metric_name in (yield gen.Task(client.smembers,
-                                       self.get_metrics_key(project))):
+        for metric_name in (yield gen.Task(self.get_metrics_list, project)):
             if metric_name not in metrics.keys():
                 metrics[metric_name] = {}
 
-            for filter_name in (yield gen.Task(client.smembers,
-                                           self.get_filters_names_key(project, metric_name))):
-                metrics[metric_name][filter_name] = list(
-                    sorted((yield gen.Task(client.smembers,
-                                       self.get_filters_values_key(project, metric_name, filter_name)))))
+            for filter_name in (yield gen.Task(self.get_filters, project, metric_name)):
+                metrics[metric_name][filter_name] = (yield gen.Task(self.get_filter_values,
+                    project, metric_name, filter_name))
 
         if callback:
             callback(metrics)

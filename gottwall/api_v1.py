@@ -23,8 +23,8 @@ import tornado.web
 import tornado.gen
 from tornado import gen
 
-from gottwall.utils import (timestamp_to_datetime, date_range, format_date_by_period,
-                            date_min, date_max, datetime_to_int, get_datetime)
+from gottwall.utils import (timestamp_to_datetime, date_range,
+                            date_min, date_max)
 from gottwall.settings import DATE_FILTER_FORMAT, PERIODS, DEFAULT_EMBEDDED_PARAMS
 
 logger = logging.getLogger('gottwall.apiv1')
@@ -115,6 +115,14 @@ class StatsHandlerV1(APIHandler, StatsMixin):
 class StatsDataSetHandlerV1(APIHandler, StatsMixin):
     """Load data for filters without filter value
     """
+
+    def validate_filter(self, filter_name):
+        if not filter_name:
+            self.set_status(400)
+            self.json_response({"text": "You need specify filter_name"})
+            return
+        return True
+
     @authenticated
     @tornado.web.asynchronous
     @gen.engine
@@ -131,7 +139,10 @@ class StatsDataSetHandlerV1(APIHandler, StatsMixin):
 
         from_date, to_date = self.clean_date_range(from_date, to_date, period)
 
-        if self.validate_name(name, period) and from_date and to_date:
+
+        if self.validate_name(name, period) and \
+               self.validate_filter(filter_name) and \
+               from_date and to_date:
 
             data = yield gen.Task(self.application.storage.query_set,
                                   project, name, period, from_date, to_date, filter_name)
@@ -140,10 +151,7 @@ class StatsDataSetHandlerV1(APIHandler, StatsMixin):
                                 "project": project,
                                 "period": period,
                                 "name": name,
-                                "filter_name": filter_name,
-                                "date_range": [format_date_by_period(x, period)
-                                               for x in date_range(date_min(from_date, period),
-                                                                   date_max(to_date, period), period)]})
+                                "filter_name": filter_name})
 
 
 class MetricsHandlerV1(APIHandler):
@@ -177,7 +185,6 @@ class EmbeddedCreateHandlerV1(APIHandler, TimeMixin):
             self.json_response({"text": "You need specify name and period"})
             return
         return True
-
 
     @authenticated
     @tornado.web.asynchronous
@@ -238,7 +245,7 @@ class EmbeddedBaseHandlerV1(BaseHandler, TimeMixin, JSONMixin):
     def get_data(self, uid, callback=None):
         from_date, to_date = self.get_date_params()
 
-        meta_info =  (yield gen.Task(self.application.storage.get_embedded, uid))
+        meta_info = (yield gen.Task(self.application.storage.get_embedded, uid))
 
         period = self.get_argument('period', meta_info['period'])
 
@@ -273,7 +280,6 @@ class EmbeddedBaseHandlerV1(BaseHandler, TimeMixin, JSONMixin):
                                                   'name', ' | '.join(names)))
         response_data['generator'] = SERVER_NAME
 
-
         if callback:
             callback(response_data)
 
@@ -292,15 +298,13 @@ class HTMLEmbeddedHandlerV1(EmbeddedBaseHandlerV1):
 
         return height, width, interpolation
 
-
     @tornado.web.asynchronous
     @gen.engine
     def get(self, uid, *args, **kwargs):
         response_data = (yield gen.Task(self.get_data, uid))
         height, width, interpolation = self.get_chart_params()
 
-        def x_converter(x):
-            return datetime_to_int(get_datetime(x, response_data['period']), response_data['period'])
+        def x_converter(x): return x
 
         self.render("embedded.html",
                     data=response_data, width=width, height=height,
@@ -311,10 +315,10 @@ class HTMLEmbeddedHandlerV1(EmbeddedBaseHandlerV1):
 class JSEmbeddedHandlerV1(HTMLEmbeddedHandlerV1):
     @tornado.web.asynchronous
     @gen.engine
-    def get(self, uid, *args,**kwargs):
+    def get(self, uid, *args, **kwargs):
         from_date, to_date = self.get_date_params()
 
-        meta_info =  (yield gen.Task(self.application.storage.get_embedded, uid))
+        meta_info = (yield gen.Task(self.application.storage.get_embedded, uid))
 
         period = self.get_argument('period', meta_info['period'])
 
@@ -325,13 +329,11 @@ class JSEmbeddedHandlerV1(HTMLEmbeddedHandlerV1):
 
         height, width, interpolation = self.get_chart_params()
 
-
         self.render("js_embedded.html",
                     width=width, height=height,
                     from_date=from_date.strftime(DATE_FILTER_FORMAT),
                     to_date=to_date.strftime(DATE_FILTER_FORMAT), period=period,
                     interpolation=interpolation, uid=uid)
-
 
 
 class JSONEmbeddedHandlerV1(EmbeddedBaseHandlerV1):

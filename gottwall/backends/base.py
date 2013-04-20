@@ -7,9 +7,9 @@ gottwall.backends.base
 
 Base backends for metric calculation
 
-:copyright: (c) 2012 by GottWall team, see AUTHORS for more details.
+:copyright: (c) 2012 - 2013 by GottWall team, see AUTHORS for more details.
 :license: BSD, see LICENSE for more details.
-:github: http://github.com/Lispython/gottwall
+:github: http://github.com/GottWall/GottWall
 """
 
 import json
@@ -36,9 +36,9 @@ class BaseBackend(object):
         """Process `data`
         """
         res = False
+
         if data.get('action', 'incr') == 'incr':
             data.pop('action', None)
-
             res = (yield gen.Task(self.storage.incr, project, **data))
 
         if callback:
@@ -74,6 +74,7 @@ class BaseBackend(object):
         :param data: string or unicode with data
         """
         return json.loads(data.strip())
+
 
     def callback(self, message):
         """Process data from stream

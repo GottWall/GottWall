@@ -44,7 +44,7 @@ class AggregatorApplication(Application):
         self.dirty_handlers = [
             # Default HTTP backend
             (r"{0}/api/v1/(?P<project>.+)/store".format(self.config['PREFIX']),
-             HTTPBackendHandler, params, 'store')]
+             HTTPBackendHandler, params, 'api-v1-store')]
 
         tornado.web.Application.__init__(
             self, [URLSpec(*x) for x in self.dirty_handlers], **config)

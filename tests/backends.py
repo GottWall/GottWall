@@ -6,7 +6,7 @@ gottwall.tests
 
 Unittests for gottwall
 
-:copyright: (c) 2011 - 2012 by GottWall team, see AUTHORS for more details.
+:copyright: (c) 2012 - 2013 by GottWall team, see AUTHORS for more details.
 :license: BSD, see LICENSE for more details.
 :github: http://github.com/GottWall/GottWall
 """
@@ -93,10 +93,6 @@ class RedisBackendTestCase(AsyncHTTPBaseTestCase, RedisTestCaseMixin):
 
         (yield tornado.gen.Task(client.publish, key,
                                 json.dumps(metric_data)))
-
-        from pprint import pprint
-        pprint(app.storage._store)
-
 
         self.stop()
 

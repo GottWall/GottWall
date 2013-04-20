@@ -1,8 +1,10 @@
 #!/bin/sh
 
+
+if [ ! -d "./buildenv/" ]; then
+    git submodule add https://github.com/Lispython/buildenv.sh.git buildenv
+else
+    cd buildenv && git pull && cd ..
+fi
+
 . ./buildenv/buildenv.sh
-
-
-wget -P venv/bin/ http://closure-compiler.googlecode.com/files/compiler-latest.zip
-cd venv/bin/
-unzip compiler-latest.zip

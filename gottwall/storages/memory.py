@@ -11,10 +11,8 @@ Memory storage for collect statistics
 :github: http://github.com/GottWall/GottWall
 """
 
-import uuid
-from itertools import ifilter
 from base import BaseStorage
-from gottwall.utils import get_by_period, MagicDict, get_datetime
+from gottwall.utils import get_by_period, MagicDict, date_min, timestamp_to_datetime
 from tornado import gen
 
 
@@ -37,24 +35,34 @@ class MemoryStorage(BaseStorage):
 
     def save_db(self, f):
         """Save data to file
+
+        :param f: path to file
         """
         raise RuntimeError
 
-    def make_embedded(self, project, metrics=[]):
+    @gen.engine
+    def make_embedded(self, project, period, metrics=[],
+                      renderer=None, name=None, callback=None):
         """Save metrics for share key
         """
-        uid = uuid.uuid4()
-        self._embedded[uid] = {
-            "project": project,
-            "metrics": metrics}
-        return uid
 
-    def get_embedded(self, h):
+        uid, data = super(MemoryStorage, self).make_embedded(
+            project, period, metrics, renderer, name)
+
+        self._embedded[uid] = data
+
+        if callback:
+            callback(uid)
+
+    def get_embedded(self, h, callback=None):
         """Get metrics from share key
+
+        :param h: embedded key
         """
-        if h not in self._embedded:
-            return None
-        return self._embedded[h]
+
+        if callback:
+            callback(self._embedded.get(h))
+
 
     def save_value(self, project, name, period, timestamp, fname=None, fvalue=None, value=1):
         """Save value to store dict
@@ -123,14 +131,15 @@ class MemoryStorage(BaseStorage):
         :param filters: dict of filters
         :param \*\*kwargs: additional kwargs
         """
+        timestamp = timestamp_to_datetime(timestamp)
 
         for period in self._application.config['PERIODS']:
             if filters:
                 for fname, fvalue in filters.iteritems():
                     self.save_value(project, name, period,
-                                    get_by_period(timestamp, period), fname, fvalue, value)
+                                    get_by_period(date_min(timestamp, period), period), fname, fvalue, value)
             self.save_value(project, name, period,
-                            get_by_period(timestamp, period), None, None, value)
+                            get_by_period(date_min(timestamp, period), period), None, None, value)
 
         self.save_metric_meta(project, name, filters)
 
@@ -146,17 +155,71 @@ class MemoryStorage(BaseStorage):
         """Get statistics by filters
         """
 
-        key = self._store[project][name][period]
-        items = [(k, v[filter_name][filter_value]) for k, v in key.items()]
-        items.sort(key=lambda x: x[0])
-
-        items = self.filter_by_period(items, period, from_date, to_date)
-
-        d = self.get_range_info(items)
+        data_range = (yield gen.Task(self.get_range_for_metric,
+                                     project, name, period, filter_name, filter_value))
+        items = self.filter_by_period(data_range, period, from_date, to_date)
 
         if callback:
-            callback(d)
+            callback(self.get_range_info(items))
 
+    def get_range_for_metric(self, project, name, period, filter_name=None,
+                             filter_value=None, callback=None):
+        """Get range list for metric
+
+        :param project: project name
+        :param name: metric name
+        :param period: period name
+        :param filter_name: filter_name
+        :param fitler_value: filter_value
+        """
+
+        items = ((k, v[filter_name][filter_value] or 0)
+                 for k, v in self._store[project][name][period].items())
+        if callback:
+            callback(sorted(items, key=lambda x: x[0]))
+
+
+    @gen.engine
+    def query_set(self, project, name, period, from_date=None,
+              to_date=None, filter_name=None, callback=None):
+
+        if callback:
+            super(MemoryStorage, self).query_set(
+                project, name, period, from_date,
+                to_date, filter_name, callback)
+
+
+    @gen.engine
+    def get_filter_values(self, project, name, filter_name, callback=None):
+        """Get filter values list
+
+        :param project: project name
+        :param name: metric name
+        :param filter_name: filter_name
+        :return: list of values
+        """
+
+        if callback:
+            callback(self._metrics[project][name][filter_name])
+
+    @gen.engine
+    def get_filters(self, project, name, callback=None):
+        """Get list of filters
+
+        :param project: project name
+        :param name: metric name
+        """
+
+        if callback:
+            callback(filter(lambda x: x !=  None, self._metrics[project][name].keys()))
+
+    @gen.engine
+    def get_metrics_list(self, project, callback=None):
+        """Get list of metrics
+        """
+
+        if callback:
+            callback(self._metrics[project].keys() if project in self._metrics else [])
 
     @gen.engine
     def metrics(self, project, callback=None):
@@ -165,6 +228,7 @@ class MemoryStorage(BaseStorage):
         :param project: project name
         :returns: result dict
         """
+
         if callback:
             if project not in self._metrics.keys():
                 callback({})

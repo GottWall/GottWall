@@ -28,8 +28,6 @@ import tornado.gen
 from tornado import gen
 
 from gottwall import get_version, GOTTWALL_HOME, GOTTWALL_DESCRIPTION
-from gottwall.utils import (timestamp_to_datetime, date_range, format_date_by_period,
-                            date_min, date_max)
 from gottwall.settings import DATE_FILTER_FORMAT, PERIODS
 
 logger = logging.getLogger('gottwall')

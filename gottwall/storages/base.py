@@ -10,11 +10,14 @@ GottWall storages backends
 :license: BSD, see LICENSE for more details.
 :github: http://github.com/GottWall/GottWall
 """
+import uuid
+
 from itertools import ifilter
 from logging import getLogger
 
-from gottwall.compat import OrderedDict
-from gottwall.utils import format_date_by_period, date_range, date_min, date_max, get_datetime
+from tornado import gen
+from tornado.gen import Task
+from gottwall.utils import date_min, date_max, get_by_period
 
 
 logger = getLogger("gottwall.storages")
@@ -35,10 +38,35 @@ class BaseStorage(object):
         application.storage = storage
         return storage
 
-    def make_embedded(self, project, metrics):
+    def make_embedded(self, project, period, metrics=[],
+                      renderer=None, name=None):
         """Make embedded hash for metrics
+
+        :param project: project name
+        :param metrics: metrics dict
         """
-        raise NotImplementedError
+        uid = uuid.uuid4()
+
+        for i, metric in enumerate(metrics):
+
+            metric['fn'] = metric.pop('filter_name', None)
+            metric['m'] = metric.pop('metric_name', None)
+            metric['fv'] = metric.pop('filter_value', None)
+
+            for k, v in metric.items():
+                if (k not in ['m', 'fn', 'fv']) or not v:
+                    del metric[k]
+
+        data = {"project": project,
+                "metrics": metrics,
+                "period": period}
+
+        if renderer:
+            data['renderer'] = renderer
+
+        if name:
+            data['name'] = name
+        return uid, data
 
     def incr(self, project, name, timestamp, value=1, filters=None, **kwargs):
         """Add count for metric `name` and `filters`
@@ -60,11 +88,25 @@ class BaseStorage(object):
         """
         raise NotImplementedError
 
+    def get_range_for_metric(self, project, name, period,
+                             filter_name=None, filter_value=None, callback=None):
+        """Get range list for metric
+
+        :param project: project name
+        :param name: metric name
+        :param period: period name
+        :param filter_name: filter_name
+        :param fitler_value: filter_value
+        """
+        raise NotImplementedError
+
     @staticmethod
     def get_range_info(data_range):
         """Get additional info for `data_range`
         """
+
         filtered_range_values = map(lambda x: int(x[1]), data_range)
+
 
         return {"range": data_range,
                 "max": max(filtered_range_values),
@@ -73,9 +115,12 @@ class BaseStorage(object):
                 if (len(filtered_range_values) > 0) else 0}
 
 
-    def query(self, period, from_date, to_date, filter_name, filter_value):
+    def query(self, project, name, period, from_date=None, to_date=None,
+              filter_name=None, filter_value=None):
         """Get data by range and filters
 
+        :param project: project name
+        :param name: metric name
         :param period: range periodic
         :param from_date: slice from
         :param to_date: slice to
@@ -84,14 +129,37 @@ class BaseStorage(object):
         """
         raise NotImplementedError
 
+    @gen.engine
+    def query_set(self, project, name, period,
+                  from_date=None, to_date=None,
+                  filter_name=None, callback=None):
+
+        filter_values = (yield gen.Task(self.get_filter_values, project, name, filter_name))
+
+        items = {}
+
+        for value in filter_values:
+            items[value] = {}
+            tmp_range = (yield Task(self.get_range_for_metric, project, name, period, filter_name, value))
+
+            items[value]['range'] = self.filter_by_period(
+                tmp_range, period, from_date, to_date)
+
+            filtered_range_values = map(lambda x: int(x[1]), items[value]['range'])
+            items[value]['avg'] = (sum(filtered_range_values) / len(items[value]['range'])) \
+                                  if (len(items[value]['range']) > 0) else 0
+            items[value]['max'] = max(filtered_range_values)
+            items[value]['min'] = min(filtered_range_values)
+
+        if callback:
+            callback(items)
+
     def metrics(self, project):
         """Get metrics
+
+        :param project: project name
         """
         raise NotImplementedError
-
-    def convert_range_to_datetime(self, data, period):
-
-        return map(lambda x: (get_datetime(x[0], period), x[1]), data)
 
     def filter_by_period(self, data, period, from_date=None, to_date=None):
         """Fulter statistics by `from_date` and `to_date`
@@ -104,20 +172,37 @@ class BaseStorage(object):
         from_date = date_min(from_date, period)
         to_date = date_max(to_date, period)
 
-        data = self.convert_range_to_datetime(data, period)
-
-
-        if from_date and to_date:
-            new_data = OrderedDict(map(lambda x: (x, 0),
-                                       date_range(from_date, to_date, period)))
-            new_data.update(data)
-        else:
-            new_data = OrderedDict(data)
-
         # Convert datestring to datetime object in list
+        from_date = get_by_period(from_date, period)
+        to_date = get_by_period(to_date, period)
 
-        new_data = sorted(ifilter(lambda x: (True if from_date is None else x[0] >= from_date) and \
-                                  (True if to_date is None else x[0] <= to_date), new_data.items()),
+        return sorted(ifilter(lambda x: (True if from_date is None else x[0] >= from_date) and \
+                                  (True if to_date is None else x[0] <= to_date), data),
                           key=lambda x: x[0])
 
-        return map(lambda x: (format_date_by_period(x[0], period), x[1]), new_data)
+
+    def get_filters(self, project, name):
+        """Get list of filters
+
+        :param project: project name
+        :param name: metric name
+        :return: list of filters
+        """
+        raise NotImplementedError
+
+    def get_filter_values(self, project, name, filter_name):
+        """Get list of filter values
+
+        :param project: project name
+        :param name: metric name
+        :param filter_name: filter name
+        """
+        raise NotImplementedError
+
+
+    def get_metrics_list(self, project):
+        """Get list of saved metrics
+
+        :param project: project name
+        """
+        raise NotImplementedError
