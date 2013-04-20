@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import time
 from datetime import datetime
 import unittest
 
@@ -26,6 +27,8 @@ def async_test(func):
     _inner = async_test_ex()
     return _inner(func)
 
+def to_ts(d):
+    return int(time.mktime(d.timetuple()))
 
 class UtilsTestCase(unittest.TestCase):
     def test_timestamp_to_datetime(self):
@@ -42,22 +45,27 @@ class UtilsTestCase(unittest.TestCase):
 
     def test_get_by_period(self):
 
-        d = datetime(2012, 11, 1, 3, 4, 4)
+        d = datetime(2012, 11, 1, 4, 5, 2)
 
-        self.assertEquals(get_by_period(date_min(d, "year"), "year"), 2012)
-        self.assertEquals(get_by_period(date_min(d, "month"), "month"), 1351713600)
-        self.assertEquals(get_by_period(date_min(d, "week"), "week"), 1351454400)
-        self.assertEquals(get_by_period(date_min(d, "day"), "day"), 1351713600)
-        self.assertEquals(get_by_period(date_min(d, "hour"), "hour"), 1351724400)
-        self.assertEquals(get_by_period(date_min(d, "minute"), "minute"), 1351724640)
+        def tmin(d, period):
+            return get_by_period(date_min(d, period), period)
 
-        self.assertEquals(get_by_period(date_max(d, "year"), "year"), 2012)
-        self.assertEquals(get_by_period(date_max(d, "month"), "month"), 1354305599)
-        self.assertEquals(get_by_period(date_max(d, "week"), "week"), 1352059199)
-        self.assertEquals(get_by_period(date_max(d, "day"), "day"), 1351799999)
-        self.assertEquals(get_by_period(date_max(d, "hour"), "hour"), 1351727999)
-        self.assertEquals(get_by_period(date_max(d, "minute"), "minute"), 1351724699)
+        def tmax(d, period):
+            return get_by_period(date_max(d, period), period)
 
+        self.assertEquals(tmin(d, "year"), 2012)
+        self.assertEquals(tmin(d, "month"), to_ts(datetime(2012, 11, 1, 0, 0)))
+        self.assertEquals(tmin(d, "week"), to_ts(datetime(2012, 10, 29, 0, 0)))
+        self.assertEquals(tmin(d, "day"), to_ts(datetime(2012, 11, 1, 0, 0)))
+        self.assertEquals(tmin(d, "hour"), to_ts(datetime(2012, 11, 1, 4, 0)))
+        self.assertEquals(tmin(d, "minute"), to_ts(datetime(2012, 11, 1, 4, 5)))
+
+        self.assertEquals(tmax(d, "year"), 2012)
+        self.assertEquals(tmax(d, "month"), to_ts(datetime(2012, 11, 30, 23, 59, 59, 999999)))
+        self.assertEquals(tmax(d, "week"), to_ts(datetime(2012, 11, 4, 23, 59, 59, 999999)))
+        self.assertEquals(tmax(d, "day"), to_ts(datetime(2012, 11, 1, 23, 59, 59, 999999)))
+        self.assertEquals(tmax(d, "hour"), to_ts(datetime(2012, 11, 1, 4, 59, 59, 999999)))
+        self.assertEquals(tmax(d, "minute"), to_ts(datetime(2012, 11, 1, 4, 5, 59, 999999)))
 
     def test_date_min_and_max(self):
         d = datetime(2012, 11, 1, 4, 5, 2)
