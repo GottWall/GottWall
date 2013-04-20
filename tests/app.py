@@ -10,16 +10,16 @@ Application test case
 :license: BSD, see LICENSE for more details.
 :github: http://github.com/GottWall/GottWall
 """
+import time
 import datetime
-
 import tornado.ioloop
 
 import gottwall.default_config
-from base import AsyncBaseTestCase
 from gottwall.config import Config
 from gottwall.aggregator import AggregatorApplication
 from gottwall.processing import PeriodicProcessor
 from utils import async_test
+from base import AsyncBaseTestCase
 
 
 class ProcessorTestCase(AsyncBaseTestCase):
@@ -33,13 +33,13 @@ class ProcessorTestCase(AsyncBaseTestCase):
         return app
 
     def get_message(self, i):
-        return ("bucket",
-                {"name": "processor_metric_{0}".format(i),
-                 "timestamp": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S"),
-                 "filters": {"filter_name1": "flter_value1"},
-                 "action": "incr",
-                 "value": 2,
-                 "project": "test_processor_project"})
+        return ("incr",
+                ("test_processor_project", # project name
+                 "processor_metric_{0}".format(i), # metric name
+                 int(time.mktime(datetime.datetime.utcnow().timetuple())), # timestatmp
+                 2, # increment value
+                 (("filter_name1", "flter_value1"),), # filters
+                 ))
 
     @async_test
     @tornado.gen.engine

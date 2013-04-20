@@ -6,18 +6,21 @@ gottwall.processing
 
 GottWall dataprocessing
 
-:copyright: (c) 2012 by GottWall team, see AUTHORS for more details.
+:copyright: (c) 2012 - 2013 by GottWall team, see AUTHORS for more details.
 :license: BSD, see LICENSE for more details.
-:github: http://github.com/Lispython/GottWall
+:github: http://github.com/GottWall/GottWall
 """
 
 from collections import deque
 import tornado.ioloop
+from tornado.gen import Task
+from tornado import gen
 
 from gottwall.settings import PERIODIC_PROCESSOR_TIME, TASKS_CHUNK
 from gottwall.log import logger
 
-def process_bucket(processor, app, data, callback=None):
+@gen.engine
+def process_bucket(processor, app, action, data, callback=None):
     """Process bucket
     :param processor: :class:`gottwall.processing.PeriodicProcessor` instance
     :param app: :class:`tornado.web.Application` instance
@@ -25,11 +28,18 @@ def process_bucket(processor, app, data, callback=None):
     :param callback: success callback
     """
 
-    result = app.storage.incr(data.pop('project'), **data)
-    return result
+    method = getattr(app.storage, action, None)
+    if not method:
+        callback(False)
+
+    result = (yield Task(method, *data))
+
+    if callback:
+        callback(result)
 
 
-TASK_TYPES = {"bucket": process_bucket}
+TASK_TYPES = {"incr": process_bucket,
+              "decr": process_bucket}
 
 
 class PeriodicProcessor(tornado.ioloop.PeriodicCallback):
@@ -45,6 +55,7 @@ class PeriodicProcessor(tornado.ioloop.PeriodicCallback):
         self._timeout = None
         self._deque_chunk_len = app.config.get('TASKS_CHUNK', TASKS_CHUNK)
 
+
     def _run(self):
         if not self._running:
             return
@@ -54,6 +65,7 @@ class PeriodicProcessor(tornado.ioloop.PeriodicCallback):
             logger.error("Error in periodic callback", exc_info=True)
         self._schedule_next()
 
+    @gen.engine
     def callback(self):
         """Periodic processor callback
 
@@ -64,19 +76,17 @@ class PeriodicProcessor(tornado.ioloop.PeriodicCallback):
             i = 0
             while i < self._deque_chunk_len:
                 task_type, data = self.application.tasks.pop()
-                self.process_task(task_type, data)
+                f = TASK_TYPES.get(task_type, None)
+
+                if not f:
+                    continue
+
+                (yield Task(f, self, self.application, task_type, data))
                 i += 1
-        except IndexError:
-            pass
+        except IndexError, e:
+            logger.error(e)
         except Exception, e:
             logger.error(e)
-
-    def process_task(self, task_type, data):
-        f = TASK_TYPES.get(task_type, None)
-
-        if f:
-            return f(self, self.application, data)
-        logger.error("Invalid task type: {0}".format(task_type))
 
 
 class RedisBackendPeriodicProcessor(PeriodicProcessor):

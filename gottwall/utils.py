@@ -49,6 +49,8 @@ def timestamp_to_datetime(timestamp, format=TIMESTAMP_FORMAT):
     """
     if isinstance(timestamp, (str, unicode)):
         return datetime.strptime(timestamp, format)
+    elif isinstance(timestamp, int):
+        return datetime.fromtimestamp(timestamp)
     return timestamp
 
 def get_by_period(dt, period):

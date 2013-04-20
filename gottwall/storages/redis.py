@@ -165,7 +165,7 @@ class RedisStorage(BaseStorage):
         return u"{0}-metrics-filters:{1}".format(project, to_unicode(metric_name))
 
     @tornado.gen.engine
-    def incr(self, project, name, timestamp, value=1, filters=None, callback=None, **kwargs):
+    def incr(self, project, name, timestamp, value=1, filters={}, callback=None, **kwargs):
         """Make incr in redis hash
 
         :param project: project name
@@ -179,6 +179,7 @@ class RedisStorage(BaseStorage):
         pipe.select(self.selected_db)
 
         timestamp = timestamp_to_datetime(timestamp)
+        filters = dict(filters)
 
         for period in self._application.config['PERIODS']:
             if filters:

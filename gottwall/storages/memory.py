@@ -121,7 +121,7 @@ class MemoryStorage(BaseStorage):
             callback(True)
 
     @gen.engine
-    def incr(self, project, name, timestamp, value=1, filters=None, callback=None, **kwargs):
+    def incr(self, project, name, timestamp, value=1, filters={}, callback=None, **kwargs):
         """Add value to metric counter
 
         :param project: project name
@@ -132,10 +132,10 @@ class MemoryStorage(BaseStorage):
         :param \*\*kwargs: additional kwargs
         """
         timestamp = timestamp_to_datetime(timestamp)
-
+        filters = dict(filters)
         for period in self._application.config['PERIODS']:
             if filters:
-                for fname, fvalue in filters.iteritems():
+                for fname, fvalue in filters.items():
                     self.save_value(project, name, period,
                                     get_by_period(date_min(timestamp, period), period), fname, fvalue, value)
             self.save_value(project, name, period,

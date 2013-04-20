@@ -61,6 +61,8 @@ class HTTPBackend(BaseBackend, BaseHandler):
             raise HTTPError(403, "Forbidden")
 
         data = json.loads(self.request.body)
+
+        import ipdb; ipdb.set_trace()
         self.process_data(project, data)
 
         self.write("OK")
