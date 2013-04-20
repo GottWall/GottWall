@@ -52,7 +52,7 @@ class ProcessorTestCase(AsyncBaseTestCase):
 
         # Add messages
         for x in xrange(20):
-            app.tasks.append(self.get_message(x))
+            app.add_task(*self.get_message(x))
 
         self.assertEquals(len(app.tasks), 20)
 

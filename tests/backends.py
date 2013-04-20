@@ -126,19 +126,26 @@ class HTTPBackendTestCase(AsyncHTTPBaseTestCase):
         authorization = "{0}:{1}".format(app.config['PROJECTS']['test_project'],
                                          app.config['SECRET_KEY'])
 
-        response = self.fetch("/gottwall/api/v1/test_project/store", method="POST",
+
+        response = self.fetch("/gottwall/api/v1/test_projfewfweect/incr", method="POST",
                               body=json.dumps(metric_data),
                               headers={"content-type": "application/json",
                                        "Authorization": b64encode(authorization)})
 
-        self.assertEquals(response.body, "OK")
-        self.assertEquals(response.code, 200)
+        self.assertEquals(response.code, 404)
+
+        response = self.fetch("/gottwall/api/v1/test_project/infdsfcr", method="POST",
+                              body=json.dumps(metric_data),
+                              headers={"content-type": "application/json",
+                                       "Authorization": b64encode(authorization)})
+
+        self.assertEquals(response.code, 404)
 
         auth_value = "GottWall private_key={0}, public_key={1}".format(
             app.config['SECRET_KEY'],
             app.config['PROJECTS']['test_project'])
 
-        response = self.fetch("/gottwall/api/v1/test_project/store", method="POST",
+        response = self.fetch("/gottwall/api/v1/test_project/incr", method="POST",
                               body=json.dumps(metric_data),
                               headers={"content-type": "application/json",
                                        "X-GottWall-Auth": auth_value})
@@ -148,8 +155,16 @@ class HTTPBackendTestCase(AsyncHTTPBaseTestCase):
 
         # Test without authorization
 
-        response = self.fetch("/gottwall/api/v1/test_project/store", method="POST",
+        response = self.fetch("/gottwall/api/v1/test_project/incr", method="POST",
                               body=json.dumps(metric_data),
                               headers={"content-type": "application/json"})
 
         self.assertEquals(response.code, 403)
+
+        response = self.fetch("/gottwall/api/v1/test_project/incr", method="POST",
+                              body=json.dumps(metric_data),
+                              headers={"content-type": "application/json",
+                                       "Authorization": b64encode(authorization)})
+
+        self.assertEquals(response.body, "OK")
+        self.assertEquals(response.code, 200)

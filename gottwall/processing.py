@@ -27,12 +27,7 @@ def process_bucket(processor, app, action, data, callback=None):
     :param data: bucket data dict
     :param callback: success callback
     """
-
-    method = getattr(app.storage, action, None)
-    if not method:
-        callback(False)
-
-    result = (yield Task(method, *data))
+    result = (yield Task(app.process_data, data[0], action, data))
 
     if callback:
         callback(result)
@@ -84,7 +79,7 @@ class PeriodicProcessor(tornado.ioloop.PeriodicCallback):
                 (yield Task(f, self, self.application, task_type, data))
                 i += 1
         except IndexError, e:
-            logger.error(e)
+            pass
         except Exception, e:
             logger.error(e)
 

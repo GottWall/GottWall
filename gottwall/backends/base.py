@@ -32,14 +32,15 @@ class BaseBackend(object):
         return "{0}.{1}".format(self.__class__.__module__, self.__class__.__name__)
 
     @gen.engine
-    def process_data(self, project, data, callback=None):
+    def process_data(self, project, action, data, callback=None):
         """Process `data`
         """
         res = False
 
-        if data.get('action', 'incr') == 'incr':
-            data.pop('action', None)
-            res = (yield gen.Task(self.storage.incr, project, **data))
+        if action not in ['incr', 'decr']:
+            res = False
+        else:
+            res = (yield gen.Task(getattr(self.storage, action), project, *data[1:]))
 
         if callback:
             callback(res)
@@ -68,12 +69,17 @@ class BaseBackend(object):
         return False
 
     @staticmethod
-    def parse_data(data):
+    def parse_data(data, project=None):
         """Parse json bucket to dict
 
         :param data: string or unicode with data
         """
-        return json.loads(data.strip())
+        parsed_data = json.loads(data.strip()) #parsed data
+        return (parsed_data.get('p') or parsed_data.get('project') or project,
+                parsed_data.get('n') or parsed_data.get('name'),
+                parsed_data.get('ts') or parsed_data.get('timestamp'),
+                parsed_data.get('v') or parsed_data.get('value', 1),
+                parsed_data.get('f') or parsed_data.get('filters'))
 
 
     def callback(self, message):
@@ -85,7 +91,7 @@ class BaseBackend(object):
 
         if self.check_key(data['auth']['private_key'],
                           data['auth']['public_key'], data['project']):
-            self.process_data(data['project'], data)
+            self.process_data(data['project'], data.get('a') or data.get('action'), data)
 
         return True
 

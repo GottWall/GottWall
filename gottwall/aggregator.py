@@ -16,6 +16,7 @@ import time
 from logging import getLogger
 
 import tornado.ioloop
+from tornado import gen
 from tornado.web import Application, URLSpec
 
 from backends import HTTPBackend as HTTPBackendHandler
@@ -43,7 +44,7 @@ class AggregatorApplication(Application):
 
         self.dirty_handlers = [
             # Default HTTP backend
-            (r"{0}/api/v1/(?P<project>.+)/store".format(self.config['PREFIX']),
+            (r"{0}/api/v1/(?P<project>.+)/(?P<action>.+)".format(self.config['PREFIX']),
              HTTPBackendHandler, params, 'api-v1-store')]
 
         tornado.web.Application.__init__(
@@ -59,6 +60,14 @@ class AggregatorApplication(Application):
         # Add periodic processing
         self.data_processor = PeriodicProcessor(self, io_loop=io_loop)
         self.data_processor.start()
+
+    def add_task(self, task_type, data):
+        """Add new task to tasks deque
+        :param task_type: task type (incr, decr)
+        :param data: (type parameters)
+        """
+        self.tasks.append((task_type, data))
+
 
     def configure_storage(self, storage_path):
         """Configure data storage by path
@@ -101,7 +110,7 @@ class AggregatorApplication(Application):
         """
         io_loop = tornado.ioloop.IOLoop.instance()
 
-        if all([backend.ready_to_stop() for backend in self.backends]):
+        if all([backend.ready_to_stop() for backend in self.backends]) and not self.tasks:
             logger.info("All backends ready to stop")
             io_loop.add_timeout(time.time() + 2, io_loop.stop)
             return True
@@ -111,3 +120,17 @@ class AggregatorApplication(Application):
             logger.info("Backend {0} has {1} tasks in progress".format(repr(backend), backend.current_in_progress))
 
         io_loop.add_timeout(time.time() + 2, self.check_ready_to_stop)
+
+    @gen.engine
+    def process_data(self, project, action, data, callback=None):
+        """Process `data`
+        """
+        res = False
+
+        if action not in ['incr', 'decr']:
+            res = False
+        else:
+            res = (yield gen.Task(getattr(self.storage, action), project, *data[1:]))
+
+        if callback:
+            callback(res)

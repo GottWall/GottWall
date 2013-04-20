@@ -9,7 +9,7 @@ Base backends for metric calculation
 
 :copyright: (c) 2012 - 2013 by GottWall team, see AUTHORS for more details.
 :license: BSD, see LICENSE for more details.
-:github: http://github.com/gottwall/gottwall
+:github: http://github.com/GottWall/GottWall
 """
 import json
 from base64 import b64decode
@@ -47,8 +47,13 @@ class HTTPBackend(BaseBackend, BaseHandler):
             hosts[host] += patterns
         app.handlers = [(host, patterns) for host, patterns in hosts.items()]
 
+    def process_data(self, project, action, data, callback=None):
+        """Process `data`
+        """
+        self.application.add_task(action, data)
+
     @tornado.gen.engine
-    def post(self, project, *args, **kwargs):
+    def post(self, project, action, *args, **kwargs):
         self.storage = self.application.storage
 
         if not self.validate_project(project):
@@ -57,26 +62,27 @@ class HTTPBackend(BaseBackend, BaseHandler):
         if not self.validate_content_type():
             raise HTTPError(400, "Invalid content type")
 
+        if not self.validate_action(action):
+            raise HTTPError(404, "Invalid action")
+
         if not self.check_auth(project):
             raise HTTPError(403, "Forbidden")
 
-        data = json.loads(self.request.body)
-
-        import ipdb; ipdb.set_trace()
-        self.process_data(project, data)
+        self.process_data(project, action, self.parse_data(self.request.body, project))
 
         self.write("OK")
         self.finish()
 
+    def validate_action(self, action):
+        return action in ['incr', 'decr']
+
     def validate_project(self, project):
         """Validate projects name
         """
-        return True
+        return project in self.config['PROJECTS']
 
     def validate_content_type(self):
-        if self.request.headers['content-type'] == 'application/json':
-            return True
-        return False
+        return self.request.headers['content-type'] == 'application/json'
 
     def check_auth(self, project):
         """Check authorization headers
