@@ -62,9 +62,6 @@ require.config({
     },
     "vendor/moment-range":{
 	deps: ['moment']
-    },
-    "vendor/moment.isocalendar": {
-	deps: ['moment']
     }
   }
 });
