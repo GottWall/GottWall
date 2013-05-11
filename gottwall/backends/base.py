@@ -49,7 +49,7 @@ class BaseBackend(object):
         if action not in ['incr', 'decr']:
             res = False
         else:
-            res = (yield gen.Task(getattr(self.storage, action), project, *data[1:]))
+            res = (yield gen.Task(getattr(self.storage, action), project, *data[2:]))
 
         if callback:
             callback(res)
@@ -84,11 +84,22 @@ class BaseBackend(object):
         :param data: string or unicode with data
         """
         parsed_data = json.loads(data.strip()) #parsed data
-        return (parsed_data.get('p') or parsed_data.get('project') or project,
+
+        parsed_data['project'] = parsed_data.get('p') or parsed_data.get('project') or project
+
+        return parsed_data
+
+    @staticmethod
+    def parsed_data_to_list(parsed_data):
+        """Convert parsed data to tuple
+        """
+        return (parsed_data.get('a') or parsed_data.get('action'),
+                parsed_data.get('p') or parsed_data.get('project'),
                 parsed_data.get('n') or parsed_data.get('name'),
                 parsed_data.get('ts') or parsed_data.get('timestamp'),
                 parsed_data.get('v') or parsed_data.get('value', 1),
                 parsed_data.get('f') or parsed_data.get('filters'))
+
 
 
     def callback(self, message):
@@ -100,7 +111,8 @@ class BaseBackend(object):
 
         if self.check_key(data['auth']['private_key'],
                           data['auth']['public_key'], data['project']):
-            self.process_data(data['project'], data.get('a') or data.get('action'), data)
+            self.process_data(data['project'], data.get('a') or data.get('action'),
+                              self.parsed_data_to_list(data))
 
         return True
 

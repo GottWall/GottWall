@@ -53,14 +53,14 @@ class UtilsTestCase(unittest.TestCase):
         def tmax(d, period):
             return get_by_period(date_max(d, period), period)
 
-        self.assertEquals(tmin(d, "year"), 2012)
+        self.assertEquals(tmin(d, "year"), to_ts(datetime(2012, 1, 1, 0, 0)))
         self.assertEquals(tmin(d, "month"), to_ts(datetime(2012, 11, 1, 0, 0)))
         self.assertEquals(tmin(d, "week"), to_ts(datetime(2012, 10, 29, 0, 0)))
         self.assertEquals(tmin(d, "day"), to_ts(datetime(2012, 11, 1, 0, 0)))
         self.assertEquals(tmin(d, "hour"), to_ts(datetime(2012, 11, 1, 4, 0)))
         self.assertEquals(tmin(d, "minute"), to_ts(datetime(2012, 11, 1, 4, 5)))
 
-        self.assertEquals(tmax(d, "year"), 2012)
+        self.assertEquals(tmax(d, "year"), to_ts(datetime(2012, 12, 31, 23, 59, 59, 999999)))
         self.assertEquals(tmax(d, "month"), to_ts(datetime(2012, 11, 30, 23, 59, 59, 999999)))
         self.assertEquals(tmax(d, "week"), to_ts(datetime(2012, 11, 4, 23, 59, 59, 999999)))
         self.assertEquals(tmax(d, "day"), to_ts(datetime(2012, 11, 1, 23, 59, 59, 999999)))

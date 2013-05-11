@@ -25,7 +25,7 @@ except Exception, e:
     readme_content = __doc__
 
 
-VERSION = "0.4.0"
+VERSION = "0.4.1"
 
 
 def run_tests():

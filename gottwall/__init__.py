@@ -12,7 +12,7 @@ GottWall is a scalable realtime metrics collecting and aggregation platform and 
 """
 
 __all__ = 'get_version',
-__author__ = "GottWal team"
+__author__ = "GottWall team"
 __license__ = "BSD, see LICENSE for more details"
 __maintainer__ = "Alexandr Lispython"
 
@@ -26,7 +26,7 @@ if __version__ == 'unknown':
     __version_info__ = (0, 0, 0)
 else:
     __version_info__ = __version__.split('.')
-__build__ = 0x000036
+__build__ = 0x000041
 
 GOTTWALL_HOME = "http://demo.gottwall.com"
 GOTTWALL_DESCRIPTION = "GottWall is a scalable realtime metrics aggrigation platform."

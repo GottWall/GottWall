@@ -113,13 +113,13 @@ class RedisBackend(BaseBackend):
             logger.warn(e)
 
         data = self.parse_data(message.body.strip(), project)
-        message_type = data.get('type', None)
+        message_type = data.get('action', None)
 
         if message_type == 'notification':
             # Load data from key to deque for project
             self.load_buckets(project)
-        elif message_type == 'bucket':
-            self.process_data(project, self.parse_data(data, project))
+        elif message_type in ['incr', 'decr']:
+            self.process_data(project, data.get('action'), self.parsed_data_to_list(data))
 
         return True
 
@@ -168,8 +168,10 @@ class RedisBackend(BaseBackend):
                     break
 
                 self.current_in_progress += 1
+                parsed_data = self.parse_data(raw_data, project)
                 try:
-                    self.process_data(project, self.parse_data(raw_data, project),
+                    self.process_data(project, parsed_data.get('action'),
+                                      self.parsed_data_to_list(parsed_data),
                                       self.process_data_callback)
                 except Exception, e:
                     logger.warning(e)
