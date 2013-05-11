@@ -24,8 +24,7 @@ PERIODS = [
 
 
 TEMPLATES_PATH = [
-    os.path.join(os.path.dirname(__file__), "templates")
-    ]
+    os.path.join(os.path.dirname(__file__), "templates")]
 
 static_path = os.path.join(os.path.dirname(__file__), "static")
 static_url_prefix = "/static/"
@@ -48,7 +47,8 @@ DATABASE = {
 PREFIX = '/gottwall'
 
 # Run every minute
-PERIODIC_PROCESSOR_TIME = 1000*60*1
+PERIODIC_PROCESSOR_TIME = 350
+STATUS_PROCESSOR_TIME = 1000 * 30 * 2
 
 cookie_secret = 'cookie_secret'
 

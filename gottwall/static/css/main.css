@@ -1,4 +1,5 @@
 @import url("../vendor/bootstrap/css/bootstrap.css");
+@import url("../vendor/bootstrap/css/bootstrap-responsive.css");
 @import url("./tablesorter.bootstrap.css");
 @import url("./rickshaw.min.css");
 @import url("./graph.css");

@@ -7,9 +7,9 @@ gottwall.runner
 
 GottWall runner for standalone applications
 
-:copyright: (c) 2012 by GottWall team, see AUTHORS for more details..
+:copyright: (c) 2012 - 2013 by GottWall team, see AUTHORS for more details..
 :license: BSD, see LICENSE for more details.
-:github: http://github.com/gottwall/gottwall
+:github: http://github.com/GottWall/GottWall
 """
 import os.path
 import sys
@@ -28,7 +28,7 @@ from tornado.options import _LogFormatter
 import gottwall.default_config
 from gottwall.aggregator import AggregatorApplication
 from gottwall.app import HTTPApplication
-from gottwall.config import Config
+from gottwall.config import Config, generate_settings
 from gottwall.log import logger
 
 
@@ -59,9 +59,7 @@ class Commandor(Commandor):
         """
 
         if not options.config:
-            self.error("You need specify --config\n")
-            super(Commandor, self).run(options, args)
-            self.exit()
+            return False
 
         config = Config()
 
@@ -72,6 +70,40 @@ class Commandor(Commandor):
         config.from_file(options.config)
 
         return config
+
+
+class Init(Command):
+    """Config creation
+    """
+    commandor = Commandor
+
+    def run(self, *args, **kwargs):
+        if len(self._args) == 0:
+            self.error("You need specify path to config file\n")
+            self.exit()
+
+        filename = os.path.abspath(self._args[0])
+
+        if os.path.exists(filename):
+
+            while True:
+                ans = raw_input("Are you sure to rewrite {0}? [y/n]".format(filename))
+                if not ans:
+                    continue
+                if ans not in ['y', 'Y', 'n', 'N']:
+                    self.display('Please enter y or n.')
+                    continue
+                if ans in ['y', 'Y']:
+                    self.display("Rewriting exists {0}".format(filename))
+                    break
+                if ans in ['n', 'N']:
+                    self.display("{0} not rewrited".format(filename))
+                    self.exit()
+        try:
+            with open(filename, 'w') as f:
+                f.write(generate_settings())
+        except IOError as e:
+            self.display("Can't create config file at {0}\r\n{1}".format(filename, e))
 
 
 class Aggregator(Command):
@@ -106,6 +138,10 @@ class Start(Command):
 
     def run(self, port, reload, host, logging, **kwargs):
         config = self._commandor_res
+
+        if not config:
+            self.error("You need specify --config\n")
+            self.exit()
 
         configure_logging(logging)
 
@@ -176,6 +212,10 @@ class Start(Command):
 
     def run(self, port, reload, host, logging, **kwargs):
         config = self._commandor_res
+
+        if not config:
+            self.error("You need specify --config\n")
+            self.exit()
 
         configure_logging(logging)
 

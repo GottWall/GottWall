@@ -12,7 +12,7 @@ GottWall storages backends
 """
 import uuid
 
-from itertools import ifilter
+from itertools import ifilter, imap
 from logging import getLogger
 
 from tornado import gen
@@ -29,6 +29,11 @@ class BaseStorage(object):
 
     def __init__(self, application):
         self._application = application
+        self._statistics = {
+            'incr': 0,
+            'decr': 0,
+            'query': 0,
+            'query_set': 0}
 
     @classmethod
     def setup(cls, application):
@@ -37,6 +42,18 @@ class BaseStorage(object):
         storage = cls(application)
         application.storage = storage
         return storage
+
+    def get_status(self):
+        """Print storage status
+        """
+        logger.info("{name} statistics: incr[{incr}], query[{query}], query_set[{query_set}]".format(
+            name = self.__class__.__name__,
+            incr=self._statistics['incr'],
+            query=self._statistics['query'],
+            query_set=self._statistics['query_set']))
+
+    def update_stats(self, key, value=1):
+        self._statistics[key] += 1
 
     def make_embedded(self, project, period, metrics=[],
                       renderer=None, name=None):
@@ -106,13 +123,21 @@ class BaseStorage(object):
         """
 
         filtered_range_values = map(lambda x: int(x[1]), data_range)
+        if filtered_range_values:
+            min_info = min(filtered_range_values or [])
+            max_info = max(filtered_range_values or [])
 
+            avg_info = (sum(filtered_range_values) / len(filtered_range_values)) \
+                       if (len(filtered_range_values) > 0) else 0
+        else:
+            min_info = 0
+            max_info = 0
+            avg_info = 0
 
         return {"range": data_range,
-                "max": max(filtered_range_values),
-                "min": min(filtered_range_values),
-                "avg": (sum(filtered_range_values) / len(filtered_range_values)) \
-                if (len(filtered_range_values) > 0) else 0}
+                "max": max_info,
+                "min": min_info,
+                "avg": avg_info}
 
 
     def query(self, project, name, period, from_date=None, to_date=None,
@@ -137,7 +162,6 @@ class BaseStorage(object):
         filter_values = (yield gen.Task(self.get_filter_values, project, name, filter_name))
 
         items = {}
-
         for value in filter_values:
             items[value] = {}
             tmp_range = (yield Task(self.get_range_for_metric, project, name, period, filter_name, value))
@@ -146,10 +170,11 @@ class BaseStorage(object):
                 tmp_range, period, from_date, to_date)
 
             filtered_range_values = map(lambda x: int(x[1]), items[value]['range'])
+
             items[value]['avg'] = (sum(filtered_range_values) / len(items[value]['range'])) \
-                                  if (len(items[value]['range']) > 0) else 0
-            items[value]['max'] = max(filtered_range_values)
-            items[value]['min'] = min(filtered_range_values)
+                                  if ((len(items[value]['range']) > 0) and filtered_range_values) else 0
+            items[value]['max'] = max(filtered_range_values) if filtered_range_values else 0
+            items[value]['min'] = min(filtered_range_values) if filtered_range_values else 0
 
         if callback:
             callback(items)
@@ -169,6 +194,7 @@ class BaseStorage(object):
         :return: ifilter generator
 
         """
+
         from_date = date_min(from_date, period)
         to_date = date_max(to_date, period)
 
@@ -176,9 +202,10 @@ class BaseStorage(object):
         from_date = get_by_period(from_date, period)
         to_date = get_by_period(to_date, period)
 
-        return sorted(ifilter(lambda x: (True if from_date is None else x[0] >= from_date) and \
-                                  (True if to_date is None else x[0] <= to_date), data),
-                          key=lambda x: x[0])
+        return sorted(ifilter(lambda x: (True if from_date is None else int(x[0]) >= from_date) and \
+                              (True if to_date is None else int(x[0]) <= to_date),
+                              imap(lambda item: (int(item[0]), item[1]), data)),
+                      key=lambda x: x[0])
 
 
     def get_filters(self, project, name):

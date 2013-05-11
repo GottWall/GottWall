@@ -132,7 +132,10 @@ class MemoryStorage(BaseStorage):
         :param \*\*kwargs: additional kwargs
         """
         timestamp = timestamp_to_datetime(timestamp)
-        filters = dict(filters)
+
+        if filters:
+            filters = dict(filters)
+
         for period in self._application.config['PERIODS']:
             if filters:
                 for fname, fvalue in filters.items():
@@ -143,6 +146,7 @@ class MemoryStorage(BaseStorage):
 
         self.save_metric_meta(project, name, filters)
 
+        self.update_stats('incr')
         if callback:
             callback(True)
 
@@ -159,6 +163,7 @@ class MemoryStorage(BaseStorage):
                                      project, name, period, filter_name, filter_value))
         items = self.filter_by_period(data_range, period, from_date, to_date)
 
+        self.update_stats('query')
         if callback:
             callback(self.get_range_info(items))
 

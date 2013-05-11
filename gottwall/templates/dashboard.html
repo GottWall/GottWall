@@ -23,7 +23,7 @@ var version = "{{ version }}";
 {%- block control -%}
 {%- spaceless -%}
 <div class="row chart-control">
-  <div class="span8 periods">
+  <div class="span7 periods">
     <div class="btn-group" id="chart-add">
       <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-plus"></i> {{ _("Add widget") }}
 	<span class="caret"></span>
@@ -38,13 +38,13 @@ var version = "{{ version }}";
     <div class="btn-group selector" id="period-selector">
       <button class="btn" data-type="year">{{ _("years") }}</button>
       <button class="btn" data-type="month">{{ _("months") }}</button>
-      <!--<button class="btn" data-type="week">{{ _("weeks") }}</button>-->
+      <button class="btn" data-type="week">{{ _("weeks") }}</button>
       <button class="btn" data-type="day">{{ _("days") }}</button>
       <button class="btn" data-type="hour">{{ _("hours") }}</button>      <!--<button class="btn" data-type="minute">{{ _("minutes") }}</button>-->
     </div>
   </div>
 
-  <div class="span5 intervals" data-date-format="yyyy-mm-dd">
+  <div class="span4 intervals" data-date-format="yyyy-mm-dd">
     <span style="display:inline-block;width: 80px;text-align: right;">{{ _("Period from") }}</span>
     <input data-date-format="yyyy-mm-dd" type="text" name="start-date" class="input_date start-date datepicker" id="from-date">
     <span style="display:inline-block;width: 20px;text-align: right;">{{ _("to") }}</span>
@@ -107,7 +107,7 @@ var version = "{{ version }}";
       <th>{{ r[0] }}</th>
       {%- set dates = r[1] -%}
       {%- for v in dates -%}
-      <td data-tate="{{ v[0] }}">{{ v[1] }}</td>
+      <td data-date="{{ v['x'] }}">{{ v['y'] }}</td>
       {%- endfor -%}
     </tr>
     {%- endfor -%}

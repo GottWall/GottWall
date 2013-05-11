@@ -109,6 +109,8 @@ class RedisBackend(BaseBackend):
         except ValueError:
             logger.warn("Invalid channel credentails")
             return
+        except Exception, e:
+            logger.warn(e)
 
         data = self.parse_data(message.body.strip(), project)
         message_type = data.get('type', None)
@@ -120,6 +122,9 @@ class RedisBackend(BaseBackend):
             self.process_data(project, self.parse_data(data, project))
 
         return True
+
+    def get_status(self):
+        super(RedisBackend, self).get_status()
 
     def parse_channel(self, channel):
         """Parser private, public keys from channel name
@@ -139,33 +144,41 @@ class RedisBackend(BaseBackend):
             project, self.config['PROJECTS'][project])
 
     @gen.engine
-    def load_buckets(self, project):
+    def load_buckets(self, project, callback=None):
         """Load data from key to application deque
 
         :param project: project name
         """
         client = self.get_redis_client()
         key = self.bucket_key(project)
-        length = (yield gen.Task(client.scard, key))
 
-        # Max load elements at once
-        i = min(int(self.backend_settings.get("MAX_LOADING", 100)), length)
+        try:
+            length = (yield gen.Task(client.scard, key))
+        except ConnectionError, e:
+            logger.warning(e)
+            callback(False)
+        else:
+            # Max load elements at once
+            i = min(int(self.backend_settings.get("MAX_LOADING", 100)), length)
 
-        while i > 0 and (self.current_in_progress < self.data_processing_threshold) and self.working:
-            raw_data = (yield gen.Task(client.spop, key))
+            while i > 0 and (self.current_in_progress < self.data_processing_threshold) and self.working:
+                raw_data = (yield gen.Task(client.spop, key))
 
-            if not raw_data:
-                break
+                if not raw_data:
+                    break
 
-            self.current_in_progress += 1
-            try:
-                self.process_data(project, self.parse_data(raw_data, project),
-                                  self.process_data_callback)
-            except Exception, e:
-                logger.warning(e)
-                print(e)
+                self.current_in_progress += 1
+                try:
+                    self.process_data(project, self.parse_data(raw_data, project),
+                                      self.process_data_callback)
+                except Exception, e:
+                    logger.warning(e)
+                    print(e)
 
-            i -= 1
+                i -= 1
+
+            if callback:
+                callback(True)
 
     def process_data_callback(self, res):
         """Function that called then data processes

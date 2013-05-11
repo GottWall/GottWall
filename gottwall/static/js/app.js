@@ -16,6 +16,7 @@ require.config({
     "jquery.tablesorter.widgets": "js/jquery.tablesorter.widgets",
     "select2": "vendor/select2/select2.min",
     "rickshaw": "vendor/rickshaw",
+    "moment": "vendor/moment.min"
   },
   "shim": {
     "jquery": {
@@ -37,7 +38,7 @@ require.config({
       "exports": 'swig'
     },
     "select2": {
-      "exports" : 'jquery',
+      "exports" : 'jquery'
      },
     "rickshaw": {
       "deps": ["d3"],
@@ -58,9 +59,14 @@ require.config({
     "jquery.tablesorter.widgets": {
       "deps": ["jquery", "jquery.tablesorter"],
       "exports": "jQuery.tablesorter.widgets"
+    },
+    "vendor/moment-range":{
+	deps: ['moment']
+    },
+    "vendor/moment.isocalendar": {
+	deps: ['moment']
     }
-  },
-
+  }
 });
 
 require(["jquery", "js/gottwall",  "bootstrap", "js/inits/tablesorter", "js/inits/datepicker", "domReady"], function($, GottWall) {

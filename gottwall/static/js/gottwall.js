@@ -1,7 +1,13 @@
 
 
-define(["js/class", "js/widgets/chart", "js/widgets/table", "js/bars/bar", "js/bars/table", "jquery", "underscore", "d3", "js/utils/guid", "domReady!"],
-       function(Class, Chart, Table, Bar, TableBar, $, underscore, d3, GUID) {
+define(["js/class", "js/widgets/chart", "js/widgets/table", "js/bars/bar", "js/bars/table", "jquery", "underscore", "d3", "js/utils/guid", "moment", "vendor/moment-range", "vendor/moment.isocalendar", "domReady!"],
+       function(Class, Chart, Table, Bar, TableBar, $, underscore, d3, GUID, moment) {
+
+	 moment.lang('en', {
+	   week : {
+             dow : 1 // Monday is the first day of the week.
+	   }});
+
 
   var GottWall = Class.extend({
 
@@ -193,17 +199,52 @@ define(["js/class", "js/widgets/chart", "js/widgets/table", "js/bars/bar", "js/b
       return this.date_formatters[this.get_current_period()].parse(String(d));
     },
     timestamp_to_date: function(timestamp){
-      return new Date(timestamp);
+      return moment.unix(timestamp);
     },
-    pretty_date_format: function(d){
+    pretty_date_format: function(timestamp){
       // Convert Date object to pretty string with period context
-      try {
-	return this.date_display_formatters[this.get_current_period()](this.timestamp_to_date(d));
+      var date = this.timestamp_to_date(timestamp);
+
+      switch (this.get_current_period()) {
+      case 'day':
+        return date.format("YYYY-MM-DD");
+      case 'hour':
+        return date.format("YYYY-MM-DD HH:mm");
+      case 'month':
+        return date.format("YYYY-MM");
+      case 'year':
+        return date.format("YYYY");
+      case 'week':
+        return date.format("YYYY ww [week]");
+      default:
+        return date.format();
       }
-      catch (e){
-	return "";
+      return date;
+    },
+    fill_data: function(data){
+      var self = this;
+      return _.sortBy(_.map(_.extend(_.object(self.get_empty_range()),
+				     _.object(data)),
+			    function(value, timestamp){
+			      return {"x": parseInt(timestamp),
+				      "y": parseInt(value)};
+			    }), function(sub_item){return sub_item['x'];});
+    },
+    get_empty_range: function(){
+      var self = this;
+      var start = moment(self.get_from_date()).startOf(self.current_period);
+
+      if(self.current_period == "week"){
+	start = start.add('days', 1);
       }
 
+      var end = moment(self.get_to_date()).endOf(self.current_period);
+      var dates = new Array();
+      moment().range(start.toDate(), end.toDate()).by(
+        this.current_period, function (x) {
+          dates.push([parseInt(moment(x._d).format("X")), 0]);
+        });
+      return dates;
     },
   set_period: function(period){
     // Setup period and datetime format
@@ -214,7 +255,7 @@ define(["js/class", "js/widgets/chart", "js/widgets/table", "js/bars/bar", "js/b
       this.current_date_format = this.date_formats[period];
       this.current_date_formatter = d3.time.format(this.date_formats[period]);
     }
-    return period
+    return period;
   },
   get_date_format: function(){
     if(!this.current_date_format){
@@ -223,9 +264,6 @@ define(["js/class", "js/widgets/chart", "js/widgets/table", "js/bars/bar", "js/b
       }
     }
     return this.current_date_format;
-  },
-  date_to_integer: function(d){
-    return this.parse_serialized_date(d).getTime();
   },
   get_current_period: function(){
     // Get current period state

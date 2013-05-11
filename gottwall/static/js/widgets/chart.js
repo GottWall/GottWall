@@ -20,11 +20,10 @@ define( ["jquery", "underscore", "swig", "js/widgets/base", "js/metrics/metric",
     to_dict: function(){
       return {"id": this.id,
 	      "metrics": _.map(this.bars, function(bar){
-		return bar.to_dict();
-	      }),
+				   return bar.to_dict();}),
 	      "name": this.name,
 	      "type": this.type,
-	      "renderer": this.renderer}
+	      "renderer": this.renderer};
     },
     add_bindings: function(){
       this._super();
@@ -67,7 +66,7 @@ define( ["jquery", "underscore", "swig", "js/widgets/base", "js/metrics/metric",
 	    metrics[i].data = responses[i][0];
 	  }
 	  self.hide_loader();
-	  return self.render_metrics(metrics);;
+	  return self.render_metrics(metrics);
 	});
     },
     format_tick: function(d){
@@ -83,20 +82,13 @@ define( ["jquery", "underscore", "swig", "js/widgets/base", "js/metrics/metric",
       $("#linen-"+self.id).html("");
     },
     tick_formatter: function(x){
-      // Convert tick data from 201201 format to pretty string
-     // var d = self.gottwall.parse_serialized_date(x);
-      // if(!d){
-      //   return null;
-      // }
       return self.gottwall.pretty_date_format(x);
     },
     get_ticks: function(graph){
       // Calculate number of ticks
-      return 3;
+      return null;
     },
-    get_tick_offset: function(){
-
-    },
+    get_tick_offset: function(){},
     render_metrics: function(metrics){
       // Rendering chart by metrics hash
       var self = this;

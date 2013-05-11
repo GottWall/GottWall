@@ -24,34 +24,28 @@ define(["jquery", "underscore", "js/metrics/base"], function($, _, MetricBase){
 	project: this.project,
 	name: this.name,
 	filter_name: this.filter_name,
-	filter_value: this.filter_value
-      }
-    },
+	filter_value: this.filter_value};},
     get_range: function(){
       var self =  this;
 
       if(this.data){
-	return _.sortBy(_.map(this.data['range'],
-			      function(item){
-				return {"x": self.gottwall.date_to_integer(item[0]),
-					"y": parseInt(item[1])};
-			      }), function(sub_item){return sub_item['x']});
+	  return self.gottwall.fill_data(this.data['range']);
       }
       return [];
     },
     get_chart_data: function(){
-      key = this.name
+      key = this.name;
       if(this.filter_name){
-	key = key + " | "+this.filter_name
+	key = key + " | "+this.filter_name;
       }
       if(this.filter_value){
-	key = key + ":"+this.filter_value
+	key = key + ":"+this.filter_value;
       }
       var data = {"data": this.get_range(),
 		  "name": key,
-		  "color": this.color}
+		  "color": this.color};
 
-      return data
+      return data;
     }
   });
 

@@ -14,6 +14,9 @@ Base backends for metric calculation
 
 import json
 from tornado import gen
+from logging import getLogger
+
+logger = getLogger("gottwall.storages")
 
 class BaseBackend(object):
 
@@ -24,6 +27,12 @@ class BaseBackend(object):
         """Backend specified settings
         """
         return self.config['BACKENDS'][self.key]
+
+    def get_backend_status(self):
+        """Print storage status
+        """
+        logger.info("{name} statistics: working[{working}] in_progress[{in_progress}]".format(
+            name=self.__class__.__name__, working=self.working, in_progress=self.current_in_progress))
 
     @property
     def key(self):

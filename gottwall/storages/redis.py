@@ -90,6 +90,11 @@ class RedisStorage(BaseStorage):
         if callback:
             callback(uid if res else None)
 
+
+    def get_status(self):
+        super(RedisStorage, self).get_status()
+
+
     @gen.engine
     def get_embedded(self, uid, callback=None):
         """Get share data from storage by hash
@@ -179,7 +184,9 @@ class RedisStorage(BaseStorage):
         pipe.select(self.selected_db)
 
         timestamp = timestamp_to_datetime(timestamp)
-        filters = dict(filters)
+
+        if filters:
+            filters = dict(filters)
 
         for period in self._application.config['PERIODS']:
             if filters:
@@ -198,6 +205,8 @@ class RedisStorage(BaseStorage):
             self.save_metric_meta(pipe, project, name, filters)
 
         res = (yield gen.Task(pipe.execute))
+
+        self.update_stats('incr')
 
         if callback:
             callback(res)
@@ -229,12 +238,13 @@ class RedisStorage(BaseStorage):
 
     @gen.engine
     def query(self, project, name, period, from_date=None, to_date=None,
-                   filter_name=None, filter_value=None, callback=None):
+              filter_name=None, filter_value=None, callback=None):
 
         items = (yield Task(self.get_range_for_metric, project, name, period, filter_name, filter_value))
-        data_range = self.filter_by_period(map(lambda x: (x[0], int(x[1])), items.iteritems()),
-                                           period, from_date, to_date)
 
+        data_range = self.filter_by_period(items, period, from_date, to_date)
+
+        self.update_stats("query")
 
         if callback:
             callback(self.get_range_info(data_range))
@@ -294,7 +304,7 @@ class RedisStorage(BaseStorage):
                             self.make_key(project, name, period, {filter_name: filter_value})))
 
         if callback:
-            callback(items)
+            callback(items.items())
 
     @tornado.gen.engine
     def metrics(self, project, callback=None):

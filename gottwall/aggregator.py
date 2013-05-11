@@ -20,7 +20,7 @@ from tornado import gen
 from tornado.web import Application, URLSpec
 
 from backends import HTTPBackend as HTTPBackendHandler
-from processing import PeriodicProcessor, Tasks
+from processing import PeriodicProcessor, Tasks, StatusPeriodicCallback
 
 
 ## from sqlalchemy import create_engine
@@ -36,6 +36,7 @@ class AggregatorApplication(Application):
     def __init__(self, config):
         self.config = config
         self.data_processor = None
+        self.status_processor = None
         self.tasks = Tasks()
         self.backends = []
 
@@ -60,6 +61,16 @@ class AggregatorApplication(Application):
         # Add periodic processing
         self.data_processor = PeriodicProcessor(self, io_loop=io_loop)
         self.data_processor.start()
+
+        self.status_processor = StatusPeriodicCallback(self, self.get_status, io_loop=io_loop)
+        self.status_processor.start()
+
+    def get_status(self):
+        logger.info("{0} tasks".format(len(self.tasks)))
+        self.storage.get_status()
+
+        for backend in self.backends:
+            backend.get_backend_status()
 
     def add_task(self, task_type, data):
         """Add new task to tasks deque
@@ -115,7 +126,7 @@ class AggregatorApplication(Application):
             io_loop.add_timeout(time.time() + 2, io_loop.stop)
             return True
 
-        logger.info("Not all backend ready to stop")
+        logger.info("Not all backend ready to stop, tasks in progress {0}".format(len(self.tasks)))
         for backend in self.backends:
             logger.info("Backend {0} has {1} tasks in progress".format(repr(backend), backend.current_in_progress))
 

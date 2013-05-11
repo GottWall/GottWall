@@ -16,7 +16,7 @@ import tornado.ioloop
 from tornado.gen import Task
 from tornado import gen
 
-from gottwall.settings import PERIODIC_PROCESSOR_TIME, TASKS_CHUNK
+from gottwall.settings import PERIODIC_PROCESSOR_TIME, TASKS_CHUNK, STATUS_PROCESSOR_TIME
 from gottwall.log import logger
 
 @gen.engine
@@ -36,6 +36,22 @@ def process_bucket(processor, app, action, data, callback=None):
 TASK_TYPES = {"incr": process_bucket,
               "decr": process_bucket}
 
+class StatusPeriodicCallback(tornado.ioloop.PeriodicCallback):
+    def __init__(self, app, callback, callback_time=None, io_loop=None):
+        self.application = app
+        self.callback_time = app.config.get("STATUS_PROCESSOR_TIME", STATUS_PROCESSOR_TIME)
+        self.io_loop = io_loop or tornado.ioloop.IOLoop.instance()
+        self.callback = callback
+
+    def _run(self):
+        if not self._running:
+            return
+        try:
+            self.callback()
+        except Exception:
+            logger.error("Error in periodic callback", exc_info=True)
+        self._schedule_next()
+
 
 class PeriodicProcessor(tornado.ioloop.PeriodicCallback):
     """Periodic data processing
@@ -49,6 +65,8 @@ class PeriodicProcessor(tornado.ioloop.PeriodicCallback):
         self._running = False
         self._timeout = None
         self._deque_chunk_len = app.config.get('TASKS_CHUNK', TASKS_CHUNK)
+        logger.debug("{0} configured with PERIODIC_PROCESSOR_TIME={1} ms | TASKS_CHUNK={2}".format(
+            self.__class__.__name__, self.callback_time, self._deque_chunk_len))
 
 
     def _run(self):
@@ -57,7 +75,7 @@ class PeriodicProcessor(tornado.ioloop.PeriodicCallback):
         try:
             self.callback()
         except Exception:
-            logger.error("Error in periodic callback", exc_info=True)
+            logger.error("Error in periodic status callback", exc_info=True)
         self._schedule_next()
 
     @gen.engine
@@ -66,7 +84,6 @@ class PeriodicProcessor(tornado.ioloop.PeriodicCallback):
 
         :param application: application instance
         """
-        logger.info("Periodic processor callback")
         try:
             i = 0
             while i < self._deque_chunk_len:

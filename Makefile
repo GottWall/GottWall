@@ -23,9 +23,9 @@ audit:
 version := $(shell sh -c "grep -oP 'VERSION = \"\K[0-9\.]*?(?=\")' ./setup.py")
 
 build:
+	python setup.py sdist
 
-
-release: static
+release: static clean
 	git add ./gottwall/static/
 	git commit -m "Compiled static for v$(version)"; echo "";
 	git tag -f v$(version) && git push --tags
@@ -86,13 +86,13 @@ env:
 	. venv/bin/activate
 
 debug:
-	python gottwall/runner.py --config=examples/config.py server start --reload
+	python gottwall/runner.py --config=examples/config.py server start --reload --logging=debug
 
 aggregator-debug:
-	python gottwall/runner.py --config=examples/config.py aggregator start --reload
+	python gottwall/runner.py --config=examples/config.py aggregator start --reload --logging=debug
 
 vagrant-debug:
-	python gottwall/runner.py --config=examples/vagrant_config.py server start --reload
+	python gottwall/runner.py --config=examples/vagrant_config.py server start --reload --logging=debug
 
 aggregator-vagrant-debug:
-	python gottwall/runner.py --config=examples/vagrant_config.py aggregator start --reload
+	python gottwall/runner.py --config=examples/vagrant_config.py aggregator start --reload --logging=debug

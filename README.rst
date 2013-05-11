@@ -110,7 +110,7 @@ Available storages
 
 Storages that store metrics:
 
-- Memory storage (not optimal for hightload projects)
+- Memory storage (for tests only)
 - Redis storage (fast for counters increment, but time complexity O(N) for data range select)
 - TODO: mongodb
 - TODO: SQL
@@ -134,7 +134,8 @@ Available clients
 
 The following clients are officially recognized as production-ready, and support the current GottWall protocol:
 
-- stati-redis (`stati-redis-python <http://github.com/GottWall/stati-redis-python>`_) with redis transport.
+- stati-http-python (`stati-http-python <http://github.com/GottWall/stati-http-python`_) with json http transport.
+- stati-redis-python (`stati-redis-python <http://github.com/GottWall/stati-redis-python>`_) with redis transport.
 
 
 CONTRIBUTE

@@ -75,12 +75,13 @@ var Table = Widget.extend({
     var self = this;
     var template = swig.compile($("#table-template").text());
     var date_range = metrics.date_range;
+
     var table = $(template({'rows': _.map(metrics['data'], function(value, key){
-      return [key, value['range']];
+      return [key, self.gottwall.fill_data(value['range'])];
     }),
 			    'caption': self.bar.metric_name,
-			    'column_names': _.map(date_range, function(e){
-			      return self.gottwall.pretty_date_format(self.gottwall.parse_serialized_date(e));
+			    'column_names': _.map(self.gottwall.get_empty_range(), function(e){
+			      return self.gottwall.pretty_date_format(e[0]);
 			    }),
 			    'group_column_name': self.bar.filter_name}));
 

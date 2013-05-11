@@ -101,6 +101,7 @@ class StatsHandlerV1(APIHandler, StatsMixin):
             data = yield gen.Task(self.application.storage.query,
                                   project, name, period, from_date, to_date, filter_name, filter_value)
 
+
             self.json_response({"range": list(data['range']),
                                 "project": project,
                                 "period": period,

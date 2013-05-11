@@ -28,6 +28,7 @@ class HTTPBackend(BaseBackend, BaseHandler):
         self.config = config
         self.application = app
         self.current_in_progress = 0
+        self.working = True
 
     ## def __init__(self, io_loop, config, storage, *args, **kwargs):
     ##     self.io_loop = io_loop
@@ -70,8 +71,7 @@ class HTTPBackend(BaseBackend, BaseHandler):
 
         self.process_data(project, action, self.parse_data(self.request.body, project))
 
-        self.write("OK")
-        self.finish()
+        self.finish("OK")
 
     def validate_action(self, action):
         return action in ['incr', 'decr']

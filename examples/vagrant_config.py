@@ -10,16 +10,17 @@ BACKENDS = {
         'PASSWORD': None,
         'DB': 2,
         "CHANNEL": "gottwall",
-        "MAX_LOADING": 150},
+        "MAX_LOADING": 350,
+        "PERIODIC_PROCESSOR_TIME": 1000},
     'gottwall.backends.tcpip.TCPIPBackend': {}
     }
 
 
 STORAGE_SETTINGS = dict(
-    HOST = "10.8.9.8",
-    PORT = 6379,
-    PASSWORD = None,
-    DB = 2
+    HOST="10.8.9.8",
+    PORT=6379,
+    PASSWORD=None,
+    DB=2
 )
 
 REDIS = {"CHANNEL": "gottwall"}
@@ -38,7 +39,7 @@ PROJECTS = {"test_project": "my_public_key",
 
 cookie_secret="fkewrlhfwhrfweiurbweuybfrweoubfrowebfioubweoiufbwbeofbowebfbwup2XdTP1o/Vo="
 
-TEMPLATE_DEBUG = False
+TEMPLATE_DEBUG = True
 TEMPLATE_DEBUG_RELOAD = True
 
 
@@ -55,6 +56,3 @@ DATABASE = {
 PREFIX = ''
 
 site_title = "GottWall"
-
-
-PERIODIC_PROCESSOR_TIME = 1000*60*0.5
