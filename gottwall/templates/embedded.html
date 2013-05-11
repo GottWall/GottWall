@@ -76,7 +76,6 @@
     }
 
     var date_formatter = date_display_formatters["{{ data["period"]|e }}"];
-    console.log(date_formatter);
 
     var timestamp_to_date = function(timestamp){
       return new Date(timestamp * 1000);
@@ -162,4 +161,4 @@
     </script>
 </body>
 </html>
-{% spaceless %}
+{% endspaceless %}
