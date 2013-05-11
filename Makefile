@@ -25,7 +25,7 @@ version := $(shell sh -c "grep -oP 'VERSION = \"\K[0-9\.]*?(?=\")' ./setup.py")
 build:
 	python setup.py sdist
 
-release: static clean
+release: static clean-pyc
 	git add ./gottwall/static/
 	git commit -m "Compiled static for v$(version)"; echo "";
 	git tag -f v$(version) && git push --tags

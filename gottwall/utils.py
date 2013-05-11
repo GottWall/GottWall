@@ -62,9 +62,7 @@ def get_by_period(dt, period):
     """
     ts = timestamp_to_datetime(dt)
 
-    if period == 'year':
-        return ts.year
-    elif period in ['month', 'day', 'week', 'minute', 'hour']:
+    if period in ['year', 'month', 'day', 'week', 'minute', 'hour']:
         return int(time.mktime(ts.timetuple()))
     return None
 
