@@ -204,7 +204,7 @@ class BaseStorage(object):
 
         return sorted(ifilter(lambda x: (True if from_date is None else int(x[0]) >= from_date) and \
                               (True if to_date is None else int(x[0]) <= to_date),
-                              imap(lambda item: (int(item[0]), item[1]), data)),
+                              imap(lambda item: (int(item[0]), int(item[1])), data)),
                       key=lambda x: x[0])
 
 
