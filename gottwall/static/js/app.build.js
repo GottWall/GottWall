@@ -11050,18 +11050,34 @@ define('js/widgets/chart', ["jquery", "underscore", "swig", "js/widgets/base", "
       });
 
 
-      var x_axis = new Rickshaw.Graph.Axis.X({
-	height: 70,
-	graph: graph,
-	orientation: 'top',
-	ticks: self.get_ticks(graph),
-	//pixelsPerTick: 100,
-	tickFormat: self.tick_formatter,
-	//format: Rickshaw.Fixtures.Number.formatKMBT
-	// format: function(y){
-	//   return y;
-	// }
-      });
+      if (self.gottwall.current_period == 'year'){
+	var x_axis = new Rickshaw.Graph.Axis.X({
+	  height: 70,
+	  graph: graph,
+	  orientation: 'top',
+	  //ticks: self.get_ticks(graph),
+	  //pixelsPerTick: 100,
+	  tickFormat: self.tick_formatter,
+	  //format: Rickshaw.Fixtures.Number.formatKMBT
+	  // format: function(y){
+	  //   return y;
+	  // }
+	});
+      }
+      else {
+	var x_axis = new Rickshaw.Graph.Axis.Time({
+	  height: 70,
+	  graph: graph,
+	  orientation: 'top',
+	  //ticks: self.get_ticks(graph),
+	  //pixelsPerTick: 100,
+	  tickFormat: self.tick_formatter,
+	  //format: Rickshaw.Fixtures.Number.formatKMBT
+	  // format: function(y){
+	  //   return y;
+	  // }
+	});
+      }
 
       var y_axis = new Rickshaw.Graph.Axis.Y({
 	graph: graph,
