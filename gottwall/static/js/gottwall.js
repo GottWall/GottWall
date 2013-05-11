@@ -1,6 +1,6 @@
 
 
-define(["js/class", "js/widgets/chart", "js/widgets/table", "js/bars/bar", "js/bars/table", "jquery", "underscore", "d3", "js/utils/guid", "moment", "vendor/moment-range", "vendor/moment.isocalendar", "domReady!"],
+define(["js/class", "js/widgets/chart", "js/widgets/table", "js/bars/bar", "js/bars/table", "jquery", "underscore", "d3", "js/utils/guid", "moment", "vendor/moment-range", "domReady!"],
        function(Class, Chart, Table, Bar, TableBar, $, underscore, d3, GUID, moment) {
 
 	 moment.lang('en', {

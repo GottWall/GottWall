@@ -15,7 +15,8 @@
     "bootstrap-datepicker": "js/bootstrap-datepicker",
     "jquery.tablesorter": "js/jquery.tablesorter",
     "jquery.tablesorter.widgets": "js/jquery.tablesorter.widgets",
-    "select2": "vendor/select2/select2.min"
+    "select2": "vendor/select2/select2.min",
+    "moment": "vendor/moment.min"
   },
   "shim": {
     "jquery": {
@@ -54,6 +55,9 @@
     "jquery.tablesorter.widgets": {
       "deps": ["jquery", "jquery.tablesorter"],
       "exports": "jQuery.tablesorter.widgets"
+    },
+    "vendor/moment-range":{
+	deps: ['moment']
     }
   }
 })
