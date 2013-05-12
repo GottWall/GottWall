@@ -16,7 +16,8 @@ require.config({
     "jquery.tablesorter.widgets": "js/jquery.tablesorter.widgets",
     "select2": "vendor/select2/select2.min",
     "rickshaw": "vendor/rickshaw",
-    "moment": "vendor/moment.min"
+    "moment": "vendor/moment.min",
+      "moment-range": "vendor/moment-range"
   },
   "shim": {
     "jquery": {
@@ -59,10 +60,10 @@ require.config({
     "jquery.tablesorter.widgets": {
       "deps": ["jquery", "jquery.tablesorter"],
       "exports": "jQuery.tablesorter.widgets"
-    },
-    "vendor/moment-range":{
-	deps: ['moment']
     }
+    // "vendor/moment-range":{
+    // 	deps: ['moment']
+    // }
   }
 });
 

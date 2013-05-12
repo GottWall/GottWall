@@ -16,7 +16,8 @@
     "jquery.tablesorter": "js/jquery.tablesorter",
     "jquery.tablesorter.widgets": "js/jquery.tablesorter.widgets",
     "select2": "vendor/select2/select2.min",
-    "moment": "vendor/moment.min"
+    "moment": "vendor/moment.min",
+    "moment-range": "vendor/moment-range"
   },
   "shim": {
     "jquery": {
@@ -38,7 +39,7 @@
       "exports": 'swig'
     },
     "select2": {
-      "exports" : 'jquery',
+      "exports" : 'jquery'
      },
     "rickshaw": {
       "deps": ["d3"],
@@ -55,9 +56,10 @@
     "jquery.tablesorter.widgets": {
       "deps": ["jquery", "jquery.tablesorter"],
       "exports": "jQuery.tablesorter.widgets"
-    },
-    "vendor/moment-range":{
-	deps: ['moment']
     }
+    // "vendor/moment-range":{
+    // 	deps: ['moment'],
+    // 	"exports": "moment.fn.range"
+    // }
   }
 })
