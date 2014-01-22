@@ -20,13 +20,13 @@ import tornado.ioloop
 from gottwall.app import HTTPApplication
 from gottwall.config import Config
 import gottwall.default_config
-from utils import async_test
-import tornadoredis
+from gottwall.utils.tests import async_test
 from tornado.gen import Task
+from dateutil.relativedelta import relativedelta
 
-from base import BaseTestCase, AsyncBaseTestCase, RedisTestCaseMixin
+from gottwall.utils.tests import BaseTestCase, AsyncBaseTestCase
 
-from gottwall.storages import MemoryStorage, BaseStorage, RedisStorage
+from gottwall.storages import MemoryStorage, BaseStorage
 from gottwall.utils import MagicDict
 
 class UtilsMixin(object):
@@ -203,8 +203,6 @@ class StorageTestCase(BaseTestCase, UtilsMixin):
         self.assertRaises(NotImplementedError, app.storage.get_filter_values,
                           "test_project", "test_metric", "filter1")
 
-from dateutil.relativedelta import relativedelta
-
 
 class MemoryStorageTestCase(AsyncBaseTestCase, UtilsMixin):
 
@@ -237,122 +235,6 @@ class MemoryStorageTestCase(AsyncBaseTestCase, UtilsMixin):
     def test_storage(self):
         app = self.get_app()
         app.configure_storage("gottwall.storages.MemoryStorage")
-        storage = app.storage
-        self.storage_tests(storage)
-        self.stop()
-
-
-class RedisStorageTestCase(AsyncBaseTestCase, RedisTestCaseMixin, UtilsMixin):
-
-    def setUp(self):
-        super(RedisStorageTestCase, self).setUp()
-        self.client = self._new_client()
-        self.client.flushdb()
-
-    def tearDown(self):
-        try:
-            self.client.flushdb()
-            self.client.connection.disconnect()
-            del self.client
-        except AttributeError:
-            pass
-        super(RedisStorageTestCase, self).tearDown()
-
-    def get_app(self):
-        config = Config()
-        config.from_object(gottwall.default_config)
-
-        config.update({"STORAGE_SETTINGS": {
-            "HOST": self.redis_settings['HOST']
-            }})
-
-        self.app = HTTPApplication(config)
-        self.app.configure_app(self.io_loop)
-
-        return self.app
-
-    def get_new_ioloop(self):
-        return tornado.ioloop.IOLoop.instance()
-
-    @async_test
-    @tornado.gen.engine
-    def test_storage_utils(self):
-        storage = RedisStorage(self.get_app())
-
-        self.assertEquals(storage.make_key("redis_project_name", "metric_name", "week",
-                                           filters={"status": "new",
-                                                    "type": "registered"}),
-                          "redis_project_name;metric_name;week;status|new/type|registered")
-
-        self.assertTrue(isinstance(storage, RedisStorage))
-
-        filters = {"filter1": "value",
-                   "filter2": ["value1", "value2", "value2"]}
-
-        client = self.client
-
-        pipe = client.pipeline()
-        storage.save_metric_meta(pipe, "redis_storage_test", "metric_name",
-                                 filters=filters)
-
-        (yield Task(pipe.execute))
-
-        metrics = yield Task(
-            client.smembers,
-            storage.get_metrics_key("redis_storage_test"))
-
-        self.assertEquals(len(metrics), 1)
-        self.assertTrue("metric_name" in metrics)
-
-        stored_filters = yield Task(
-            client.smembers,
-            storage.get_filters_names_key("redis_storage_test", "metric_name"))
-
-        self.assertEquals(len(stored_filters), 2)
-
-        for f, values in filters.items():
-
-            stored_value = yield Task(
-                client.smembers,
-                storage.get_filters_values_key("redis_storage_test", "metric_name", f))
-
-            self.assertEquals(set(values)
-                              if isinstance(values, (list, tuple))
-                              else set([values]),
-                              stored_value)
-
-        metrics = yield Task(storage.metrics, "redis_storage_test")
-
-        self.assertEquals(metrics,
-        {"metric_name": {"filter1": [filters['filter1']],
-                         "filter2": ["value1", "value2"]}})
-
-        self.stop()
-
-
-    @async_test
-    @tornado.gen.engine
-    def test_metric_meta(self):
-        """Get metrics structure
-        """
-        client = tornadoredis.Client(host=self.redis_settings['HOST'])
-        app = self.get_app()
-        app.configure_storage("gottwall.storages.RedisStorage")
-        storage = app.storage
-
-        pipe = client.pipeline()
-
-        (yield Task(storage.save_metric_meta, pipe, "test_metric_meta_project", "metric_name",
-                   filters={"hello": "world",
-                            "test": ["value1", "value2"]}))
-
-        self.stop()
-
-    @async_test
-    @tornado.gen.engine
-    def test_redis_storage(self):
-        app = self.get_app()
-        app.configure_storage("gottwall.storages.RedisStorage")
         storage = app.storage
         self.storage_tests(storage)
         self.stop()

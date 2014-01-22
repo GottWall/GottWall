@@ -6,26 +6,7 @@ from datetime import datetime
 import unittest
 
 from gottwall.utils import timestamp_to_datetime, get_by_period, MagicDict, date_min, date_max
-import tornadoredis
 
-
-def async_test_ex(timeout=5):
-    def _inner(func):
-        def _runner(self, *args, **kwargs):
-            try:
-                func(self, *args, **kwargs)
-            except Exception, e:
-                print(e)
-                self.stop()
-                raise
-            return self.wait(timeout=timeout)
-        return _runner
-    return _inner
-
-
-def async_test(func):
-    _inner = async_test_ex()
-    return _inner(func)
 
 def to_ts(d):
     return int(time.mktime(d.timetuple()))

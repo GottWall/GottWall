@@ -1,11 +1,12 @@
 #!/bin/sh
 
-if [ ! -d "./buildenv/" ]; then
+REQ_FILE=./req.txt
 
-    git submodule add https://github.com/Lispython/buildenv.sh.git buildenv
 
-else
-    cd buildenv && git pull && cd ..
+if [ ! -d "./tools/buildenv.sh" ]; then
+
+	curl https://raw.github.com/Lispython/buildenv.sh/master/buildenv.sh > tools/buildenv.sh
+
 fi
 
-. ./buildenv/buildenv.sh
+. ./tools/buildenv.sh

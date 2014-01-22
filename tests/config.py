@@ -10,7 +10,7 @@ Unittests for gottwall
 :license: BSD, see LICENSE for more details.
 """
 import os.path
-from base import BaseTestCase
+from gottwall.utils.tests import BaseTestCase
 
 from gottwall.config import Config
 

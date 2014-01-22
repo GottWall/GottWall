@@ -11,6 +11,9 @@ docs:
 test:
 	python setup.py nosetests --stop --tests tests.py
 
+dev-test:
+	GOTTWALL_REDIS_HOST=127.0.0.1 python setup.py test
+
 travis:
 	python setup.py test
 

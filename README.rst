@@ -74,6 +74,11 @@ or ::
 
   easy_install gottwall
 
+
+Also you need to install `storage` application(example)::
+
+  pip install gottwall_storage_redis
+
 or you can use official `gottwall chef cookbook <https://github.com/GottWall/gottwall-cookbook>`_
 for automatic setup on system.
 
@@ -82,6 +87,10 @@ Configuration
 -------------
 
 See gottwall/examples/config.py
+
+or create default config by command::
+
+  gottwall init ./config.py
 
 
 Usage
@@ -111,20 +120,20 @@ Available storages
 Storages that store metrics:
 
 - Memory storage (for tests only)
-- Redis storage (fast for counters increment, but time complexity O(N) for data range select)
-- TODO: mongodb
+- `Redis storage <http://github.com/GottWall/gottwall-storage-redis>`_ (fast for counters increment, but time complexity O(N) for data range select)
+- TODO: `mongodb <http://github.com/GottWall/gottwall-storage-mongodb>`_ (We need your help).
 - TODO: SQL
 
 
-Available transport backends
-----------------------------
+Available transport backends with clients
+-----------------------------------------
 
 The following transport available:
 
-- Redis transport backend
-- TCP/IP transport backend
-- TODO: UDP transport backend
-- HTTP transport backend
+- `Redis transport backend <http://github.com/GottWall/gottwall-backend-redis>`_ with `stati-python-redis <http://github.com/GottWall/stati-python-redis>`_ client.
+- TCP/IP transport backend (builtin).
+- TODO: UDP transport backend (builtin)
+- HTTP transport backend (builtin) with `stati-python-http <http://github.com/GottWall/stati-python-http>`_ client
 
 
 .. _available-clients:
