@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-STORAGE = 'gottwall.storages.RedisStorage'
+STORAGE = 'gottwall.storages.MemoryStorage'
 
 # Need to install gottwall_backend_redis package
 BACKENDS = {

@@ -1,4 +1,6 @@
 STATIC_DIR =$(CURDIR)/gottwall/static/
+SERVER_HOST=0.0.0.0
+
 
 all: clean-pyc test
 
@@ -89,21 +91,31 @@ env:
 	. venv/bin/activate
 
 debug:
-	python gottwall/runner.py --config=examples/config.py server start --reload --logging=debug
+	python gottwall/runner.py --config=examples/config.py server start -h $(SERVER_HOST) --reload --logging=debug
 
 aggregator-debug:
-	python gottwall/runner.py --config=examples/config.py aggregator start --reload --logging=debug
+	python gottwall/runner.py --config=examples/config.py aggregator start -h $(SERVER_HOST) --reload --logging=debug
 
 vagrant-debug:
-	python gottwall/runner.py --config=examples/vagrant_config.py server start --reload --logging=debug
+	python gottwall/runner.py --config=examples/vagrant_config.py server start -h $(SERVER_HOST) --reload --logging=debug
 
 aggregator-vagrant-debug:
-	python gottwall/runner.py --config=examples/vagrant_config.py aggregator start --reload --logging=debug
+	python gottwall/runner.py --config=examples/vagrant_config.py aggregator start -h $(SERVER_HOST) --reload --logging=debug
 
 profile-server:
-	python -m cProfile -o profiling/gottwall_server.pyprof gottwall/runner.py --config=examples/vagrant_config.py server start --reload --logging=debug
+	python -m cProfile -o profiling/gottwall_server.pyprof gottwall/runner.py --config=examples/vagrant_config.py server start -h $(SERVER_HOST)  --reload --logging=debug
 	python tools/gprof2dot.py -f pstats profiling/gottwall_server.pyprof | dot -Tpng -o profiling/server_profile.png
 
 profile-aggregator:
-	python -m cProfile -o profiling/gottwall_aggregator.pyprof gottwall/runner.py --config=examples/vagrant_config.py server start --reload --logging=debug
+	python -m cProfile -o profiling/gottwall_aggregator.pyprof gottwall/runner.py --config=examples/vagrant_config.py server start -h $(SERVER_HOST) --reload --logging=debug
 	python tools/gprof2dot.py -f pstats profiling/gottwall_aggregator.pyprof | dot -Tpng -o profiling/aggregator_profile.png
+
+
+profile-plop-server:
+	python -m plop.collector gottwall/runner.py --config=examples/config.py server start -h $(SERVER_HOST) --reload --logging=debug
+
+profile-plop-aggregator:
+	python -m plop.collector gottwall/runner.py --config=examples/config.py server start -h $(SERVER_HOST) --reload --logging=debug
+
+view-plop-profiles:
+	python -m plop.viewer --address=0.0.0.0 --datadir=profiles/

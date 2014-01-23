@@ -5,3 +5,4 @@ ipdb
 # Profiling
 pycallgraph
 pyprof2calltree==1.1.0
+plop
