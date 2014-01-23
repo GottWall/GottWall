@@ -1,4 +1,7 @@
 stati-redis
-http://closure-linter.googlecode.com/files/closure_linter-latest.tar.gz
-pycallgraph
 ipdb
+
+
+# Profiling
+pycallgraph
+pyprof2calltree==1.1.0

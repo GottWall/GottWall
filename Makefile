@@ -99,3 +99,11 @@ vagrant-debug:
 
 aggregator-vagrant-debug:
 	python gottwall/runner.py --config=examples/vagrant_config.py aggregator start --reload --logging=debug
+
+profile-server:
+	python -m cProfile -o profiling/gottwall_server.pyprof gottwall/runner.py --config=examples/vagrant_config.py server start --reload --logging=debug
+	python tools/gprof2dot.py -f pstats profiling/gottwall_server.pyprof | dot -Tpng -o profiling/server_profile.png
+
+profile-aggregator:
+	python -m cProfile -o profiling/gottwall_aggregator.pyprof gottwall/runner.py --config=examples/vagrant_config.py server start --reload --logging=debug
+	python tools/gprof2dot.py -f pstats profiling/gottwall_aggregator.pyprof | dot -Tpng -o profiling/aggregator_profile.png
