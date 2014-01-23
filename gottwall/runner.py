@@ -23,7 +23,7 @@ from optparse import OptionParser, Option
 import tornado.ioloop
 from commandor import Command, Commandor
 from tornado import httpserver, autoreload
-from tornado.options import _LogFormatter
+from tornado.log import LogFormatter
 
 import gottwall.default_config
 from gottwall.aggregator import AggregatorApplication
@@ -42,7 +42,7 @@ def configure_logging(logging):
 
     if not logger.handlers:
         channel = StreamHandler()
-        channel.setFormatter(_LogFormatter(color=False))
+        channel.setFormatter(LogFormatter(color=False))
         logger.addHandler(channel)
     logger.info("Logging handler configured with level {0}".format(logging))
 
@@ -118,22 +118,13 @@ class Start(Command):
     parent = Aggregator
 
     options = [
-        Option("-p", "--port",
-               metavar=int,
-               default=8890,
+        Option("-p", "--port", metavar=int, default=8890,
                help="Port to run http server"),
-        Option("-r", "--reload",
-               action="store_true",
-               dest="reload",
-               default=False,
+        Option("-r", "--reload", action="store_true",dest="reload", default=False,
                help="Auto realod source on changes"),
-        Option("-h", "--host",
-               metavar="str",
-               default="127.0.0.1",
+        Option("-h", "--host", metavar="str", default="127.0.0.1",
                help="Port for server"),
-        Option("-l", "--logging",
-               metavar="str",
-               default="none",
+        Option("-l", "--logging", metavar="str", default="none",
                help="Log level")]
 
     def run(self, port, reload, host, logging, **kwargs):

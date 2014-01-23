@@ -4,7 +4,7 @@
 STORAGE = 'gottwall.storages.RedisStorage'
 
 BACKENDS = {
-    'gottwall.backends.redis.RedisBackend': {
+    'gw_backend_redis.RedisBackend': {
         'HOST': "10.8.9.8",
         'PORT': 6379,
         'PASSWORD': None,

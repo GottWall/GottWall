@@ -16,7 +16,7 @@ import json
 from dateutil.relativedelta import relativedelta
 
 import gottwall.default_config
-from base import AsyncHTTPBaseTestCase
+from gottwall.utils.tests import AsyncHTTPBaseTestCase
 from gottwall.app import HTTPApplication
 from gottwall.config import Config
 from gottwall.handlers import BaseHandler

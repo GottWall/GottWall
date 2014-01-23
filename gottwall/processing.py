@@ -19,6 +19,7 @@ from tornado import gen
 from gottwall.settings import PERIODIC_PROCESSOR_TIME, TASKS_CHUNK, STATUS_PROCESSOR_TIME
 from gottwall.log import logger
 
+
 @gen.engine
 def process_bucket(processor, app, action, data, callback=None):
     """Process bucket
@@ -100,27 +101,6 @@ class PeriodicProcessor(tornado.ioloop.PeriodicCallback):
         except Exception, e:
             logger.error(e)
 
-
-class RedisBackendPeriodicProcessor(PeriodicProcessor):
-
-    def __init__(self, backend, callback_time=None, io_loop=None,
-                 tasks_chunk=None, config={}):
-        self.backend = backend
-        self.config = config
-        self.callback_time = int(float(callback_time or self.backend.backend_settings.get('PERIODIC_PROCESSOR_TIME', None) or \
-                                 config.get('PERIODIC_PROCESSOR_TIME', PERIODIC_PROCESSOR_TIME)))
-        self.io_loop = io_loop or tornado.ioloop.IOLoop.instance()
-        self._running = False
-        self._timeout = None
-
-    @gen.engine
-    def callback(self):
-        """Periodic processor callback
-
-        :param application: application instance
-        """
-        for project in self.config['PROJECTS'].keys():
-            (yield Task(self.backend.load_buckets, project))
 
 class Tasks(deque):
     """Custom wrapper for deque

@@ -12,8 +12,7 @@ Raw TCP/IP backend for gottwall messages
 :github: http://github.com/GottWall/GottWall
 """
 
-from tornado.netutil import TCPServer
-from tornado.util import b
+from tornado.tcpserver import TCPServer
 
 from gottwall.backends.base import BaseBackend
 
@@ -48,5 +47,5 @@ class TCPIPBackend(TCPServer, BaseBackend):
         :param  stream: :class:`tornado.iostream` instance
         :param address: client address
         """
-        stream.read_until(b("\r\n\r\n"), self.callback)
+        stream.read_until(b"\r\n\r\n", self.callback)
         stream.close()

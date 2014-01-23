@@ -18,8 +18,8 @@ import gottwall.default_config
 from gottwall.config import Config
 from gottwall.aggregator import AggregatorApplication
 from gottwall.processing import PeriodicProcessor
-from utils import async_test
-from base import AsyncBaseTestCase
+from gottwall.utils.tests import async_test
+from gottwall.utils.tests import AsyncBaseTestCase
 
 
 class ProcessorTestCase(AsyncBaseTestCase):

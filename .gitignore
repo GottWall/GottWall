@@ -31,3 +31,9 @@ docs/build/*
 nodeenv.py
 .vagrant
 distribute*
+virtualenv.py
+*.pyprof
+*.pyprof_out
+*.egg
+*.egg/
+.DS_Store

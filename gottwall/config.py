@@ -79,17 +79,11 @@ CONFIG_TEMPLATE = """
 import os.path
 
 BACKENDS = {
-    'gottwall.backends.redis.RedisBackend': {
-        'HOST': "127.0.0.1",
-        'PORT': 6379,
-        'PASSWORD': None,
-        'DB': 0,
-        "CHANNEL": "gottwall",
-        "MAX_LOADING": 150},
     'gottwall.backends.tcpip.TCPIPBackend': {}
     }
 
-STORAGE = "gottwall.storages.RedisStorage"
+STORAGE = "gw_storage_redis.storage.RedisStorage"
+
 STORAGE_SETTINGS = {
     "HOST": "127.0.0.1",
     "PORT": 6379,
