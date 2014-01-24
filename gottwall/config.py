@@ -7,7 +7,7 @@ gottwall.config
 
 Gottwall configs wrapper
 
-:copyright: (c) 2012 - 2013 by GottWall team, see AUTHORS for more details.
+:copyright: (c) 2012 - 2014 by GottWall team, see AUTHORS for more details.
 :copyright: (c) 2012 by the Sentry Team.
 :license: BSD, see LICENSE for more details.
 :github: http://github.com/GottWall/GottWall

@@ -12,20 +12,12 @@ Unittests for gottwall
 """
 import datetime
 import json
-import os
-import random
 from base64 import b64encode
-
-import tornado.gen
-from tornado import ioloop
 
 import gottwall.default_config
 from gottwall.aggregator import AggregatorApplication
 from gottwall.config import Config
-from gottwall.utils.tests import async_test, AsyncBaseTestCase, AsyncHTTPBaseTestCase
-
-
-HOST = os.environ.get('GOTTWALL_REDIS_HOST', "10.8.9.8")
+from gottwall.utils.tests import AsyncBaseTestCase, AsyncHTTPBaseTestCase
 
 
 class TCPBackendTestCase(AsyncBaseTestCase):

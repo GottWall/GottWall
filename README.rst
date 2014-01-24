@@ -1,5 +1,5 @@
 Welcome to GottWall's documentation!
-======================================
+====================================
 
 GottWall is a scalable realtime metrics collecting and aggregation platform and service.
 This package, at its core, is just a simple aggregation server and
@@ -143,8 +143,8 @@ Available clients
 
 The following clients are officially recognized as production-ready, and support the current GottWall protocol:
 
-- stati-http-python (`stati-http-python <http://github.com/GottWall/stati-http-python`_) with json http transport.
-- stati-redis-python (`stati-redis-python <http://github.com/GottWall/stati-redis-python>`_) with redis transport.
+- `stati-http-python <http://github.com/GottWall/stati-python-net>`_ with json http transport.
+- `stati-redis-python <http://github.com/GottWall/stati-python-redis>`_ with redis transport.
 
 
 CONTRIBUTE
