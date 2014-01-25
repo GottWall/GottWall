@@ -16,7 +16,7 @@ import json
 from tornado import gen
 from logging import getLogger
 
-logger = getLogger("gottwall.storages")
+logger = getLogger("gottwall.backends")
 
 class BaseBackend(object):
 

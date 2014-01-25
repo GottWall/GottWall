@@ -65,13 +65,15 @@ class Config(dict):
     def __repr__(self):
         return '<{0} {1}>'.format(self.__class__.__name__, dict.__repr__(self))
 
+
 default_settings = Config(**{
-    "BACKENDS": ['gottwall.backends.HTTPBackend'],
+    "BACKENDS": {'gottwall.backends.HTTPBackend': {
+        "PORT": "8890",
+        "HOST": "127.0.0.1"}},
     "STORAGE": "gottwall.storages.MemoryStorage",
     "PERIODS": PERIODS,
     "PROJECTS": {},
     "USERS": []})
-
 
 
 CONFIG_TEMPLATE = """
@@ -79,8 +81,15 @@ CONFIG_TEMPLATE = """
 import os.path
 
 BACKENDS = {
-    'gottwall.backends.tcpip.TCPIPBackend': {}
+    'gottwall.backends.tcpip.TCPIPBackend': {
+       "PORT": "8891",
+       "HOST": "127.0.0.1"
+    },
+    'gottwall.backends.http.HTTPBackend': {
+       "PORT": "8890",
+       "HOST": "127.0.0.1"
     }
+}
 
 STORAGE = "gw_storage_redis.storage.RedisStorage"
 

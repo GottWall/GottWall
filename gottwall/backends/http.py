@@ -16,13 +16,62 @@ from base64 import b64decode
 
 import tornado.gen
 from tornado.web import HTTPError
+from logging import getLogger
 
 from gottwall.backends.base import BaseBackend
 from gottwall.handlers import BaseHandler
 from gottwall.utils import parse_dict_header
+from tornado import httpserver
+from tornado.web import Application, URLSpec
 
 
-class HTTPBackend(BaseBackend, BaseHandler):
+logger = getLogger("gottwall.backends.http")
+
+
+class HTTPBackend(httpserver.HTTPServer, BaseBackend):
+
+    def __init__(self, application, io_loop, config, storage, tasks, *args, **kwargs):
+        self.io_loop = io_loop
+        self.config = config
+        self.storage = storage
+        self.tasks = tasks
+        self.application = application
+        self.working = True
+        self.current_in_progress = 0
+
+        super(HTTPBackend, self).__init__(*args, **kwargs)
+
+    @classmethod
+    def setup_backend(cls, application, io_loop, config, storage, tasks):
+        """Install backend to ioloop
+
+        :param ioloop: :class:`tornadoweb.ioloop.IOLoop` instance
+        :param config: :class:`~gottwall.config.Config` instance
+        """
+        server = cls(application, io_loop, config, storage, tasks)
+
+        port = server.backend_settings.get('PORT', "8890")
+        host = server.backend_settings.get('HOST', "127.0.0.1")
+        server.listen(str(port), host)
+        logger.info("GottWall HTTP transport listen {host}:{port}".format(port=port, host=host))
+
+        return server
+
+    def add_handlers(self, application):
+        """Add handlers to application
+
+        :param application: application instance
+        """
+        dirty_handlers = [
+            # Default HTTP backend
+            (r"{0}/api/v1/(?P<project>.+)/(?P<action>.+)".format(self.config['PREFIX']),
+             HTTPBackendHandler, {"config": application.config, "app": application}, 'api-v1-store')]
+
+        application.add_handlers(".*$", [URLSpec(*x) for x in dirty_handlers])
+
+
+
+class HTTPBackendHandler(BaseBackend, BaseHandler):
 
     def initialize(self, config, app):
         self.config = config

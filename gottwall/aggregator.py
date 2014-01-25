@@ -19,7 +19,7 @@ import tornado.ioloop
 from tornado import gen
 from tornado.web import Application, URLSpec
 
-from backends import HTTPBackend as HTTPBackendHandler
+from backends import HTTPBackendHandler as HTTPBackendHandler
 from processing import PeriodicProcessor, Tasks, StatusPeriodicCallback
 
 
@@ -40,21 +40,13 @@ class AggregatorApplication(Application):
         self.tasks = Tasks()
         self.backends = []
 
-        params = {"config": self.config,
-                  "app": self}
-
-        self.dirty_handlers = [
-            # Default HTTP backend
-            (r"{0}/api/v1/(?P<project>.+)/(?P<action>.+)".format(self.config['PREFIX']),
-             HTTPBackendHandler, params, 'api-v1-store')]
-
-        tornado.web.Application.__init__(
-            self, [URLSpec(*x) for x in self.dirty_handlers], **config)
+        tornado.web.Application.__init__(self, [], **config)
 
     def configure_app(self, io_loop=None):
         """Configure application backends and storages
         """
         storage = self.configure_storage(self.config['STORAGE'])
+
         self.configure_backends(self.config['BACKENDS'], io_loop, self.config,
                                 storage, self.tasks)
 
@@ -98,11 +90,14 @@ class AggregatorApplication(Application):
 
         :param backends: list of backends
         """
+
+        if not backends:
+            raise Exception("Need configure one ore more transport backends")
+
         for backend_path in backends:
             module_path, name = backend_path.rsplit('.', 1)
             try:
                 backend_module = importlib.import_module(module_path, name)
-
                 backend = getattr(backend_module, name)
             except (ImportError, AttributeError), e:
                 raise Exception("Invalid backend: {0}".format(e))

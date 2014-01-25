@@ -2,21 +2,22 @@
 # -*- coding: utf-8 -*-
 
 """
-gottwall.tcpip
+gottwall.udp
 ~~~~~~~~~~~~~~
 
-Raw TCP/IP backend for gottwall messages
+Raw UDP backend for gottwall messages
 
-:copyright: (c) 2012 - 2013 by GottWall team, see AUTHORS for more details..
+:copyright: (c) 2012 - 2014 by GottWall team, see AUTHORS for more details..
 :license: BSD, see LICENSE for more details.
 :github: http://github.com/GottWall/GottWall
 """
 
-from logging import getLogger
 from tornado.tcpserver import TCPServer
-logger = getLogger("gottwall.backends.tcpip")
 
 from gottwall.backends.base import BaseBackend
+from logging import getLogger
+
+logger = getLogger("gottwall.backends.tcpip")
 
 
 class TCPIPBackend(TCPServer, BaseBackend):
@@ -40,7 +41,6 @@ class TCPIPBackend(TCPServer, BaseBackend):
         """
 
         server = cls(application, io_loop, config, storage, tasks)
-
         port = server.backend_settings.get('PORT', "8897")
         host = server.backend_settings.get('HOST', "127.0.0.1")
 
