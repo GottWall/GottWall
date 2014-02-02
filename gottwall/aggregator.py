@@ -19,9 +19,8 @@ import tornado.ioloop
 from tornado import gen
 from tornado.web import Application, URLSpec
 
-from backends import HTTPBackendHandler as HTTPBackendHandler
 from processing import PeriodicProcessor, Tasks, StatusPeriodicCallback
-
+from utils import pretty_timedelta, Cache
 
 ## from sqlalchemy import create_engine
 ## from sqlalchemy.orm import scoped_session, sessionmaker
@@ -38,7 +37,12 @@ class AggregatorApplication(Application):
         self.data_processor = None
         self.status_processor = None
         self.tasks = Tasks()
+
         self.backends = []
+
+        self.start_time = time.time()
+
+        self.cache = Cache()
 
         tornado.web.Application.__init__(self, [], **config)
 
@@ -54,22 +58,26 @@ class AggregatorApplication(Application):
         self.data_processor = PeriodicProcessor(self, io_loop=io_loop)
         self.data_processor.start()
 
-        self.status_processor = StatusPeriodicCallback(self, self.get_status, io_loop=io_loop)
+        self.status_processor = StatusPeriodicCallback(self, io_loop=io_loop)
         self.status_processor.start()
 
-    def get_status(self):
-        logger.info("{0} tasks".format(len(self.tasks)))
-        self.storage.get_status()
-
-        for backend in self.backends:
-            backend.get_backend_status()
-
-    def add_task(self, task_type, data):
+    def add_task(self, f, *args, **kwargs):
         """Add new task to tasks deque
+
         :param task_type: task type (incr, decr)
         :param data: (type parameters)
         """
-        self.tasks.append((task_type, data))
+
+        self.tasks.append((f, args, kwargs))
+
+    def summary(self):
+        logger.info("Aggregator running {0}".format(pretty_timedelta(time.time() - self.start_time)))
+
+        for backend in self.backends:
+            backend.log_backend_status()
+
+        self.data_processor.summary()
+        self.storage.get_status()
 
 
     def configure_storage(self, storage_path):
@@ -108,26 +116,37 @@ class AggregatorApplication(Application):
     def shutdown(self):
         """Shutdown application
         """
+        logger.info("Stoping...")
         for backend in self.backends:
             backend.shutdown()
 
-    def check_ready_to_stop(self, callback=None):
+    def check_ready_to_stop(self):
         """Check that all backends flush data
         """
         io_loop = tornado.ioloop.IOLoop.instance()
 
-        if all([backend.ready_to_stop() for backend in self.backends]) and not self.tasks:
-            logger.info("All backends ready to stop")
-            io_loop.add_timeout(time.time() + 2, io_loop.stop)
-            return True
-
-        logger.info("Not all backend ready to stop, tasks in progress {0}".format(len(self.tasks)))
         for backend in self.backends:
+            if backend.ready_to_stop():
+                logger.info("{0} ready to stop".format(backend))
+                backend.shutdown()
+
             logger.info("Backend {0} has {1} tasks in progress".format(repr(backend), backend.current_in_progress))
 
-        io_loop.add_timeout(time.time() + 2, self.check_ready_to_stop)
+        if self.tasks:
+            logger.warning("Not all tasks completed: {0}".format(len(self.tasks)))
+            self.data_processor.callback()
 
-    @gen.engine
+            io_loop.add_timeout(time.time() + 0.01, self.check_ready_to_stop)
+
+            return False
+
+        if all([backend.is_down for backend in self.backends]) and not self.tasks:
+            logger.info("All backends and tasks ready to stop")
+            self.summary()
+            io_loop.add_timeout(time.time() + 0.1, io_loop.stop)
+            return True
+
+
     def process_data(self, project, action, data, callback=None):
         """Process `data`
         """
@@ -136,7 +155,13 @@ class AggregatorApplication(Application):
         if action not in ['incr', 'decr']:
             res = False
         else:
-            res = (yield gen.Task(getattr(self.storage, action), project, *data[1:]))
+            pass
+            #res = (yield gen.Task(getattr(self.storage, action), project, *data[1:]))
 
         if callback:
             callback(res)
+
+
+    def log_request(self, handler):
+        if self.config.get('LOG_REQUEST', True):
+            super(AggregatorApplication, self).log_request(handler)

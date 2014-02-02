@@ -11,7 +11,9 @@ BACKENDS = {
     },
     'gottwall.backends.tcpip.TCPIPBackend': {
         "HOST": "127.0.0.1",
-        "PORT": "8897"}
+        "PORT": "8897",
+        "PROCESSOR_CALLBACK_TIME": 1000
+        }
     }
 
 TEMPLATE_DEBUG = True
@@ -28,11 +30,10 @@ REDIS = {"CHANNEL": "gottwall"}
 
 USERS = ["sergeevvv@gmail.com", "alexandr.s.rus@gmail.com"]
 
-SECRET_KEY = "dwefwefwefwecwef"
+SECRET_KEY = "secret_key"
 
 # http://public_key:secret_key@host.com
-
-PROJECTS = {"test_project": "my_public_key",
+PROJECTS = {"test_project": "public_key",
             "another_project": "public_key2"}
 
 cookie_secret="fkewrlhfwhrfweiurbweuybfrweoubfrowebfioubweoiufbwbeofbowebfbwup2XdTP1o/Vo="
@@ -49,3 +50,8 @@ DATABASE = {
     "NAME": "gottwall"
     }
 PREFIX = ""
+
+STATUS_PROCESSOR_TIME = 5000
+PERIODIC_PROCESSOR_TIME = 1
+
+LOG_REQUEST = False

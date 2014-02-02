@@ -158,7 +158,7 @@ class Start(Command):
         """Stop server and add callback to stop i/o loop"""
         self.display("Shutting down service")
         self.application.shutdown()
-        self.application.check_ready_to_stop(self.application)
+        self.application.check_ready_to_stop()
 
 
 class Server(Command):

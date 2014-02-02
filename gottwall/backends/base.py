@@ -11,14 +11,89 @@ Base backends for metric calculation
 :license: BSD, see LICENSE for more details.
 :github: http://github.com/GottWall/GottWall
 """
-
-import json
-from tornado import gen
+import hashlib
+import hmac
 from logging import getLogger
+
+import ujson as json
+from fast_utils.fstring import extract_if_startswith
+from tornado import gen
+
 
 logger = getLogger("gottwall.backends")
 
-class BaseBackend(object):
+
+class DataProcessorMixin(object):
+
+    def process_data(self, project, action, data, callback=None):
+        """Process `data`
+        """
+        self.application.add_task(self.application.process_data, project, action, data, callback)
+
+
+    def validate_action(self, action):
+        return action in ['incr', 'decr']
+
+    def validate_project(self, project):
+        """Validate projects name
+        """
+        return project in self.config['PROJECTS']
+
+    @staticmethod
+    def parse_data(data, project=None):
+        """Parse json bucket to dict
+
+        :param data: string or unicode with data
+        """
+        try:
+            parsed_data = json.loads(data.strip()) #parsed data
+        except Exception as e:
+            logger.error(e, exc_info=True)
+            return {}
+
+        if 'p' not in parsed_data:
+            if project:
+                parsed_data['p'] = project
+            else:
+                return {}
+
+        return parsed_data
+
+
+class AuthMixin(object):
+
+    def check_gottwall_auth(self, header, project):
+        """Check X-GottWall-Auth
+
+        :param header: header string value
+        :param project: project name
+        """
+        header = extract_if_startswith(header, "GottWallS1")
+        if not header:
+            return False
+
+        ts, sign, base = header.split()
+        return self.check_sign(project, sign, ts, base)
+
+    def check_sign(self, project, sign, ts, base):
+        private_key = self.config['SECRET_KEY']
+
+        return sign == self.application.cache(self.get_hash,
+            private_key, self.get_sign_msg(project, ts, base))
+
+    def get_sign_solt(self, ts, base):
+        return int(round(ts / base) * base)
+
+    def get_sign_msg(self, project, ts, base):
+        return str(self.config['PROJECTS'][project]) + str(self.get_sign_solt(int(ts), int(base)))
+
+    def get_hash(self, private_key, sign_msg):
+        return hmac.new(key=private_key, msg=sign_msg,
+                        digestmod=hashlib.md5).hexdigest()
+
+
+
+class BaseBackend(AuthMixin, DataProcessorMixin):
 
     application = None
 
@@ -28,11 +103,12 @@ class BaseBackend(object):
         """
         return self.config['BACKENDS'][self.key]
 
-    def get_backend_status(self):
+    def log_backend_status(self):
         """Print storage status
         """
-        logger.info("{name} statistics: working[{working}] in_progress[{in_progress}]".format(
-            name=self.__class__.__name__, working=self.working, in_progress=self.current_in_progress))
+        logger.info("{name} statistics: received[{count}] working[{working}] in_progress[{in_progress}]".format(
+            name=self.__class__.__name__, working=self.working, in_progress=self.current_in_progress,
+            **self.summary()))
 
     @property
     def key(self):
@@ -40,19 +116,24 @@ class BaseBackend(object):
         """
         return "{0}.{1}".format(self.__class__.__module__, self.__class__.__name__)
 
-    @gen.engine
+    ## @gen.engine
+    ## def process_data(self, project, action, data, callback=None):
+    ##     """Process `data`
+    ##     """
+    ##     res = False
+
+    ##     if action not in ['incr', 'decr']:
+    ##         res = False
+    ##     else:
+    ##         res = (yield gen.Task(getattr(self.storage, action), project, *data[2:]))
+
+    ##     if callback:
+    ##         callback(res)
+
     def process_data(self, project, action, data, callback=None):
         """Process `data`
         """
-        res = False
-
-        if action not in ['incr', 'decr']:
-            res = False
-        else:
-            res = (yield gen.Task(getattr(self.storage, action), project, *data[2:]))
-
-        if callback:
-            callback(res)
+        self.application.add_task(self.application.process_data, project, action, data, callback)
 
 
     def setup_backend(self, application, io_loop, config, storage, tasks):
@@ -71,23 +152,10 @@ class BaseBackend(object):
         :param public_key: gottwall project public key
         :param project: project name
         """
+        return (public_key == self.config['PROJECTS'][project] and
+                private_key == self.config['SECRET_KEY'])
 
-        if public_key == self.config['PROJECTS'][project] and \
-               private_key == self.config['SECRET_KEY']:
-            return True
-        return False
 
-    @staticmethod
-    def parse_data(data, project=None):
-        """Parse json bucket to dict
-
-        :param data: string or unicode with data
-        """
-        parsed_data = json.loads(data.strip()) #parsed data
-
-        parsed_data['project'] = parsed_data.get('p') or parsed_data.get('project') or project
-
-        return parsed_data
 
     @staticmethod
     def parsed_data_to_list(parsed_data):
@@ -99,7 +167,6 @@ class BaseBackend(object):
                 parsed_data.get('ts') or parsed_data.get('timestamp'),
                 parsed_data.get('v') or parsed_data.get('value', 1),
                 parsed_data.get('f') or parsed_data.get('filters'))
-
 
 
     def callback(self, message):
@@ -121,8 +188,21 @@ class BaseBackend(object):
 
         """
         self.working = False
+        self.stop()
 
     def ready_to_stop(self):
         if not self.working and self.current_in_progress <= 0:
             return True
         return False
+
+    @property
+    def is_down(self):
+        return not self.working
+
+    @property
+    def rps(self):
+        return 0
+
+    def summary(self):
+        #logger.info("{0} received {1} items".format(self.__class__.__name__, self.count))
+        return {"count": self.count}

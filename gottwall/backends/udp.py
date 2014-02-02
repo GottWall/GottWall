@@ -17,10 +17,10 @@ from tornado.tcpserver import TCPServer
 from gottwall.backends.base import BaseBackend
 from logging import getLogger
 
-logger = getLogger("gottwall.backends.tcpip")
+logger = getLogger("gottwall.backends.udp")
 
 
-class TCPIPBackend(TCPServer, BaseBackend):
+class UDPBackend(TCPServer, BaseBackend):
 
     def __init__(self, application, io_loop, config, storage, tasks, *args, **kwargs):
         self.io_loop = io_loop
@@ -30,7 +30,7 @@ class TCPIPBackend(TCPServer, BaseBackend):
         self.application = application
         self.working = True
         self.current_in_progress = 0
-        super(TCPIPBackend, self).__init__(*args, **kwargs)
+        super(UDPBackend, self).__init__(*args, **kwargs)
 
     @classmethod
     def setup_backend(cls, application, io_loop, config, storage, tasks):

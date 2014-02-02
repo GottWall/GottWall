@@ -11,19 +11,20 @@ Base backends for metric calculation
 :license: BSD, see LICENSE for more details.
 :github: http://github.com/GottWall/GottWall
 """
-import json
+import hashlib
+import hmac
 from base64 import b64decode
-
-import tornado.gen
-from tornado.web import HTTPError
 from logging import getLogger
 
+import tornado.gen
+import tornado.web
+from fast_utils.fstring import extract_if_startswith
 from gottwall.backends.base import BaseBackend
-from gottwall.handlers import BaseHandler
-from gottwall.utils import parse_dict_header
-from tornado import httpserver
-from tornado.web import Application, URLSpec
-
+from gottwall.handlers import SERVER_NAME
+from tornado import httpserver, httputil
+from tornado.web import HTTPError, URLSpec, RequestHandler
+from gottwall.utils import memo_decorator
+from fast_utils.cache import memo
 
 logger = getLogger("gottwall.backends.http")
 
@@ -38,8 +39,8 @@ class HTTPBackend(httpserver.HTTPServer, BaseBackend):
         self.application = application
         self.working = True
         self.current_in_progress = 0
-
-        super(HTTPBackend, self).__init__(*args, **kwargs)
+        self.count = 0
+        super(HTTPBackend, self).__init__(application, *args, **kwargs)
 
     @classmethod
     def setup_backend(cls, application, io_loop, config, storage, tasks):
@@ -52,6 +53,7 @@ class HTTPBackend(httpserver.HTTPServer, BaseBackend):
 
         port = server.backend_settings.get('PORT', "8890")
         host = server.backend_settings.get('HOST', "127.0.0.1")
+        server.add_handlers(application)
         server.listen(str(port), host)
         logger.info("GottWall HTTP transport listen {host}:{port}".format(port=port, host=host))
 
@@ -65,25 +67,93 @@ class HTTPBackend(httpserver.HTTPServer, BaseBackend):
         dirty_handlers = [
             # Default HTTP backend
             (r"{0}/api/v1/(?P<project>.+)/(?P<action>.+)".format(self.config['PREFIX']),
-             HTTPBackendHandler, {"config": application.config, "app": application}, 'api-v1-store')]
+             HTTPBackendHandler, {"config": application.config, "app": application, "backend": self}, 'api-v1-store')]
 
         application.add_handlers(".*$", [URLSpec(*x) for x in dirty_handlers])
 
 
+class HTTPBackendHandler(BaseBackend, RequestHandler):
 
-class HTTPBackendHandler(BaseBackend, BaseHandler):
 
-    def initialize(self, config, app):
+
+    #100000    0.540    0.000   12.415    0.000 gottwall/handlers.py:52(__init__)
+
+    def initialize(self, config, app, backend):
         self.config = config
         self.application = app
         self.current_in_progress = 0
         self.working = True
+        self.backend = backend
 
     ## def __init__(self, io_loop, config, storage, *args, **kwargs):
     ##     self.io_loop = io_loop
     ##     self.config = config
     ##     self.storage = storage
     ##     super(HTTPBackend, self).__init__(*args, **kwargs)
+
+    def clear(self):
+        """Resets all headers and content for this response."""
+        self._headers = httputil.HTTPHeaders({
+            "Server": SERVER_NAME})
+        self.set_default_headers()
+        if (not self.request.supports_http_1_1() and
+            getattr(self.request, 'connection', None) and
+                not self.request.connection.no_keep_alive):
+            conn_header = self.request.headers.get("Connection")
+            if conn_header and (conn_header.lower() == "keep-alive"):
+                self._headers["Connection"] = "Keep-Alive"
+        self._write_buffer = []
+        self._status_code = 200
+        self._reason = httputil.responses[200]
+
+    def light_flush(self, callback=None):
+        """Flushes the current output buffer to the network.
+
+        The ``callback`` argument, if given, can be used for flow control:
+        it will be run when all flushed data has been written to the socket.
+        Note that only one flush callback can be outstanding at a time;
+        if another flush occurs before the previous flush's callback
+        has been run, the previous callback will be discarded.
+        """
+        self._write_buffer = []
+        if not self._headers_written:
+            self._headers_written = True
+            # No need to apply any transforms
+            headers = self._generate_headers()
+        else:
+            headers = b""
+
+        if self.request.method == "HEAD" and headers:
+            self.request.write(headers, callback=callback)
+        else:
+            self.request.write(headers + "OK", callback=callback)
+
+
+    def light_finish(self):
+        """Finishes this response, ending the HTTP request."""
+        if self._finished:
+            raise RuntimeError("finish() called twice.  May be caused "
+                               "by using async operations without the "
+                               "@asynchronous decorator.")
+
+        if self.request.method != "HEAD":
+            self.set_header("Content-Length", 2)
+
+        if hasattr(self.request, "connection"):
+            # Now that the request is finished, clear the callback we
+            # set on the HTTPConnection (which would otherwise prevent the
+            # garbage collection of the RequestHandler when there
+            # are keepalive connections
+            self.request.connection.set_close_callback(None)
+
+        self.light_flush()
+        self.request.finish()
+        self._log()
+        self._finished = True
+        self.on_finish()
+        # Break up a reference cycle between this handler and the
+        # _ui_module closures to allow for faster GC on CPython.
+        self.ui = None
 
     @staticmethod
     def merge_handlers(app):
@@ -100,17 +170,14 @@ class HTTPBackendHandler(BaseBackend, BaseHandler):
     def process_data(self, project, action, data, callback=None):
         """Process `data`
         """
-        self.application.add_task(action, data)
+        self.application.add_task(self.application.process_data, project, action, data, callback)
 
-    @tornado.gen.engine
+    @tornado.web.asynchronous
     def post(self, project, action, *args, **kwargs):
         self.storage = self.application.storage
 
         if not self.validate_project(project):
             raise HTTPError(404, "Invalid project")
-
-        if not self.validate_content_type():
-            raise HTTPError(400, "Invalid content type")
 
         if not self.validate_action(action):
             raise HTTPError(404, "Invalid action")
@@ -118,9 +185,11 @@ class HTTPBackendHandler(BaseBackend, BaseHandler):
         if not self.check_auth(project):
             raise HTTPError(403, "Forbidden")
 
+        self.backend.count += 1
+
         self.process_data(project, action, self.parse_data(self.request.body, project))
 
-        self.finish("OK")
+        self.light_finish()
 
     def validate_action(self, action):
         return action in ['incr', 'decr']
@@ -130,36 +199,35 @@ class HTTPBackendHandler(BaseBackend, BaseHandler):
         """
         return project in self.config['PROJECTS']
 
-    def validate_content_type(self):
-        return self.request.headers['content-type'] == 'application/json'
-
     def check_auth(self, project):
         """Check authorization headers
+
+        :param project: project name
         """
 
-        header = self.request.headers.get("Authorization", None)
         gottwall_header = self.request.headers.get("X-GottWall-Auth", None)
 
         if gottwall_header:
             return self.check_gottwall_auth(gottwall_header, project)
 
-        if not header:
-            return False
+        header = self.request.headers.get("Authorization", None)
 
-        if header.startswith('Basic '):
-            header = header[6:].strip()
+        if header:
+            return self.check_basic_auth(header, project)
 
-        return self.check_basic_auth(header, project)
+        return False
 
     def check_basic_auth(self, header, project):
         """Parse basic authorization header
 
         :param header: authorization header value
         """
-        auth_info = header.split(None, 1)
+        header = extract_if_startswith(header, "Basic")
 
-        public_key, private_key = b64decode(auth_info[0]).split(":")
+        if not header:
+            return False
 
+        public_key, private_key = b64decode(header.strip()).split(":")
         return self.check_key(private_key, public_key, project)
 
     def check_gottwall_auth(self, header, project):
@@ -168,9 +236,60 @@ class HTTPBackendHandler(BaseBackend, BaseHandler):
         :param header: header string value
         :param project: project name
         """
-        if header.startswith('GottWall'):
-            header = header[8:]
 
-        params = parse_dict_header(header)
-        return self.check_key(params.get('private_key'),
-                              params.get('public_key'), project)
+        header = extract_if_startswith(header, "GottWallS1")
+        if not header:
+            return False
+
+        ts, sign, base = header.split()
+        return self.check_sign(project, sign, ts, base)
+
+    def check_sign(self, project, sign, ts, base):
+        private_key = self.config['SECRET_KEY']
+
+        return sign == self.application.cache(self.get_hash,
+            private_key, self.get_sign_msg(project, ts, base))
+
+    def get_sign_solt(self, ts, base):
+        return int(round(ts / base) * base)
+
+    def get_sign_msg(self, project, ts, base):
+        return str(self.config['PROJECTS'][project]) + str(self.get_sign_solt(int(ts), int(base)))
+
+    def get_hash(self, private_key, sign_msg):
+        return hmac.new(key=private_key, msg=sign_msg,
+                        digestmod=hashlib.md5).hexdigest()
+
+
+
+
+
+## Success: 99773
+## Fail: 227
+## Bad response: 0
+## real    1m29.215s
+## user    0m22.173s
+## sys     0m14.561s
+
+## Success: 99904
+## Fail: 96
+## Bad response: 0
+## real    1m27.141s
+## user    0m21.861s
+## sys     0m13.885s
+
+## Success: 100000
+## Fail: 0
+## Bad response: 0
+## real    1m23.592s
+## user    0m20.525s
+## sys     0m13.365s
+
+
+## success: 100000
+## Fail: 0
+## Bad response: 0
+
+## real    1m23.567s
+## user    0m25.054s
+## sys     0m9.909s

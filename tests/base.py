@@ -13,6 +13,9 @@ Unittests for gottwall
 import datetime
 import os
 import unittest
+import hmac
+import hashlib
+
 from itertools import ifilter, groupby
 from random import randint, choice
 from string import ascii_letters
@@ -22,3 +25,14 @@ from tornado.testing import AsyncHTTPTestCase, AsyncTestCase
 
 from gottwall.compat import OrderedDict
 from gottwall.utils import get_by_period, date_min, date_max, date_range
+
+
+def sign_msg(key, ts):
+    return str(key) + str(get_solt(int(ts)))
+
+def get_solt(ts, solt_base=1000):
+    return int(round(ts / solt_base) * solt_base)
+
+def make_sign(ts, private_key, public_key, solt_base):
+    return hmac.new(key=private_key, msg=sign_msg(public_key, ts),
+                    digestmod=hashlib.md5).hexdigest()

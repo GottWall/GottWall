@@ -12,7 +12,7 @@ Core GottWall utilities
 """
 import os.path
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from urllib2 import parse_http_list
 from dateutil.relativedelta import relativedelta
 from dateutil.rrule import rrule, MINUTELY, MONTHLY, DAILY, HOURLY, YEARLY, WEEKLY, MO, SU
@@ -34,6 +34,8 @@ except ImportError:
 
 from gottwall.settings import PROJECT_ROOT, TIMESTAMP_FORMAT, PERIOD_PATTERNS
 
+from fast_utils.cache import simple_memo
+from fast_utils.cache import memo_decorator as base_memo_decorator
 
 __all__ = 'rel',
 
@@ -67,6 +69,7 @@ def get_by_period(dt, period):
     return None
 
 
+@simple_memo
 def parse_dict_header(value):
     """Parse key=value pairs from value list
     :param value: header string
@@ -166,3 +169,31 @@ def date_max(to_date, period):
     elif period == "minute":
         return to_date.replace(**for_replace)
     return to_date.replace(**for_replace)
+
+
+def pretty_timedelta(td):
+    """Convert timedelta to pretty
+
+    :param td: timedelta (t2 - t1)
+    :return: delta string in seconds or minutes
+    """
+    return str(timedelta(seconds=td))
+
+
+class memo_decorator(base_memo_decorator):
+    """Decorator for only position functions args
+    """
+    def make_key(self, args, kwargs):
+        return (self.func.__module__, self.func.func_name,
+                args, None)
+
+
+class Cache(dict):
+    __slots__ = ()
+
+    def __call__(self, f, *args):
+        try:
+            return self[(f.__module__, f.func_name) + args]
+        except KeyError:
+            self[(f.__module__, f.func_name) + args] = ret = f(*args)
+            return ret
