@@ -48,7 +48,8 @@ install_requires = [
     "SQLAlchemy==0.7.9",
     "alembic==0.4.0",
     "Jinja2==2.6",
-    "fast_utils==0.0.6"]
+    "fast_utils==0.0.6",
+    "ujson==1.33"]
 
 if not (is_py3 or (is_py2 and py_ver[1] >= 7)):
     install_requires.append("importlib==1.0.2")
