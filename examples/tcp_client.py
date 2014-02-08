@@ -143,7 +143,7 @@ stats_client = TCPIPClient(project=project, private_key=private_key,
                      public_key=public_key, host=host, port=port)
 
 
-for x in xrange(1000000):
+for x in xrange(10):
     stats_client.incr(**{"name": choice(["orders", "posts", "comments"]), "value": choice([2, 1]),
                      "timestamp": datetime.utcnow(),
                      "filters": {"status": ["Completed", "Test"]}})

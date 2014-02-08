@@ -18,6 +18,7 @@ from logging import getLogger
 import ujson as json
 from fast_utils.fstring import extract_if_startswith
 from tornado import gen
+from fast_utils.fstring import extract_if_startswith
 
 
 logger = getLogger("gottwall.backends")
@@ -46,7 +47,7 @@ class DataProcessorMixin(object):
         :param data: string or unicode with data
         """
         try:
-            parsed_data = json.loads(data.strip()) #parsed data
+            parsed_data = json.loads(data) #parsed data
         except Exception as e:
             logger.error(e, exc_info=True)
             return {}
@@ -66,6 +67,7 @@ class AuthMixin(object):
         """Check X-GottWall-Auth
 
         :param header: header string value
+        GoottWallS1 1391854203 09944becfa73f5a2b433468b20cf417c 1000
         :param project: project name
         """
         header = extract_if_startswith(header, "GottWallS1")
@@ -75,22 +77,42 @@ class AuthMixin(object):
         ts, sign, base = header.split()
         return self.check_sign(project, sign, ts, base)
 
+    def check_gottwall_auth_s2(self, header):
+        """Check client authentication
+
+        :param header: authentication header string
+        GoottWallS2 1391854203 09944becfa73f5a2b433468b20cf417c 1000 test_project
+        """
+        header = extract_if_startswith(header, "GottWallS2")
+
+        if not header:
+            return False
+
+        try:
+            ts, sign, base, project = header.split()
+            if self.check_sign(project, sign, ts, base):
+                self.project = project
+                return True
+        except Exception as e:
+            return True
+
     def check_sign(self, project, sign, ts, base):
         private_key = self.config['SECRET_KEY']
+        public_key = self.config['PROJECTS'][project]
 
-        return sign == self.application.cache(self.get_hash,
-            private_key, self.get_sign_msg(project, ts, base))
+        return sign == self.application.cache(self.get_hash, private_key,
+                                              self.application.cache(
+                                                  self.get_sign_msg, project, public_key, ts, base))
 
     def get_sign_solt(self, ts, base):
         return int(round(ts / base) * base)
 
-    def get_sign_msg(self, project, ts, base):
-        return str(self.config['PROJECTS'][project]) + str(self.get_sign_solt(int(ts), int(base)))
+    def get_sign_msg(self, project, public_key, ts, base):
+        return public_key + str(self.get_sign_solt(int(ts), int(base)))
 
     def get_hash(self, private_key, sign_msg):
         return hmac.new(key=private_key, msg=sign_msg,
                         digestmod=hashlib.md5).hexdigest()
-
 
 
 class BaseBackend(AuthMixin, DataProcessorMixin):
@@ -130,11 +152,6 @@ class BaseBackend(AuthMixin, DataProcessorMixin):
     ##     if callback:
     ##         callback(res)
 
-    def process_data(self, project, action, data, callback=None):
-        """Process `data`
-        """
-        self.application.add_task(self.application.process_data, project, action, data, callback)
-
 
     def setup_backend(self, application, io_loop, config, storage, tasks):
         """Setup backend for application
@@ -154,7 +171,6 @@ class BaseBackend(AuthMixin, DataProcessorMixin):
         """
         return (public_key == self.config['PROJECTS'][project] and
                 private_key == self.config['SECRET_KEY'])
-
 
 
     @staticmethod

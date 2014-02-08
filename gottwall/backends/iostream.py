@@ -39,13 +39,9 @@ class IOStream(BaseIOStream):
     def read_by_delimiter_until_close(self, callback, streaming_callback=None, delimiter=None):
         """Reads all data from the socket until it is closed by delimiters.
 
-        If a ``streaming_callback`` is given, it will be called with chunks
-        of data as they become available, and the argument to the final
-        ``callback`` will be empty.  Otherwise, the ``callback`` gets the
-        data as an argument.
-
-        Subject to ``max_buffer_size`` limit from `IOStream` constructor if
-        a ``streaming_callback`` is not used.
+        :param streaming_callback: function called on all chunk
+        :param delimite: chunks delimiter
+        :param callback:
         """
         self._set_read_callback(callback)
         self._read_delimiter = delimiter
@@ -211,38 +207,3 @@ class IOStream(BaseIOStream):
             return None, 0
 
         return chunk, len(chunk)
-
-    def process_chunk(self, new_chunk, length=0):
-        """Process new chunk from
-
-        :param new_chunk:
-        :reurn: bool result of operation
-        """
-
-        import ipdb; ipdb.set_trace()
-        data = ''
-        while self._read_buffer:
-            try:
-                data += self._read_buffer.popleft()
-            except IndexError:
-                break
-
-        if new_chunk:
-            data += new_chunk
-
-        if not data:
-            return True
-
-        while True:
-            loc = data.find(self._read_delimiter)
-
-            if loc !=- 1:
-                size = loc + self._read_delimiter_len
-                chunk, data = s[:size], s[size:]
-                self._run_callback(self._streaming_callback, chunk)
-            else:
-                self._read_buffer.append(data)
-                self._read_buffer_size = len(data)
-                break
-
-        return False

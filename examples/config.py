@@ -13,6 +13,10 @@ BACKENDS = {
         "HOST": "127.0.0.1",
         "PORT": "8897",
         "PROCESSOR_CALLBACK_TIME": 1000
+        },
+    'gottwall.backends.udp.UDPBackend': {
+        "HOST": "127.0.0.1",
+        "PORT": "8898"
         }
     }
 

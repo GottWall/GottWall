@@ -54,7 +54,7 @@ with AsyncClient(success_callback=success_callback,
                  size=1000) as async_client:
 
 
-    for x in xrange(100000):
+    for x in xrange(10):
         test_data = {"name": choice(["orders", "posts", "comments"]), "value": choice([2, 1]),
                      "timestamp": datetime.utcnow(),
                      "filters": {"status": ["Completed", "Test"]}}

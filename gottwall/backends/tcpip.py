@@ -53,6 +53,7 @@ class TCPIPBackend(TCPServer, BaseBackend):
         host = server.backend_settings.get('HOST', "127.0.0.1")
 
         server.listen(str(port), host)
+
         logger.info("GottWall TCP/IP transport listen {host}:{port}".format(port=port, host=host))
         return server
 
@@ -64,19 +65,18 @@ class TCPIPBackend(TCPServer, BaseBackend):
         """
         self.add_connection(Connection(self, stream, address))
 
-        #stream.read_until(b"--chunk--", self.callback)
-        #stream.read_until_close(self.callback)
-        #stream.close()
-
     def add_connection(self, conn):
-        print("Add connection {0}".format(conn.uid))
         self.connections[conn.uid] = conn
 
     def remove_connection(self, conn):
-        print("Remove connection {0}".format(conn.uid))
         del self.connections[conn.uid]
 
     def _handle_connection(self, connection, address):
+        """Callback called on new connection
+
+        :param connection: socket instance
+        :param address: address pair
+        """
         try:
             stream = IOStream(connection, io_loop=self.io_loop, max_buffer_size=self.max_buffer_size)
             self.handle_stream(stream, address)
@@ -90,7 +90,6 @@ class Connection(AuthMixin, DataProcessorMixin):
         self.stream = stream
         self.address = address
         self.backend = backend
-        #self.stream.set_close_callback(self.close_callback)
         self.uid = uuid.uuid4().hex
         self.application = backend.application
         self.config = self.application.config
@@ -115,7 +114,7 @@ class Connection(AuthMixin, DataProcessorMixin):
         """
         header = auth_header[:len(auth_header) - len(self.auth_delimiter)]
 
-        if not self.check_gottwall_auth(header):
+        if not self.check_gottwall_auth_s2(header):
             self.auth_failed()
             return
 
@@ -124,15 +123,13 @@ class Connection(AuthMixin, DataProcessorMixin):
             self.close_callback, self.streaming_callback, self.chunk_delimiter)
 
     def close_callback(self, *args, **kwargs):
-        #print("Close")
-        #print((args, kwargs))
         self.backend.remove_connection(self)
 
     def streaming_callback(self, chunk):
         if not self.project:
             return self.auth_failed()
 
-        chunks = chunk.split("--chunk--")
+        chunks = chunk.split(self.chunk_delimiter)
 
         for chunk in chunks:
             if not chunk:
@@ -141,22 +138,3 @@ class Connection(AuthMixin, DataProcessorMixin):
             data = self.parse_data(chunk)
             self.backend.count += 1
             self.process_data(data['p'], data['a'], data)
-
-    def check_gottwall_auth(self, header):
-        """Check client authentication
-
-        :param header: authentication header string
-        """
-        header = extract_if_startswith(header, "GottWallS2")
-
-        if not header:
-            return False
-
-        try:
-            ts, sign, base, project = header.split()
-            if self.check_sign(project, sign, ts, base):
-                self.project = project
-                return True
-        except Exception as e:
-            return True
-        return False

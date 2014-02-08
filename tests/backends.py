@@ -40,15 +40,43 @@ class TCPBackendTestCase(AsyncBaseTestCase):
         return self.app
 
 
+    def test_backend(self):
+        print("Test TCP backend")
+
+
+class UDPBackendTestCase(AsyncBaseTestCase):
+
+    def get_app(self):
+        config = Config()
+        config.from_module(gottwall.default_config)
+
+        config.update({"BACKENDS": {"gottwall.backends.udp.UDPBackend": {
+            "PORT": get_unused_port()}},
+            "STORAGE": "gottwall.storages.MemoryStorage",
+            "PROJECTS": {"test_project": "secretkey"},
+            "PRIVATE_KEY": "myprivatekey"})
+
+        self.app = AggregatorApplication(config)
+        self.app.configure_app(self.io_loop)
+
+        return self.app
+
+
+    def test_backend(self):
+        print("Test UDP backend")
+
 
 class HTTPBackendTestCase(AsyncHTTPBaseTestCase):
 
     def get_app(self):
         config = Config()
         config.from_module(gottwall.default_config)
-        config.update({"BACKENDS": {"gottwall.backends.http.HTTPBackend": {"PORT": get_unused_port()}},
-                       "PROJECTS": {"test_project": "secretkey"},
-                       "SECRET_KEY": "myprivatekey"})
+        config.update({"BACKENDS": {
+            "gottwall.backends.http.HTTPBackend": {
+                "PORT": get_unused_port()}
+            },
+            "PROJECTS": {"test_project": "secretkey"},
+            "SECRET_KEY": "myprivatekey"})
         self.app = AggregatorApplication(config)
         self.app.configure_app(self.io_loop)
 

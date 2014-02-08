@@ -187,7 +187,6 @@ class memo_decorator(base_memo_decorator):
         return (self.func.__module__, self.func.func_name,
                 args, None)
 
-
 class Cache(dict):
     __slots__ = ()
 
