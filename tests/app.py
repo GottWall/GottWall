@@ -20,6 +20,7 @@ from gottwall.aggregator import AggregatorApplication
 from gottwall.processing import PeriodicProcessor
 from gottwall.utils.tests import async_test
 from gottwall.utils.tests import AsyncBaseTestCase
+from tornado.testing import get_unused_port
 
 
 class ProcessorTestCase(AsyncBaseTestCase):
@@ -27,7 +28,10 @@ class ProcessorTestCase(AsyncBaseTestCase):
     def get_app(self):
         config = Config()
         config.from_module(gottwall.default_config)
-        config.update({"TASKS_CHUNK": 15})
+        config.update({"TASKS_CHUNK": 15,
+                       "BACKENDS": {"gottwall.backends.tcpip.TCPIPBackend": {
+                           "PORT": get_unused_port()}}})
+
         app = AggregatorApplication(config)
         app.configure_app(tornado.ioloop.IOLoop().instance())
         return app
@@ -50,22 +54,25 @@ class ProcessorTestCase(AsyncBaseTestCase):
         self.assertTrue(isinstance(processor, PeriodicProcessor))
         self.assertEquals(processor._deque_chunk_len, 15)
 
+        res = []
+
+        def add_res(*args, **kwargs):
+            res.append((args, kwargs))
+
+
         # Add messages
         for x in xrange(20):
-            app.add_task(*self.get_message(x))
+            app.add_task(add_res, "arg{0}".format(x), params={"key": "value{0}".format(x)})
 
         self.assertEquals(len(app.tasks), 20)
-
         processor.callback()
 
         self.assertEquals(len(app.tasks), 5)
-
         processor.callback()
 
         self.assertEquals(len(app.tasks), 0)
 
+
         self.stop()
 
-        for x in xrange(20):
-            self.assertTrue("processor_metric_{0}".format(x) in
-                            app.storage._store["test_processor_project"])
+        self.assertEqual(len(res), 20)

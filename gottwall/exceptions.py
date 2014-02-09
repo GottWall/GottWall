@@ -17,3 +17,6 @@ class InvalidData(Exception):
 
 class InvalidParams(Exception):
     pass
+
+class NotMemoizedError(Exception):
+    """Exception raise for non cached data"""

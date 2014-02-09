@@ -118,16 +118,12 @@ class Start(Command):
     parent = Aggregator
 
     options = [
-        Option("-p", "--port", metavar=int, default=8890,
-               help="Port to run http server"),
         Option("-r", "--reload", action="store_true",dest="reload", default=False,
                help="Auto realod source on changes"),
-        Option("-h", "--host", metavar="str", default="127.0.0.1",
-               help="Port for server"),
         Option("-l", "--logging", metavar="str", default="none",
                help="Log level")]
 
-    def run(self, port, reload, host, logging, **kwargs):
+    def run(self, reload,  logging, **kwargs):
         config = self._commandor_res
 
         if not config:
@@ -141,14 +137,9 @@ class Start(Command):
 
         self.application.configure_app(ioloop)
 
-        self.http_server = httpserver.HTTPServer(self.application)
-        self.http_server.listen(str(port), host)
-
         if reload:
             self.display("Autoreload enabled")
             autoreload.start(io_loop=ioloop, check_time=100)
-
-        self.display("Aggregator running on {0}:{1}".format(host, port))
 
         # Init signals handler
         signal.signal(signal.SIGTERM, self.sig_handler)
@@ -167,8 +158,7 @@ class Start(Command):
         """Stop server and add callback to stop i/o loop"""
         self.display("Shutting down service")
         self.application.shutdown()
-        self.http_server.stop()
-        self.application.check_ready_to_stop(self.application)
+        self.application.check_ready_to_stop()
 
 
 class Server(Command):

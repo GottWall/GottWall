@@ -5,13 +5,19 @@ STORAGE = 'gottwall.storages.MemoryStorage'
 
 # Need to install gottwall_backend_redis package
 BACKENDS = {
-    'gw_backend_redis.backend.RedisBackend': {
-        'HOST': "127.0.0.1",
-        'PORT': 6379,
-        'PASSWORD': None,
-        'DB': 2,
-        "CHANNEL": "gottwall"},
-    'gottwall.backends.tcpip.TCPIPBackend': {}
+    'gottwall.backends.http.HTTPBackend': {
+        "HOST": "0.0.0.0",
+        "PORT": "8890"
+    },
+    'gottwall.backends.tcpip.TCPIPBackend': {
+        "HOST": "127.0.0.1",
+        "PORT": "8897",
+        "PROCESSOR_CALLBACK_TIME": 1000
+        },
+    'gottwall.backends.udp.UDPBackend': {
+        "HOST": "127.0.0.1",
+        "PORT": "8898"
+        }
     }
 
 TEMPLATE_DEBUG = True
@@ -28,11 +34,10 @@ REDIS = {"CHANNEL": "gottwall"}
 
 USERS = ["sergeevvv@gmail.com", "alexandr.s.rus@gmail.com"]
 
-SECRET_KEY = "dwefwefwefwecwef"
+SECRET_KEY = "secret_key"
 
 # http://public_key:secret_key@host.com
-
-PROJECTS = {"test_project": "my_public_key",
+PROJECTS = {"test_project": "public_key",
             "another_project": "public_key2"}
 
 cookie_secret="fkewrlhfwhrfweiurbweuybfrweoubfrowebfioubweoiufbwbeofbowebfbwup2XdTP1o/Vo="
@@ -49,3 +54,8 @@ DATABASE = {
     "NAME": "gottwall"
     }
 PREFIX = ""
+
+STATUS_PROCESSOR_TIME = 5000
+PERIODIC_PROCESSOR_TIME = 1
+
+LOG_REQUEST = False

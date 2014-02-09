@@ -44,25 +44,30 @@ or ``pip``::
 After installation you can execute command in console ``gottwall -h``, it's show gottwall manager
 documentation.
 
+Installation storage backend
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can use different storages to save you data. We recommend to use ``gottwall-storage-redis``::
+
+  easy_install -U gottwall-storage-redis
+
+or via ``pip``::
+
+  pip install gottwall-storage-redis
+
 
 Configuration
 -------------
 
 Now you’ll need to create the default configuration.
 
-Copy ``examples/config.py`` to your location (as example ~/.gottwall/gottwall.conf.py.)
+Execute ``gottwall init config.py ~/.gottwall/gottwall.conf.py`` or  ``examples/config.py`` to your location (as example ~/.gottwall/gottwall.conf.py.)
 
 .. code-block:: python
 
-   STORAGE = 'gottwall.storages.RedisStorage'
+   STORAGE = 'gw_storage_redis.storage.RedisStorage'
 
    BACKENDS = {
-      'gottwall.backends.redis.RedisBackend': {
-      'HOST': "127.0.0.1",
-      'PORT': 6379,
-      'PASSWORD': None,
-      'DB': 2,
-      'CHANNEL': 'gottwall'},
     }
 
    TEMPLATE_DEBUG = True
@@ -108,4 +113,3 @@ Starting aggregator
 ^^^^^^^^^^^^^^^^^^^
 
 To run aggregator application execute command: ``gottwall --config="examples/config.py" aggregator start``
-
