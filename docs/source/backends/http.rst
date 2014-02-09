@@ -37,7 +37,19 @@ X-GottWall-Auth
 
 Значение авторизационного заголовка имеет следующий формат::
 
-  X-GottWall-Auth: GottWall private_key=hash1, public_key=hash1
+  X-GottWall-Auth: GottWallS1 {timestamp} {hmac_key} {base} {project}
+
+где:
+
+- {timestamp} - unix timestamp в секундах по UTC;
+- {hmac_key} результать расчета хэша по формуле::
+
+	solt = int(round(timestamp / base) * base)
+	sign_msg = {public_key}{solt}
+	hmac(key=private_key, msg=sign_msg, digestmode=md5).hexdigest
+
+- {base} округление временной метки
+- {project} название проекта (может сделать хэшем?)
 
 Basic
 ^^^^^
@@ -56,6 +68,7 @@ Data format
   {"n": "metric_name", # metric name
    "ts": timestamp, # utc timestamp in seconds
    "v": 2 # value,
+   "p": "test", #project name
    "f": {"filter_name1": ["value1", "value2"] # dict of filters
    }}
 
