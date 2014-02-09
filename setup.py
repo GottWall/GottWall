@@ -40,9 +40,6 @@ is_py2 = (py_ver[0] == 2)
 #: Python 3.x?
 is_py3 = (py_ver[0] == 3)
 
-tests_require = [
-    'nose',
-    'mock==1.0.1']
 
 install_requires = [
     "tornado>=3.2.0",
@@ -50,10 +47,17 @@ install_requires = [
     "commandor==0.1.6",
     "SQLAlchemy==0.7.9",
     "alembic==0.4.0",
-    "Jinja2==2.6"]
+    "Jinja2==2.6",
+    "fast_utils==0.0.6",
+    "ujson==1.33"]
 
 if not (is_py3 or (is_py2 and py_ver[1] >= 7)):
     install_requires.append("importlib==1.0.2")
+
+tests_require = [
+    'nose',
+    'mock==1.0.1'] + install_requires
+
 
 PACKAGE_DATA = []
 PROJECT = 'gottwall'

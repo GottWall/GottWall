@@ -19,4 +19,4 @@ If you're developing a client for your platform, there's several things we highl
 
 * It should contain an acceptable level of documentation and tests.
 
-* The client should be properly packaged, and named stati-<platform>.
+* The client should be properly packaged, and named stati-<lang>-<transport-name>.

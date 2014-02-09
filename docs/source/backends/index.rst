@@ -6,11 +6,11 @@ GottWall supports several backends in core package.
 
 The following transport are supported current GottWall servers:
 
-- ``gottwall.backends.redis.RedisBackends`` - redis transport backends
+- ``gottwall.backends.tcpip.TCPIPBackend`` [:ref:`backends/tcpip`] - TCP/IP transport backend (built in);
 
-- ``gottwall.backends.tcpip.TCPIPBackend`` - TCP/IP transport backend
+- ``gottwall.backends.udp.UDPBackend`` [:ref:`backends/udp`] - UDP transport backend (build in);
 
-- ``gottwall.backends.http.HTTPBackend`` - default transport backends
+- ``gottwall.backends.http.HTTPBackend`` [:ref:`backends/http] - default transport backend (build in) with `stati.HTTPClient <http://github.com/GottWall/stati-python-net>`_ client.
 
 
 Backend development
@@ -37,3 +37,7 @@ Custom backend must override methods: ``setup_backend``
 
 Third party transport backends
 ------------------------------
+
+- ``gw_backend_redis.RedisBackend`` - `redis transport backend <http://github.com/GottWall/gottwall-backend-redis>`_ with `stati-python-redis <http://github.com/GottWall/stati-python-redis>`_ client.
+
+- ``gw_backend_amqp.AMQPBackend`` - ``AMQP transport backend <http://github.com/GottWall/gottwall-backend-amqp>`_ (TODO)

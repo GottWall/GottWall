@@ -6,3 +6,5 @@ ipdb
 pycallgraph
 pyprof2calltree==1.1.0
 plop
+line_profiler==1.0b3
+profilehooks==1.7

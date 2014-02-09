@@ -12,20 +12,16 @@ Unittests for gottwall
 """
 import datetime
 import json
-import os
-import random
 from base64 import b64encode
-
-import tornado.gen
-from tornado import ioloop
 
 import gottwall.default_config
 from gottwall.aggregator import AggregatorApplication
 from gottwall.config import Config
-from gottwall.utils.tests import async_test, AsyncBaseTestCase, AsyncHTTPBaseTestCase
+from gottwall.utils.tests import AsyncBaseTestCase, AsyncHTTPBaseTestCase
 
-
-HOST = os.environ.get('GOTTWALL_REDIS_HOST', "10.8.9.8")
+from tornado.testing import get_unused_port
+from .base import make_sign
+import time
 
 
 class TCPBackendTestCase(AsyncBaseTestCase):
@@ -33,15 +29,41 @@ class TCPBackendTestCase(AsyncBaseTestCase):
         config = Config()
         config.from_module(gottwall.default_config)
 
-        config.update({"BACKENDS": {"gottwall.backends.tcpip.TCPIPBackend": {}},
-                       "STORAGE": "gottwall.storages.MemoryStorage",
-                                 "PROJECTS": {"test_project": "secretkey"},
-                                 "PRIVATE_KEY": "myprivatekey"})
+        config.update({"BACKENDS": {"gottwall.backends.tcpip.TCPIPBackend": {
+            "PORT": get_unused_port()}},
+            "STORAGE": "gottwall.storages.MemoryStorage",
+            "PROJECTS": {"test_project": "secretkey"},
+            "PRIVATE_KEY": "myprivatekey"})
         self.app = AggregatorApplication(config)
         self.app.configure_app(self.io_loop)
 
         return self.app
 
+
+    def test_backend(self):
+        print("Test TCP backend")
+
+
+class UDPBackendTestCase(AsyncBaseTestCase):
+
+    def get_app(self):
+        config = Config()
+        config.from_module(gottwall.default_config)
+
+        config.update({"BACKENDS": {"gottwall.backends.udp.UDPBackend": {
+            "PORT": get_unused_port()}},
+            "STORAGE": "gottwall.storages.MemoryStorage",
+            "PROJECTS": {"test_project": "secretkey"},
+            "PRIVATE_KEY": "myprivatekey"})
+
+        self.app = AggregatorApplication(config)
+        self.app.configure_app(self.io_loop)
+
+        return self.app
+
+
+    def test_backend(self):
+        print("Test UDP backend")
 
 
 class HTTPBackendTestCase(AsyncHTTPBaseTestCase):
@@ -49,11 +71,15 @@ class HTTPBackendTestCase(AsyncHTTPBaseTestCase):
     def get_app(self):
         config = Config()
         config.from_module(gottwall.default_config)
-        config.update({"BACKENDS": [],
-                       "PROJECTS": {"test_project": "secretkey"},
-                       "SECRET_KEY": "myprivatekey"})
+        config.update({"BACKENDS": {
+            "gottwall.backends.http.HTTPBackend": {
+                "PORT": get_unused_port()}
+            },
+            "PROJECTS": {"test_project": "secretkey"},
+            "SECRET_KEY": "myprivatekey"})
         self.app = AggregatorApplication(config)
         self.app.configure_app(self.io_loop)
+
         return self.app
 
     def test_handler(self):
@@ -88,14 +114,16 @@ class HTTPBackendTestCase(AsyncHTTPBaseTestCase):
 
         self.assertEquals(response.code, 404)
 
-        auth_value = "GottWall private_key={0}, public_key={1}".format(
-            app.config['SECRET_KEY'],
-            app.config['PROJECTS']['test_project'])
+        ts = int(time.mktime(datetime.datetime.utcnow().timetuple()))
+        auth_value = "GottWallS1 {0} {1} {2}".format(
+            ts, make_sign(ts, app.config['SECRET_KEY'],
+                          app.config['PROJECTS']['test_project'], 1000), 1000)
 
         response = self.fetch("/gottwall/api/v1/test_project/incr", method="POST",
                               body=json.dumps(metric_data),
                               headers={"content-type": "application/json",
                                        "X-GottWall-Auth": auth_value})
+
 
         self.assertEquals(response.body, "OK")
         self.assertEquals(response.code, 200)
@@ -111,7 +139,8 @@ class HTTPBackendTestCase(AsyncHTTPBaseTestCase):
         response = self.fetch("/gottwall/api/v1/test_project/incr", method="POST",
                               body=json.dumps(metric_data),
                               headers={"content-type": "application/json",
-                                       "Authorization": b64encode(authorization)})
+                                       "Authorization": "Basic " + b64encode(authorization)})
+
 
         self.assertEquals(response.body, "OK")
         self.assertEquals(response.code, 200)

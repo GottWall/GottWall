@@ -47,8 +47,9 @@ DATABASE = {
 PREFIX = '/gottwall'
 
 # Run every minute
-PERIODIC_PROCESSOR_TIME = 350
+PERIODIC_PROCESSOR_TIME = 10
 STATUS_PROCESSOR_TIME = 1000 * 30 * 2
+TASKS_CHUNK = 1000
 
 cookie_secret = 'cookie_secret'
 
@@ -90,3 +91,5 @@ TEMPLATE_DEBUG = False
 TEMPLATE_DEBUG_RELOAD = False
 
 HOME_AUTOREDIRECT = False
+
+LOG_REQUEST = True

@@ -14,7 +14,7 @@ Unittests for gottwall
 import unittest
 
 from config import ConfigTestCase
-from backends import TCPBackendTestCase, HTTPBackendTestCase
+from backends import TCPBackendTestCase, HTTPBackendTestCase, UDPBackendTestCase
 from api import APITestCase
 from storages import (StorageTestCase, MemoryStorageTestCase)
 from utils import UtilsTestCase
@@ -23,9 +23,12 @@ from app import ProcessorTestCase
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(ConfigTestCase))
     suite.addTest(unittest.makeSuite(TCPBackendTestCase))
+    suite.addTest(unittest.makeSuite(UDPBackendTestCase))
     suite.addTest(unittest.makeSuite(HTTPBackendTestCase))
+
+    suite.addTest(unittest.makeSuite(ConfigTestCase))
+
     suite.addTest(unittest.makeSuite(APITestCase))
     suite.addTest(unittest.makeSuite(StorageTestCase))
     suite.addTest(unittest.makeSuite(MemoryStorageTestCase))
