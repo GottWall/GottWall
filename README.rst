@@ -131,7 +131,7 @@ Available transport backends with clients
 The following transport available:
 
 - `Redis transport backend <http://github.com/GottWall/gottwall-backend-redis>`_ with `stati-python-redis <http://github.com/GottWall/stati-python-redis>`_ client.
-- TCP/IP transport backend (builtin) with `stati.TCPIP<http://github.com/GottWall/stati-python-net>`_ client.
+- TCP/IP transport backend (builtin) with `stati.TCPIPClient <http://github.com/GottWall/stati-python-net>`_ client.
 - UDP transport backend (builtin) with `stati.UDPClient <http://github.com/GottWall/stati-python-net>`_ client.
 - HTTP transport backend (builtin) with `stati.HTTPClient <http://github.com/GottWall/stati-python-net>`_ client
 
@@ -143,8 +143,10 @@ Available clients
 
 The following clients are officially recognized as production-ready, and support the current GottWall protocol:
 
-- `stati-http-python <http://github.com/GottWall/stati-python-net>`_ with json http transport.
-- `stati-redis-python <http://github.com/GottWall/stati-python-redis>`_ with redis transport.
+* Python:
+
+  - `stati-python-net <http://github.com/GottWall/stati-python-net>`_ with json http transport.
+  - `stati-python-redis <http://github.com/GottWall/stati-python-redis>`_ with redis transport.
 
 
 CONTRIBUTE
