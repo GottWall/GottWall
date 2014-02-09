@@ -28,7 +28,7 @@ from utils import pretty_timedelta, Cache
 logger = getLogger()
 
 
-class AggregatorApplication(Application):
+class AggregatorApplication(object):
     """Base application
     """
 
@@ -37,14 +37,10 @@ class AggregatorApplication(Application):
         self.data_processor = None
         self.status_processor = None
         self.tasks = Tasks()
-
         self.backends = []
-
         self.start_time = time.time()
-
         self.cache = Cache()
 
-        tornado.web.Application.__init__(self, [], **config)
 
     def configure_app(self, io_loop=None):
         """Configure application backends and storages
