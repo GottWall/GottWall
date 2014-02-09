@@ -135,7 +135,7 @@ for x in xrange(10):
                      "timestamp": datetime.utcnow(),
                      "filters": {"status": ["Completed", "Test"]}})
 
-time.sleep(10)
+#time.sleep(10)
 
 print("finished")
 print("bad_requests{0}".format(bad_requests))

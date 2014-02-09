@@ -77,13 +77,15 @@ class HTTPBackendTestCase(AsyncHTTPBaseTestCase):
             },
             "PROJECTS": {"test_project": "secretkey"},
             "SECRET_KEY": "myprivatekey"})
-        self.app = AggregatorApplication(config)
-        self.app.configure_app(self.io_loop)
 
-        return self.app
+        self.aggregator = AggregatorApplication(config)
+        self.aggregator.configure_app(self.io_loop)
+
+        return self.aggregator.backends[0].web_application
 
     def test_handler(self):
         app = self.get_app()
+        aggregator = self.aggregator
 
         metric_data = {"name": "my_metric_name",
                        "timestamp": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S"),
@@ -93,11 +95,11 @@ class HTTPBackendTestCase(AsyncHTTPBaseTestCase):
                        "value": 2}
 
         auth_value = "GottWall private_key={0}, public_key={1}".format(
-            app.config['SECRET_KEY'],
-            app.config['PROJECTS']['test_project'])
+            aggregator.config['SECRET_KEY'],
+            aggregator.config['PROJECTS']['test_project'])
 
-        authorization = "{0}:{1}".format(app.config['PROJECTS']['test_project'],
-                                         app.config['SECRET_KEY'])
+        authorization = "{0}:{1}".format(aggregator.config['PROJECTS']['test_project'],
+                                         aggregator.config['SECRET_KEY'])
 
 
         response = self.fetch("/gottwall/api/v1/test_projfewfweect/incr", method="POST",
@@ -116,8 +118,8 @@ class HTTPBackendTestCase(AsyncHTTPBaseTestCase):
 
         ts = int(time.mktime(datetime.datetime.utcnow().timetuple()))
         auth_value = "GottWallS1 {0} {1} {2}".format(
-            ts, make_sign(ts, app.config['SECRET_KEY'],
-                          app.config['PROJECTS']['test_project'], 1000), 1000)
+            ts, make_sign(ts, aggregator.config['SECRET_KEY'],
+                          aggregator.config['PROJECTS']['test_project'], 1000), 1000)
 
         response = self.fetch("/gottwall/api/v1/test_project/incr", method="POST",
                               body=json.dumps(metric_data),

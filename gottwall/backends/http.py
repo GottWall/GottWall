@@ -22,65 +22,77 @@ from fast_utils.fstring import extract_if_startswith
 from gottwall.backends.base import BaseBackend
 from gottwall.handlers import SERVER_NAME
 from tornado import httpserver, httputil
-from tornado.web import HTTPError, URLSpec, RequestHandler
+from tornado.web import HTTPError, URLSpec, RequestHandler, Application
 from gottwall.utils import memo_decorator
 from fast_utils.cache import memo
 
 logger = getLogger("gottwall.backends.http")
 
 
+class HTTPBackendApplication(Application):
+
+
+    def __init__(self, config, aggregator, backend):
+
+        dirty_handlers = [
+            # Default HTTP backend
+            (r"{0}/api/v1/(?P<project>.+)/(?P<action>.+)".format(config['PREFIX']),
+             HTTPBackendHandler,
+             {"config": config,
+              "app": self,
+              "aggregator": aggregator,
+             "backend": backend},
+            'api-v1-store')]
+
+        tornado.web.Application.__init__(
+            self, [URLSpec(*x) for x in dirty_handlers], **config)
+
 class HTTPBackend(httpserver.HTTPServer, BaseBackend):
 
-    def __init__(self, application, io_loop, config, storage, tasks, *args, **kwargs):
+    def __init__(self, aggregator, io_loop, config, storage, tasks, *args, **kwargs):
         self.io_loop = io_loop
         self.config = config
         self.storage = storage
         self.tasks = tasks
-        self.application = application
+        self.aggregator = aggregator
         self.working = True
         self.current_in_progress = 0
         self.count = 0
-        super(HTTPBackend, self).__init__(application, *args, **kwargs)
+        self.web_application = self.get_application()
+        self.request_callback = self.web_application
+
+        super(HTTPBackend, self).__init__(self.web_application, *args, **kwargs)
+
+    def get_application(self):
+        return HTTPBackendApplication(self.config, self.aggregator, self)
 
     @classmethod
-    def setup_backend(cls, application, io_loop, config, storage, tasks):
+    def setup_backend(cls, aggregator, io_loop, config, storage, tasks):
         """Install backend to ioloop
 
         :param ioloop: :class:`tornadoweb.ioloop.IOLoop` instance
         :param config: :class:`~gottwall.config.Config` instance
         """
-        server = cls(application, io_loop, config, storage, tasks)
+
+        server = cls(aggregator, io_loop, config, storage, tasks)
 
         port = server.backend_settings.get('PORT', "8890")
         host = server.backend_settings.get('HOST', "127.0.0.1")
-        server.add_handlers(application)
+
         server.listen(str(port), host)
+
         logger.info("GottWall HTTP transport listen {host}:{port}".format(port=port, host=host))
-
         return server
-
-    def add_handlers(self, application):
-        """Add handlers to application
-
-        :param application: application instance
-        """
-        dirty_handlers = [
-            # Default HTTP backend
-            (r"{0}/api/v1/(?P<project>.+)/(?P<action>.+)".format(self.config['PREFIX']),
-             HTTPBackendHandler, {"config": application.config, "app": application, "backend": self}, 'api-v1-store')]
-
-        application.add_handlers(".*$", [URLSpec(*x) for x in dirty_handlers])
 
 
 class HTTPBackendHandler(BaseBackend, RequestHandler):
 
 
+    def initialize(self, config, app, backend, aggregator):
 
-    #100000    0.540    0.000   12.415    0.000 gottwall/handlers.py:52(__init__)
-
-    def initialize(self, config, app, backend):
         self.config = config
         self.application = app
+        self.aggregator = aggregator
         self.current_in_progress = 0
         self.working = True
         self.backend = backend
@@ -170,11 +182,11 @@ class HTTPBackendHandler(BaseBackend, RequestHandler):
     def process_data(self, project, action, data, callback=None):
         """Process `data`
         """
-        self.application.add_task(self.application.process_data, project, action, data, callback)
+        self.aggregator.add_task(self.aggregator.process_data, project, action, data, callback)
 
     @tornado.web.asynchronous
     def post(self, project, action, *args, **kwargs):
-        self.storage = self.application.storage
+        self.storage = self.aggregator.storage
 
         if not self.validate_project(project):
             raise HTTPError(404, "Invalid project")
@@ -247,7 +259,7 @@ class HTTPBackendHandler(BaseBackend, RequestHandler):
     def check_sign(self, project, sign, ts, base):
         private_key = self.config['SECRET_KEY']
 
-        return sign == self.application.cache(self.get_hash,
+        return sign == self.aggregator.cache(self.get_hash,
             private_key, self.get_sign_msg(project, ts, base))
 
     def get_sign_solt(self, ts, base):
@@ -259,37 +271,3 @@ class HTTPBackendHandler(BaseBackend, RequestHandler):
     def get_hash(self, private_key, sign_msg):
         return hmac.new(key=private_key, msg=sign_msg,
                         digestmod=hashlib.md5).hexdigest()
-
-
-
-
-
-## Success: 99773
-## Fail: 227
-## Bad response: 0
-## real    1m29.215s
-## user    0m22.173s
-## sys     0m14.561s
-
-## Success: 99904
-## Fail: 96
-## Bad response: 0
-## real    1m27.141s
-## user    0m21.861s
-## sys     0m13.885s
-
-## Success: 100000
-## Fail: 0
-## Bad response: 0
-## real    1m23.592s
-## user    0m20.525s
-## sys     0m13.365s
-
-
-## success: 100000
-## Fail: 0
-## Bad response: 0
-
-## real    1m23.567s
-## user    0m25.054s
-## sys     0m9.909s
