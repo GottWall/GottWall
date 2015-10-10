@@ -120,7 +120,7 @@ Available storages
 Storages that store metrics:
 
 - Memory storage (for tests only)
-- `Redis storage <http://github.com/GottWall/gottwall-storage-redis>`_ (fast for counters increment, but time complexity O(N) for data range select)
+- `Redis storage <http://github.com/GottWall/gottwall-storage-redis>`_ (fast for counters increment, but not effective for data range select)
 - TODO: `mongodb <http://github.com/GottWall/gottwall-storage-mongodb>`_ (We need your help).
 - TODO: SQL
 
